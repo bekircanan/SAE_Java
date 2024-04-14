@@ -26,16 +26,16 @@ public class Graphe {
         g.setStrict(false);
         g.setAutoCreate( true );
         
-        try ( Scanner scan = new Scanner(new File("DataTest\\graph-test0.txt"))) {
+        try ( Scanner scan = new Scanner(new File(nomFichier))) {
             g.addAttribute("kMax",scan.next());
             sommets=scan.nextInt();
-            //scan.useDelimiter(" ");
+            
             while(scan.hasNext()){
                 arete1 = scan.next();
                 arete2= scan.next();
                 g.addEdge(arete1+"-"+arete2, arete1, arete2);
             }
-                
+            
             for(Node n:g){
                 n.setAttribute("ui.style", "size:20px;");
                 n.setAttribute("ui.label", n.getId());
