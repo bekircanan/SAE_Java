@@ -1,0 +1,77 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package construction;
+
+import java.io.FileNotFoundException;
+import static java.lang.Math.PI;
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+import java.util.Scanner;
+
+/**
+ *
+ * @author bekir
+ */
+public class Aeroport {
+    private String codeAero;
+    private String lieu;
+    private double latitude;
+    private double longitude;
+    private double x;
+    private double y;
+    
+    public Aeroport(Scanner scan) throws FileNotFoundException{
+            String[] parts =  scan.nextLine().split(";");
+            if (parts.length == 10) { 
+                this.codeAero = parts[0];
+                this.lieu=parts[1];
+                this.latitude=0;
+                this.longitude=0;
+                if(parts[5].equals("N") ||parts[5].equals("E")){
+                    this.latitude=1*(Double.parseDouble(parts[2])+Double.parseDouble(parts[3])/60+Double.parseDouble(parts[4])/3600);
+                }else{
+                    this.latitude=-1*(Double.parseDouble(parts[2])+Double.parseDouble(parts[3])/60+Double.parseDouble(parts[4])/3600);
+                }
+                if(parts[9].equals("N") ||parts[9].equals("E")){
+                    this.longitude=1*(Double.parseDouble(parts[6])+Double.parseDouble(parts[7])/60+Double.parseDouble(parts[8])/3600);
+                }else{
+                    this.longitude=-1*(Double.parseDouble(parts[6])+Double.parseDouble(parts[7])/60+Double.parseDouble(parts[8])/3600);
+                }
+                this.x=6371*cos(this.latitude*PI/180)*sin(this.longitude*PI/180);
+                this.y=6371*cos(this.latitude*PI/180)*cos(this.longitude*PI/180);
+            }
+    }
+
+    public String getCodeAero() {
+        return codeAero;
+    }
+
+    public String getLieu() {
+        return lieu;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+    
+    
+    
+    @Override
+    public String toString(){
+        return this.codeAero+";"+this.lieu+"; "+this.latitude+" ; "+this.longitude+" ; "+this.x+" ; "+this.y;
+    }
+}
