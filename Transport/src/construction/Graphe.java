@@ -7,16 +7,14 @@ package construction;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
 import java.util.Scanner;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
 
-/**
- *
- * @author bekir
- */
+
 public class Graphe {
      static int sommets;
     public static Graph chargerGraphe(String nomFichier) throws FileNotFoundException, IOException{
@@ -45,5 +43,17 @@ public class Graphe {
             }
         }
         return g;
+    }
+    public static void setAeroport(List<Aeroport> port){
+        Graph g = new SingleGraph("Aerien france");
+        for(Aeroport a:port){
+            Node n=g.addNode(a.getCodeAero());
+            n.setAttribute("xy", a.getX(),a.getY());
+            g.setAttribute("ui.label", a.getCodeAero());
+            System.out.println(a.getCodeAero() +" == "+a.getX()+";"+a.getY());
+        }
+        
+        g.display();
+        
     }
 }

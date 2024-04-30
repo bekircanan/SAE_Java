@@ -2,7 +2,7 @@ package application;
 
 import construction.Aeroport;
 import construction.Algos;
-import construction.Graphe.*;
+import construction.Graphe;
 import construction.Vols;
 import static construction.Vols.intersectent;
 import java.awt.geom.Point2D;
@@ -18,17 +18,12 @@ import org.graphstream.graph.Graph;
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
  */
 
-/**
- *
- * @author bekir
- */
 public class Aerien {
 
     /**
-     * @param args the command line arguments
      * @throws java.io.IOException
      */
-    public static void main(String[] args) throws IOException{
+    public static void main() throws IOException{
         List<Aeroport> port = new ArrayList<>();
         List<Vols> vol = new ArrayList<>();
         try (Scanner scan = new Scanner(new File("DataTest\\aeroports.txt"))) {
@@ -36,6 +31,7 @@ public class Aerien {
                 port.add(new Aeroport(scan));
             }
         }
+        Graphe.setAeroport(port);
         try (Scanner scan = new Scanner(new File("DataTest\\vol-test0.csv"))) {
             while (scan.hasNextLine()) {
                 vol.add(new Vols(scan));
@@ -44,8 +40,7 @@ public class Aerien {
         for(Vols v:vol){
             System.out.println(v);
         }
-        Point2D.Double inter = intersectent(vol.getFirst(),vol.getLast(),port);
-            System.out.println(inter);
+        // Point2D.Double inter = intersectent(vol.getFirst(),vol.getLast(),port); System.out.println(inter);
         /*
         Scanner scan = new Scanner(System.in);
         System.out.println("entrez l'emplacement des fichiers(sans .txt)");

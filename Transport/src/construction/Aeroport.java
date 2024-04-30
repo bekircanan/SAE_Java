@@ -5,20 +5,16 @@
 package construction;
 
 import java.io.FileNotFoundException;
-import static java.lang.Math.PI;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 import java.util.Scanner;
 
-/**
- *
- * @author bekir
- */
+
 public class Aeroport {
     private String codeAero;
     private String lieu;
-    private double latitude;
-    private double longitude;
+    private float latitude;
+    private float longitude;
     private double x;
     private double y;
     
@@ -30,17 +26,17 @@ public class Aeroport {
                 this.latitude=0;
                 this.longitude=0;
                 if(parts[5].equals("N") ||parts[5].equals("E")){
-                    this.latitude=1*(Double.parseDouble(parts[2])+Double.parseDouble(parts[3])/60+Double.parseDouble(parts[4])/3600);
+                    this.latitude=1*(Float.parseFloat(parts[2])+Float.parseFloat(parts[3])/60+Float.parseFloat(parts[4])/3600);
                 }else{
-                    this.latitude=-1*(Double.parseDouble(parts[2])+Double.parseDouble(parts[3])/60+Double.parseDouble(parts[4])/3600);
+                    this.latitude=-1*(Float.parseFloat(parts[2])+Float.parseFloat(parts[3])/60+Float.parseFloat(parts[4])/3600);
                 }
                 if(parts[9].equals("N") ||parts[9].equals("E")){
-                    this.longitude=1*(Double.parseDouble(parts[6])+Double.parseDouble(parts[7])/60+Double.parseDouble(parts[8])/3600);
+                    this.longitude=1*(Float.parseFloat(parts[6])+(Float.parseFloat(parts[7])/60)+Float.parseFloat(parts[8])/3600);
                 }else{
-                    this.longitude=-1*(Double.parseDouble(parts[6])+Double.parseDouble(parts[7])/60+Double.parseDouble(parts[8])/3600);
+                    this.longitude=-1*(Float.parseFloat(parts[6])+(Float.parseFloat(parts[7])/60)+Float.parseFloat(parts[8])/3600);
                 }
-                this.x=6371*cos(this.latitude*PI/180)*sin(this.longitude*PI/180);
-                this.y=6371*cos(this.latitude*PI/180)*cos(this.longitude*PI/180);
+                this.x = (6371*cos(Math.toRadians(this.latitude))*sin(Math.toRadians(this.longitude)));
+                this.y = (6371*cos(Math.toRadians(this.latitude))*cos(Math.toRadians(this.longitude)));
             }
     }
 
@@ -52,11 +48,11 @@ public class Aeroport {
         return lieu;
     }
 
-    public double getLatitude() {
+    public float getLatitude() {
         return latitude;
     }
 
-    public double getLongitude() {
+    public float getLongitude() {
         return longitude;
     }
 
@@ -67,7 +63,6 @@ public class Aeroport {
     public double getY() {
         return y;
     }
-    
     
     
     @Override

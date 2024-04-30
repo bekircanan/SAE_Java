@@ -8,10 +8,7 @@ import java.awt.geom.Point2D;
 import java.util.List;
 import java.util.Scanner;
 
-/**
- *
- * @author bekir
- */
+
 public class Vols {
     private String codeVol;
     private String depart;
