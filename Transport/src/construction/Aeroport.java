@@ -5,9 +5,11 @@
 package construction;
 
 import java.io.FileNotFoundException;
-import static java.lang.Math.cos;
-import static java.lang.Math.sin;
+import java.util.List;
 import java.util.Scanner;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
+import org.graphstream.graph.implementations.SingleGraph;
 
 
 public class Aeroport {
@@ -19,25 +21,43 @@ public class Aeroport {
     private double y;
     
     public Aeroport(Scanner scan) throws FileNotFoundException{
-            String[] parts =  scan.nextLine().split(";");
-            if (parts.length == 10) { 
+            String[] parts = scan.nextLine().split(";");
+            if (parts.length == 10) {
                 this.codeAero = parts[0];
-                this.lieu=parts[1];
-                this.latitude=0;
-                this.longitude=0;
-                if(parts[5].equals("N") ||parts[5].equals("E")){
-                    this.latitude=1*(Float.parseFloat(parts[2])+Float.parseFloat(parts[3])/60+Float.parseFloat(parts[4])/3600);
-                }else{
-                    this.latitude=-1*(Float.parseFloat(parts[2])+Float.parseFloat(parts[3])/60+Float.parseFloat(parts[4])/3600);
+                this.lieu = parts[1];
+
+                float latDeg = Float.parseFloat(parts[2]);
+                float latMin = Float.parseFloat(parts[3]);
+                float latSec = Float.parseFloat(parts[4]);
+                this.latitude = latDeg + latMin / 60 + latSec / 3600;
+                if (parts[5].equals("S")||parts[5].equals("O")) {
+                    this.latitude *= -1;
                 }
-                if(parts[9].equals("N") ||parts[9].equals("E")){
-                    this.longitude=1*(Float.parseFloat(parts[6])+(Float.parseFloat(parts[7])/60)+Float.parseFloat(parts[8])/3600);
-                }else{
-                    this.longitude=-1*(Float.parseFloat(parts[6])+(Float.parseFloat(parts[7])/60)+Float.parseFloat(parts[8])/3600);
+
+                float lonDeg = Float.parseFloat(parts[6]);
+                float lonMin = Float.parseFloat(parts[7]);
+                float lonSec = Float.parseFloat(parts[8]);
+                this.longitude = lonDeg + lonMin / 60 + lonSec / 3600;
+                if (parts[9].equals("S") || parts[9].equals("O")) {
+                    this.longitude *= -1;
                 }
-                this.x = (6371*cos(Math.toRadians(this.latitude))*sin(Math.toRadians(this.longitude)));
-                this.y = (6371*cos(Math.toRadians(this.latitude))*cos(Math.toRadians(this.longitude)));
+
+                double R = 6371;
+                this.x = R * Math.cos(Math.toRadians(this.latitude)) * Math.sin(Math.toRadians(this.longitude));
+                this.y = R * Math.cos(Math.toRadians(this.latitude)) * Math.cos(Math.toRadians(this.longitude));
             }
+    }
+    
+    public static Graph setAeroport(List<Aeroport> port){
+        Graph g = new SingleGraph("Aerien france");
+        for(Aeroport a:port){
+            Node n=g.addNode(a.getCodeAero());
+            n.setAttribute("x", a.getX());
+            n.setAttribute("y", -a.getY());
+            n.setAttribute("label", a.getCodeAero());
+            n.setAttribute("ui-label", a.getCodeAero());
+        }
+        return g;
     }
 
     public String getCodeAero() {
