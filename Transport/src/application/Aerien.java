@@ -6,7 +6,6 @@ import static construction.Algos.*;
 import construction.Graphe;
 import construction.Vols;
 import static construction.Vols.helpVol;
-import static construction.Vols.setVols;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -44,6 +43,7 @@ public class Aerien {
             try(Scanner scan = new Scanner(System.in)){
                 choix=scan.nextInt();
                 String chiffre;
+                int choix2;
                 switch(choix){
                     case 1 :
                         setAeroport(port);
@@ -61,8 +61,8 @@ public class Aerien {
                                 vol.add(new Vols(scanVol));
                             }
                         }
-                        //helpVol(vol,port,setAeroport(port));
-                        setVols(vol,port);
+                        helpVol(vol,port,setAeroport(port));
+                        Vols.setVols(vol,port);
                         System.out.print(": fait");
                         break;
                     case 3 :
@@ -78,7 +78,12 @@ public class Aerien {
                         System.out.println("| inscrire le numero 3 pour l'algo de distance");
                         System.out.println("----------------------------------------------------------");
                         System.out.print(": ");
-                        switch(choix){
+                        try(BufferedReader read = new BufferedReader(new InputStreamReader(System.in))){
+                            System.out.println("entrer un nombre.(entre 0 et 19)");
+                            System.out.print(": ");
+                            choix2 = Integer.parseInt(read.readLine());
+                        }
+                        switch(choix2){
                             case 1 :
                                 Domination(g);
                                 break;

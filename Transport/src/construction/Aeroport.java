@@ -9,14 +9,14 @@ import java.util.List;
 import java.util.Scanner;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import org.graphstream.graph.implementations.SingleGraph;
+import org.graphstream.graph.implementations.MultiGraph;
 
 
 public class Aeroport {
     private String codeAero;
     private String lieu;
-    private float latitude;
-    private float longitude;
+    private double latitude;
+    private double longitude;
     private double x;
     private double y;
     
@@ -26,17 +26,17 @@ public class Aeroport {
                 this.codeAero = parts[0];
                 this.lieu = parts[1];
 
-                float latDeg = Float.parseFloat(parts[2]);
-                float latMin = Float.parseFloat(parts[3]);
-                float latSec = Float.parseFloat(parts[4]);
+                double latDeg = Float.parseFloat(parts[2]);
+                double latMin = Float.parseFloat(parts[3]);
+                double latSec = Float.parseFloat(parts[4]);
                 this.latitude = latDeg + latMin / 60 + latSec / 3600;
                 if (parts[5].equals("S")||parts[5].equals("O")) {
                     this.latitude *= -1;
                 }
 
-                float lonDeg = Float.parseFloat(parts[6]);
-                float lonMin = Float.parseFloat(parts[7]);
-                float lonSec = Float.parseFloat(parts[8]);
+                double lonDeg = Float.parseFloat(parts[6]);
+                double lonMin = Float.parseFloat(parts[7]);
+                double lonSec = Float.parseFloat(parts[8]);
                 this.longitude = lonDeg + lonMin / 60 + lonSec / 3600;
                 if (parts[9].equals("S") || parts[9].equals("O")) {
                     this.longitude *= -1;
@@ -49,7 +49,7 @@ public class Aeroport {
     }
     
     public static Graph setAeroport(List<Aeroport> port){
-        Graph g = new SingleGraph("Aerien france");
+        Graph g = new MultiGraph("Aerien france");
         for(Aeroport a:port){
             Node n=g.addNode(a.getCodeAero());
             n.setAttribute("x", a.getX());
@@ -68,11 +68,11 @@ public class Aeroport {
         return lieu;
     }
 
-    public float getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public float getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 
