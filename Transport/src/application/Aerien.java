@@ -46,7 +46,8 @@ public class Aerien {
                 int choix2;
                 switch(choix){
                     case 1 :
-                        setAeroport(port);
+                        Graph g=setAeroport(port);
+                        g.display();
                         System.out.print(": fait");
                         break;
                     case 2 :
@@ -66,37 +67,37 @@ public class Aerien {
                         System.out.print(": fait");
                         break;
                     case 3 :
-                        try(BufferedReader scanGraph = new BufferedReader(new InputStreamReader(System.in))){
-                            System.out.println("entrer un nombre.(entre 0 et 19)");
+                        Graph gcolor;
+                        try(Scanner scanFile = new Scanner(System.in)){
+                            System.out.println("Entrer un nombre(entre 0 et 9).");
                             System.out.print(": ");
-                            chiffre = scanGraph.readLine();
-                        }
-                        Graph g = Graphe.chargerGraphe("DataTest\\graph-test"+chiffre+".txt");
+                            choix2 = scanFile.nextInt();
+                        gcolor = Graphe.chargerGraphe("DataTest\\graph-test"+choix2+".txt");
                         System.out.println("----------------------------------------------------------");
-                        System.out.println("| ecrire le numero 1 pour le coloration de Domination");
-                        System.out.println("| ecrire le numero 2 pour le coloration de Gloutonne");
-                        System.out.println("| inscrire le numero 3 pour l'algo de distance");
+                        System.out.println("| ecrire le numero 1 pour le coloration de Gloutonne");
+                        System.out.println("| ecrire le numero 2 pour l'algo de distance");
+                        System.out.println("| ecrire le numero 3 pour la coloration de welshPowell");
                         System.out.println("----------------------------------------------------------");
                         System.out.print(": ");
-                        try(BufferedReader read = new BufferedReader(new InputStreamReader(System.in))){
-                            System.out.println("entrer un nombre.(entre 0 et 19)");
+                            System.out.println("entrer un nombre.");
                             System.out.print(": ");
-                            choix2 = Integer.parseInt(read.readLine());
+                            choix2 = scanFile.nextInt();
                         }
                         switch(choix2){
                             case 1 :
-                                Domination(g);
+                                Gloutonne(gcolor);
+                                colorierGraphe(gcolor,"couleur");
                                 break;
                             case 2 :
-                                Gloutonne(g);
-                                colorierGraphe(g,"couleur");
+                                distance(gcolor,gcolor.getNode(0));
+                                etiqueterDistances(gcolor);
                                 break;
                             case 3 :
-                                distance(g,g.getNode(0));
-                                etiqueterDistances(g);
+                                welshPowell(gcolor);
                                 break;
+                                
                         }
-                        g.display();
+                        gcolor.display();
                         System.out.print(": fait");
                         break;
                     case 0 :
@@ -104,6 +105,7 @@ public class Aerien {
                         break;
                 }
             }
+            
     }
 }
 

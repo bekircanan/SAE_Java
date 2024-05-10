@@ -4,6 +4,7 @@
  */
 package construction;
 
+import construction.Aeroport;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.List;
@@ -13,8 +14,8 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.ui.swingViewer.Viewer;
 import org.graphstream.algorithm.ConnectedComponents;
-import org.graphstream.algorithm.Toolkit;
 import static org.graphstream.algorithm.Toolkit.diameter;
+import org.graphstream.graph.implementations.DefaultGraph;
 import org.graphstream.graph.implementations.MultiGraph;
 
 
@@ -93,7 +94,7 @@ public class Vols {
     }
     
     public static void setVols(List<Vols> vols, List<Aeroport> port){
-        Graph g=new MultiGraph("Vols");
+        Graph g=new DefaultGraph("Vols");
         g.setStrict(false);
         collision(vols,port,g);
         System.out.println("nbNoeuds :"+g.getNodeCount());
@@ -134,19 +135,22 @@ public class Vols {
             return false;
         }
         if(inter.x==0 && inter.y==0){
-            int departureTime1=v1.getHeure() * 60+ v1.getMin();
-            int departureTime2=v2.getHeure()* 60+ v2.getMin();
-            int arrivalTime1=departureTime1+v1.getDuree();
-            int arrivalTime2=departureTime2+v2.getDuree();
+            double departureTime1=v1.getHeure() * 60+ v1.getMin();
+            double departureTime2=v2.getHeure()* 60+ v2.getMin();
+            double arrivalTime1=departureTime1+v1.getDuree();
+            double arrivalTime2=departureTime2+v2.getDuree();
             if(((arrivalTime1 >= departureTime2 && arrivalTime1 <= arrivalTime2) || 
             (arrivalTime2 >= departureTime1 && arrivalTime2 <= arrivalTime1))){
+                System.out.println("valide");
+                System.out.println("colinaries :"+v1.depart+" -- "+(v1.getHeure() +" : "+ v1.getMin())+"\n"+v2.depart+" -- "+(v2.getHeure()+" : "+ v2.getMin()));
+                System.out.println("colinaries :"+v1.arrive+" -- "+ v1.getDuree()+"\n"+v2.arrive+" -- "+v2.getDuree());
+                System.out.println();
                 return true;
                 
             }
-                System.out.println("----------------------------------------------------");
-                System.out.println("colinaries :"+v1.depart+" -- "+(v1.getHeure() +" : "+ v1.getMin())+"\n"+v2.depart+" -- "+(v2.getHeure()+" : "+ v2.getMin()));
-                System.out.println("colinaries :"+v1.arrive+" -- "+ v1.getDuree()+"\n"+v2.arrive+" -- "+v2.getDuree());
-                System.out.println("----------------------------------------------------");
+            System.out.println("colinaries :"+v1.depart+" -- "+(v1.getHeure() +" : "+ v1.getMin())+"\n"+v2.depart+" -- "+(v2.getHeure()+" : "+ v2.getMin()));
+            System.out.println("colinaries :"+v1.arrive+" -- "+ v1.getDuree()+"\n"+v2.arrive+" -- "+v2.getDuree());
+            System.out.println();
             return false;
         }
         double distanceVol1 = Point.distance(v1.departaero.getX(), v1.departaero.getY(), v1.arriveaero.getX(), v1.arriveaero.getY());
@@ -154,8 +158,11 @@ public class Vols {
         double timeVol1 =   (v1.getHeure() * 60 + v1.getMin()) + (Point.distance(v1.departaero.getX(), v1.departaero.getY(), inter.x, inter.y) / distanceVol1 * v1.getDuree());
         double timeVol2 = (v2.getHeure() * 60 + v2.getMin()) + (Point.distance(v2.departaero.getX(), v2.departaero.getY(), inter.x, inter.y) / distanceVol2 * v2.getDuree());
         
-            System.out.println("----------------------------------------------------");
-            System.out.println(v1.departaero.getX()+" ; "+v1.departaero.getY()+"\n"+v1.arriveaero.getX()+" ; "+v1.arriveaero.getY()+"\n"+v2.departaero.getX()+" ; "+v2.departaero.getY()+"\n"+v2.arriveaero.getX()+" ; "+v2.arriveaero.getY()+"\n"+inter + " " +v1.getDepart()+"|"+v1.getArrive()+ " et "+v2.getDepart()+"|"+v2.getArrive()+" \n" +timeVol1+" et  "+timeVol2+" = "+Math.abs(timeVol1-timeVol2));
+        
+            //System.out.println(v1.departaero.getX()+" ; "+v1.departaero.getY()+"\n"+v1.arriveaero.getX()+" ; "+v1.arriveaero.getY()+"\n"+v2.departaero.getX()+" ; "+v2.departaero.getY()+"\n"+v2.arriveaero.getX()+" ; "+v2.arriveaero.getY()+"\n"+inter + " " +v1.getDepart()+"|"+v1.getArrive()+ " et "+v2.getDepart()+"|"+v2.getArrive()+" \n" +timeVol1+" et  "+timeVol2+" = "+Math.abs(timeVol1-timeVol2));
+            //System.out.println();
+        
+            
         
         return Math.abs(timeVol1-timeVol2) < 15;
     }
@@ -211,7 +218,7 @@ public class Vols {
             double y = y1 + u * ABy;
             return new Point2D.Double(x, y);
         }else{
-            return null;
+          return null;
         }
     }
 
