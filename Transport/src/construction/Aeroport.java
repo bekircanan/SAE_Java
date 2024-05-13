@@ -19,7 +19,8 @@
         private double longitude;
         private double x;
         private double y;
-
+        
+        
         public Aeroport(Scanner scan) throws FileNotFoundException{
                 String[] parts = scan.nextLine().split(";");
                 if (parts.length == 10) {
@@ -43,8 +44,8 @@
                     }
 
                     double R = 6371;
-                    this.x = R * Math.cos(Math.toRadians(this.latitude)) * Math.sin(Math.toRadians(this.longitude));
-                    this.y = R * Math.cos(Math.toRadians(this.latitude)) * Math.cos(Math.toRadians(this.longitude));
+                    this.x = Math.round((R * Math.cos(Math.toRadians(this.latitude)) * Math.sin(Math.toRadians(this.longitude)))*1000000.0)/1000000.0;
+                    this.y = Math.round((R * Math.cos(Math.toRadians(this.latitude)) * Math.cos(Math.toRadians(this.longitude)))*100000.0)/100000.0;
                 }
         }
 

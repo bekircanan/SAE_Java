@@ -11,6 +11,7 @@ import org.graphstream.graph.Node;
 public class Algos {
     
     public static void Gloutonne(Graph graph) {
+        int color=0;
         int maxColors = graph.getNodeCount();
         for (Node n : graph) {
             n.addAttribute("couleur", 0);
@@ -20,18 +21,20 @@ public class Algos {
             Iterator<Node> it = node.getNeighborNodeIterator();
             while (it.hasNext()) {
                 Node neighbor = it.next();
-                int color = neighbor.getAttribute("couleur");
+                 color = neighbor.getAttribute("couleur");
                 if (color >= 1 && color <= maxColors) {
                     couleursUtilisees[color] = true;
                 }
             }
             
-            int color = 1;
+             color = 1;
             while (couleursUtilisees[color]) {
                 color++;
             }
+            
             node.setAttribute("couleur", color);
         }
+        System.out.println(color);
     }
     
     public static void colorierGraphe(Graph g, String attribut) {

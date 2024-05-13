@@ -121,9 +121,7 @@ public class Vols {
                     Edge e=g.addEdge(vols.get(i).getCodeVol()+" - "+ vols.get(j).getCodeVol(), vols.get(i).getCodeVol(), vols.get(j).getCodeVol());
                     e.setAttribute("label",Integer.toString(cpt));
                     e.setAttribute("ui-label", Integer.toString(cpt));
-                    System.out.println(cpt);
                     cpt++;
-                    System.out.println("----------------------------------------------------");
                 }
             }
         }
@@ -139,30 +137,14 @@ public class Vols {
             double departureTime2=v2.getHeure()* 60+ v2.getMin();
             double arrivalTime1=departureTime1+v1.getDuree();
             double arrivalTime2=departureTime2+v2.getDuree();
-            if(((arrivalTime1 >= departureTime2 && arrivalTime1 <= arrivalTime2) || 
-            (arrivalTime2 >= departureTime1 && arrivalTime2 <= arrivalTime1))){
-                System.out.println("valide");
-                System.out.println("colinaries :"+v1.depart+" -- "+(v1.getHeure() +" : "+ v1.getMin())+"\n"+v2.depart+" -- "+(v2.getHeure()+" : "+ v2.getMin()));
-                System.out.println("colinaries :"+v1.arrive+" -- "+ v1.getDuree()+"\n"+v2.arrive+" -- "+v2.getDuree());
-                System.out.println();
-                return true;
-                
-            }
-            System.out.println("colinaries :"+v1.depart+" -- "+(v1.getHeure() +" : "+ v1.getMin())+"\n"+v2.depart+" -- "+(v2.getHeure()+" : "+ v2.getMin()));
-            System.out.println("colinaries :"+v1.arrive+" -- "+ v1.getDuree()+"\n"+v2.arrive+" -- "+v2.getDuree());
-            System.out.println();
-            return false;
+            return ((arrivalTime1 >= departureTime2 && arrivalTime1 <= arrivalTime2) || 
+                    (arrivalTime2 >= departureTime1 && arrivalTime2 <= arrivalTime1));
         }
+        double timeVol1,timeVol2;
         double distanceVol1 = Point.distance(v1.departaero.getX(), v1.departaero.getY(), v1.arriveaero.getX(), v1.arriveaero.getY());
         double distanceVol2 = Point.distance(v2.departaero.getX(), v2.departaero.getY(), v2.arriveaero.getX(), v2.arriveaero.getY());
-        double timeVol1 =   (v1.getHeure() * 60 + v1.getMin()) + (Point.distance(v1.departaero.getX(), v1.departaero.getY(), inter.x, inter.y) / distanceVol1 * v1.getDuree());
-        double timeVol2 = (v2.getHeure() * 60 + v2.getMin()) + (Point.distance(v2.departaero.getX(), v2.departaero.getY(), inter.x, inter.y) / distanceVol2 * v2.getDuree());
-        
-        
-            //System.out.println(v1.departaero.getX()+" ; "+v1.departaero.getY()+"\n"+v1.arriveaero.getX()+" ; "+v1.arriveaero.getY()+"\n"+v2.departaero.getX()+" ; "+v2.departaero.getY()+"\n"+v2.arriveaero.getX()+" ; "+v2.arriveaero.getY()+"\n"+inter + " " +v1.getDepart()+"|"+v1.getArrive()+ " et "+v2.getDepart()+"|"+v2.getArrive()+" \n" +timeVol1+" et  "+timeVol2+" = "+Math.abs(timeVol1-timeVol2));
-            //System.out.println();
-        
-            
+        timeVol1 = (v1.getHeure() * 60 + v1.getMin()) + (Point.distance(v1.departaero.getX(), v1.departaero.getY(), inter.x, inter.y) / distanceVol1 * v1.getDuree());
+        timeVol2 = (v2.getHeure() * 60 + v2.getMin()) + (Point.distance(v2.departaero.getX(), v2.departaero.getY(), inter.x, inter.y) / distanceVol2 * v2.getDuree());
         
         return Math.abs(timeVol1-timeVol2) < 15;
     }
@@ -204,6 +186,7 @@ public class Vols {
         double denominator = ABx * CDy - ABy * CDx;
         double numerA = (x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3);
         double numerB = (x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3);
+        
         if (denominator == 0) {
             if((ABy/ABx)==(CDy/CDx)){
                 return new Point2D.Double(0,0);
@@ -213,12 +196,14 @@ public class Vols {
         double u = numerA / denominator;
         double v = numerB / denominator;
         
-        if (u >= 0 && u <= 1 && v >= 0 && v <= 1) {
-            double x = x1 + u * ABx;
-            double y = y1 + u * ABy;
+        
+        if (u >= 0 && u <= 1+0.00001 && v >= 0 && v <= 1+0.00001) {
+            double x = Math.round((x1 + u * ABx)*1000000.0)/1000000.0;
+            double y = Math.round((y1 + u * ABy)*100000.0)/100000.0;
+            
             return new Point2D.Double(x, y);
         }else{
-          return null;
+            return null;
         }
     }
 

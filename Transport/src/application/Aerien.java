@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import org.graphstream.graph.Graph;
+import org.graphstream.ui.swingViewer.Viewer;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -62,7 +63,7 @@ public class Aerien {
                                 vol.add(new Vols(scanVol));
                             }
                         }
-                        helpVol(vol,port,setAeroport(port));
+                        //helpVol(vol,port,setAeroport(port));
                         Vols.setVols(vol,port);
                         System.out.print(": fait");
                         break;
@@ -97,7 +98,10 @@ public class Aerien {
                                 break;
                                 
                         }
-                        gcolor.display();
+                        Viewer viewer = gcolor.display();
+                        gcolor.setAttribute("ui.quality");
+                        gcolor.setAttribute("ui.antialias");
+                        viewer.enableAutoLayout();
                         System.out.print(": fait");
                         break;
                     case 0 :
