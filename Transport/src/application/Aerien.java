@@ -4,8 +4,8 @@ import construction.Aeroport;
 import static construction.Aeroport.setAeroport;
 import static construction.Algos.*;
 import construction.Graphe;
+import static construction.Intersection.setVolsAeroport;
 import construction.Vols;
-import static construction.Vols.helpVol;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -15,11 +15,18 @@ import java.util.List;
 import java.util.Scanner;
 import org.graphstream.graph.Graph;
 import org.graphstream.ui.swingViewer.Viewer;
+import static construction.Intersection.setVolsCollision;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
  */
+
+/**
+ *
+ * @author bekir
+ */
+
 
 public class Aerien {
 
@@ -63,21 +70,21 @@ public class Aerien {
                                 vol.add(new Vols(scanVol));
                             }
                         }
-                        //helpVol(vol,port,setAeroport(port));
-                        Vols.setVols(vol,port);
+                        setVolsAeroport(vol,port,setAeroport(port));
+                        setVolsCollision(vol,port);
                         System.out.print(": fait");
                         break;
                     case 3 :
                         Graph gcolor;
                         try(Scanner scanFile = new Scanner(System.in)){
-                            System.out.println("Entrer un nombre(entre 0 et 9).");
+                            System.out.println("Entrer un nombre(entre 0 et 19).");
                             System.out.print(": ");
                             choix2 = scanFile.nextInt();
                         gcolor = Graphe.chargerGraphe("DataTest\\graph-test"+choix2+".txt");
                         System.out.println("----------------------------------------------------------");
-                        System.out.println("| ecrire le numero 1 pour le coloration de Gloutonne");
-                        System.out.println("| ecrire le numero 2 pour l'algo de distance");
-                        System.out.println("| ecrire le numero 3 pour la coloration de welshPowell");
+                        System.out.println("| ecrire le numero 1 pour l'algo de coloration de Gloutonne");
+                        System.out.println("| ecrire le numero 2 pour l'algo de coloration de welshPowell");
+                        System.out.println("| ecrire le numero 3 pour l'ago de coloration(largestFirstColoring)");
                         System.out.println("----------------------------------------------------------");
                         System.out.print(": ");
                             System.out.println("entrer un nombre.");
@@ -90,11 +97,10 @@ public class Aerien {
                                 colorierGraphe(gcolor,"couleur");
                                 break;
                             case 2 :
-                                distance(gcolor,gcolor.getNode(0));
-                                etiqueterDistances(gcolor);
+                                welshPowell(gcolor);
                                 break;
                             case 3 :
-                                welshPowell(gcolor);
+                                largestFirstColoring(gcolor);
                                 break;
                                 
                         }

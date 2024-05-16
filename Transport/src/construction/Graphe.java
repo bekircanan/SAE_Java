@@ -13,9 +13,20 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
 
-
+/**
+ *
+ * @author bekir
+ */
 public class Graphe {
      static int sommets;
+
+    /**
+     *
+     * @param nomFichier
+     * @return
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
     public static Graph chargerGraphe(String nomFichier) throws FileNotFoundException, IOException{
         Graph g = new SingleGraph("Chaine");
         String arete1,arete2;

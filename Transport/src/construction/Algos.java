@@ -2,21 +2,34 @@ package construction;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.graphstream.algorithm.coloring.WelshPowell;
+import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
+/**
+ *
+ * @author bekir
+ */
 public class Algos {
     
-    public static void Gloutonne(Graph graph) {
+    /**
+     *
+     * @param g
+     */
+    public static void Gloutonne(Graph g) {
         int color=0;
-        int maxColors = graph.getNodeCount();
-        for (Node n : graph) {
+        int maxColors = g.getNodeCount();
+        for (Node n : g) {
             n.addAttribute("couleur", 0);
         }
-        for (Node node : graph) {
+        for (Node node : g) {
             boolean[] couleursUtilisees = new boolean[maxColors+1];
             Iterator<Node> it = node.getNeighborNodeIterator();
             while (it.hasNext()) {
@@ -34,9 +47,14 @@ public class Algos {
             
             node.setAttribute("couleur", color);
         }
-        System.out.println(color);
+        System.out.println("The chromatic number of this graph is : "+color+" where kMax is : "+g.getAttribute("kMax"));
     }
     
+    /**
+     *
+     * @param g
+     * @param attribut
+     */
     public static void colorierGraphe(Graph g, String attribut) {
         int max = g.getNodeCount();
         Color[] cols = new Color[max + 1];
@@ -44,16 +62,20 @@ public class Algos {
             cols[i] = Color.getHSBColor((float) (Math.random()), 0.8f, 0.9f);
         }
         for(Node n : g){ 
-               int col = (int) n.getNumber("couleur");
+               int col = (int) n.getNumber(attribut);
                n.setAttribute("ui.style", "fill-color:rgba("+cols[col].getRed()+","+cols[col].getGreen()+","+cols[col].getBlue()+",200);" );
         }
     }
     
+    /**
+     *
+     * @param g
+     */
     public static void welshPowell(Graph g){
         WelshPowell wp=new WelshPowell("color");
         wp.init(g);
         wp.compute();
-        System.out.println("The chromatic number of this graph is : "+wp.getChromaticNumber());
+        System.out.println("The chromatic number of this graph is : "+wp.getChromaticNumber()+" where kMax is : "+g.getAttribute("kMax"));
         Color[] cols = new Color[wp.getChromaticNumber()];
         for(int i=0;i< wp.getChromaticNumber();i++){
                cols[i]=Color.getHSBColor((float) (Math.random()), 0.8f, 0.9f);
@@ -62,39 +84,39 @@ public class Algos {
                int col = (int) n.getNumber("color");
                n.setAttribute("ui.style", "fill-color:rgba("+cols[col].getRed()+","+cols[col].getGreen()+","+cols[col].getBlue()+",200);" );
         }
-    } 
-    
-    public static void distance(Graph g, Node s) {
-        for (Node n : g) {
-            if (!n.hasAttribute("distance")) {
-                n.addAttribute("distance", -1);
-            if (n==s)
-                s.setAttribute("distance", 0);
-            }
-        }
-        List<Node> liste=new ArrayList<>();
-        liste.add(s);
-        while (!liste.isEmpty()){
-            Node n=liste.get(0);
-            Iterator<Node> it = n.getNeighborNodeIterator();
-            while (it.hasNext()) {
-                Node voisin = it.next(); // voisin
-                if ((int) voisin.getAttribute("distance") == -1){
-                    voisin.setAttribute("distance",(int) n.getAttribute("distance") + 1);
-                    liste.add(voisin);
+    }
+     public static void largestFirstColoring(Graph g) {
+        // Sort nodes by degree in descending order
+        List<Node> nodes = new ArrayList<>(g.getNodeSet());
+        nodes.sort((n1, n2) -> Integer.compare(n2.getDegree(), n1.getDegree()));
+
+        // Map to store the color of each node
+        Map<Node, Integer> colorMap = new HashMap<>();
+        int k=0;
+
+        for (Node node : nodes) {
+            Set<Integer> usedColors = new HashSet<>();
+
+            // Collect colors of adjacent nodes
+            for (Edge edge : node.getEachEdge()) {
+                Node adjacent = edge.getOpposite(node);
+                if (colorMap.containsKey(adjacent)) {
+                    usedColors.add(colorMap.get(adjacent));
                 }
             }
-            liste.remove(n);
-        }
-    }
 
-    public static void etiqueterDistances(Graph g) {
-        for (Node n : g) {
-            n.setAttribute("ui.label", n.getAttribute("distance").toString());
-            n.setAttribute("ui.style", "text-mode: normal; "+ "text-style:bold; text-size:16; text-background-mode:plain;");
-            if ((int) n.getAttribute("distance") == 0) {
-                n.setAttribute("ui.style", "fill-color: red; "+ "size: 30px; text-style:bold; text-size:16;");
+            // Find the smallest available color
+            int nodeColor = 0;
+            while (usedColors.contains(nodeColor)) {
+                nodeColor++;
             }
+            k=Math.max(k,nodeColor);
+
+            // Assign the color to the node
+            colorMap.put(node, nodeColor);
+            node.setAttribute("color", nodeColor);
+            colorierGraphe(g,"color");
         }
+        System.out.println("The chromatic number of this graph is : "+k+" where kMax is : "+g.getAttribute("kMax"));
     }
 }

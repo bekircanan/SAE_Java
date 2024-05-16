@@ -11,8 +11,11 @@
     import org.graphstream.graph.Node;
     import org.graphstream.graph.implementations.MultiGraph;
 
-
-    public class Aeroport {
+/**
+ *
+ * @author bekir
+ */
+public class Aeroport {
         private String codeAero;
         private String lieu;
         private double latitude;
@@ -20,8 +23,12 @@
         private double x;
         private double y;
         
-        
-        public Aeroport(Scanner scan) throws FileNotFoundException{
+    /**
+     *
+     * @param scan
+     * @throws FileNotFoundException
+     */
+    public Aeroport(Scanner scan) throws FileNotFoundException{
                 String[] parts = scan.nextLine().split(";");
                 if (parts.length == 10) {
                     this.codeAero = parts[0];
@@ -49,7 +56,12 @@
                 }
         }
 
-        public static Graph setAeroport(List<Aeroport> port){
+    /**
+     *
+     * @param port
+     * @return
+     */
+    public static Graph setAeroport(List<Aeroport> port){
             Graph g = new MultiGraph("Aerien france");
             for(Aeroport a:port){
                 Node n=g.addNode(a.getCodeAero());
@@ -61,32 +73,59 @@
             return g;
         }
 
-        public String getCodeAero() {
+    /**
+     *
+     * @return
+     */
+    public String getCodeAero() {
             return codeAero;
         }
 
-        public String getLieu() {
+    /**
+     *
+     * @return
+     */
+    public String getLieu() {
             return lieu;
         }
 
-        public double getLatitude() {
+    /**
+     *
+     * @return
+     */
+    public double getLatitude() {
             return latitude;
         }
 
-        public double getLongitude() {
+    /**
+     *
+     * @return
+     */
+    public double getLongitude() {
             return longitude;
         }
 
-        public double getX() {
+    /**
+     *
+     * @return
+     */
+    public double getX() {
             return x;
         }
 
-        public double getY() {
+    /**
+     *
+     * @return
+     */
+    public double getY() {
             return y;
         }
 
-
-        @Override
+    /**
+     *
+     * @return
+     */
+    @Override
         public String toString(){
             return this.codeAero+";"+this.lieu+"; "+this.latitude+" ; "+this.longitude+" ; "+this.x+" ; "+this.y;
         }
