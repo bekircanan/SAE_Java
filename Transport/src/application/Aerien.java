@@ -33,7 +33,7 @@ public class Aerien {
     /**
      * @throws java.io.IOException
      */
-    public static void main() throws IOException{
+    public static void Aerien() throws IOException{
         List<Aeroport> port = new ArrayList<>();
         try (Scanner scanAero = new Scanner(new File("DataTest\\aeroports.txt"))) {
             while (scanAero.hasNextLine()) {
