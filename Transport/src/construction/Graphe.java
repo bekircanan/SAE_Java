@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package construction;
 
 import java.io.File;
@@ -14,18 +11,47 @@ import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
 
 /**
- *
- * @author bekir
+ * La classe {@code Graphe} représente un graphe construit à partir d'un fichier.
+ * Elle utilise la bibliothèque GraphStream pour créer et afficher le graphe.
+ * <p>
+ * La classe fournit une méthode statique {@code chargerGraphe} pour charger le graphe
+ * à partir d'un fichier où les sommets et les arêtes du graphe sont définis.
+ * </p>
+ * <p>
+ * Exemple d'utilisation :
+ * <pre>
+ * {@code
+ * Graph graph = Graphe.chargerGraphe("chemin/vers/fichier.txt");
+ * }
+ * </pre>
+ * </p>
+ * <p>
+ * Le fichier d'entrée doit avoir le format suivant :
+ * <ul>
+ * <li>La première ligne contient une chaîne représentant un attribut du graphe.</li>
+ * <li>La deuxième ligne contient un entier représentant le nombre de sommets.</li>
+ * <li>Chaque ligne suivante contient deux chaînes représentant les arêtes entre les sommets.</li>
+ * </ul>
+ * </p>
+ * <p>
+ * Les sommets et les arêtes sont automatiquement créés et stylisés en utilisant les attributs de GraphStream.
+ * </p>
+ * 
  */
 public class Graphe {
      static int sommets;
 
-    /**
-     *
-     * @param nomFichier
-     * @return
-     * @throws FileNotFoundException
-     * @throws IOException
+   /**
+     * Charge un graphe à partir d'un fichier.
+     * <p>
+     * La méthode lit le fichier pour créer un graphe où les sommets et les arêtes sont définis
+     * en fonction du contenu du fichier. Le graphe est créé en utilisant la bibliothèque GraphStream.
+     * </p>
+     * 
+     * @param nomFichier le nom du fichier contenant les données du graphe
+     * @return un objet Graph représentant le graphe défini dans le fichier
+     * @throws FileNotFoundException si le fichier est introuvable
+     * @throws IOException si une erreur d'E/S se produit
      */
     public static Graph chargerGraphe(String nomFichier) throws FileNotFoundException, IOException{
         Graph g = new SingleGraph("Chaine");

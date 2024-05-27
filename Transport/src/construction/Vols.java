@@ -1,13 +1,25 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package construction;
 import java.util.Scanner;
 
 /**
- *
- * @author bekir
+ * La classe {@code Vols} représente un vol avec des informations telles que le code du vol,
+ * l'aéroport de départ, l'aéroport d'arrivée, l'heure de départ, les minutes de départ et la durée du vol.
+ * <p>
+ * Exemple d'utilisation :
+ * <pre>
+ * {@code
+ * Scanner scan = new Scanner(new File("vols.txt"));
+ * Vols vol = new Vols(scan);
+ * }
+ * </pre>
+ * </p>
+ * <p>
+ * Le fichier d'entrée doit avoir le format suivant :
+ * <ul>
+ * <li>Chaque ligne contient les informations d'un vol séparées par des points-virgules.</li>
+ * </ul>
+ * </p>
+ * 
  */
 public class Vols {
     private String codeVol;
@@ -20,8 +32,12 @@ public class Vols {
     private Aeroport arriveaero;
     
     /**
-     *
-     * @param scan
+     * Constructeur de la classe {@code Vols}.
+     * <p>
+     * Initialise un objet {@code Vols} en lisant les informations depuis un {@code Scanner}.
+     * </p>
+     * 
+     * @param scan le scanner à partir duquel les informations du vol sont lues
      */
     public Vols(Scanner scan){
         String[] parts =  scan.nextLine().split(";");
@@ -36,89 +52,100 @@ public class Vols {
     }
 
     /**
-     *
-     * @return
+     * Retourne le code du vol.
+     * 
+     * @return le code du vol
      */
     public String getCodeVol() {
         return codeVol;
     }
 
     /**
-     *
-     * @return
+     * Retourne l'aéroport de départ.
+     * 
+     * @return l'aéroport de départ
      */
     public String getDepart() {
         return depart;
     }
 
     /**
-     *
-     * @return
+     * Retourne l'aéroport d'arrivée.
+     * 
+     * @return l'aéroport d'arrivée
      */
     public String getArrive() {
         return arrive;
     }
 
     /**
-     *
-     * @return
+     * Retourne l'heure de départ.
+     * 
+     * @return l'heure de départ
      */
     public int getHeure() {
         return heure;
     }
 
     /**
-     *
-     * @return
+     * Retourne les minutes de départ.
+     * 
+     * @return les minutes de départ
      */
     public int getMin() {
         return min;
     }
 
     /**
-     *
-     * @return
+     * Retourne la durée du vol.
+     * 
+     * @return la durée du vol
      */
     public int getDuree() {
         return duree;
     }
 
-    /**
-     *
-     * @return
+     /**
+     * Retourne l'aéroport de départ sous forme d'objet {@code Aeroport}.
+     * 
+     * @return l'aéroport de départ
      */
     public Aeroport getDepartaero() {
         return departaero;
     }
 
     /**
-     *
-     * @return
+     * Retourne l'aéroport d'arrivée sous forme d'objet {@code Aeroport}.
+     * 
+     * @return l'aéroport d'arrivée
      */
     public Aeroport getArriveaero() {
         return arriveaero;
     }
 
     /**
-     *
-     * @param departaero
+     * Définit l'aéroport de départ.
+     * 
+     * @param departaero l'aéroport de départ à définir
      */
     public void setDepartaero(Aeroport departaero) {
         this.departaero = departaero;
     }
 
     /**
-     *
-     * @param arriveaero
+     * Définit l'aéroport d'arrivée.
+     * 
+     * @param arriveaero l'aéroport d'arrivée à définir
      */
     public void setArriveaero(Aeroport arriveaero) {
         this.arriveaero = arriveaero;
     }
     
     /**
-     *
-     * @return
-     */
+    * Retourne une représentation sous forme de chaîne de l'objet {@code Vols}.
+    * 
+    * @return une chaîne représentant l'objet {@code Vols}
+    */
     @Override
     public String toString(){
         return this.codeVol+" ; "+this.depart+" ; "+this.arrive+" ; "+this.heure+" ; "+this.min+" ; "+this.duree;

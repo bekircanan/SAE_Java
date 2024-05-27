@@ -1,7 +1,4 @@
-    /*
-     * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
-     * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
-     */
+
     package construction;
 
     import java.io.FileNotFoundException;
@@ -12,8 +9,31 @@
     import org.graphstream.graph.implementations.MultiGraph;
 
 /**
- *
- * @author bekir
+ * La classe {@code Aeroport} représente un aéroport avec des informations telles que le code,
+ * le lieu, la latitude et la longitude. Elle permet également de créer un graphe des aéroports.
+ * <p>
+ * Cette classe utilise la bibliothèque GraphStream pour créer et afficher un graphe des aéroports.
+ * </p>
+ * <p>
+ * Exemple d'utilisation :
+ * <pre>
+ * {@code
+ * Scanner scan = new Scanner(new File("aeroport.txt"));
+ * Aeroport aeroport = new Aeroport(scan);
+ * }
+ * </pre>
+ * </p>
+ * <p>
+ * Le fichier d'entrée doit avoir le format suivant :
+ * <ul>
+ * <li>Chaque ligne contient les informations d'un aéroport séparées par des points-virgules.</li>
+ * </ul>
+ * </p>
+ * <p>
+ * Les informations comprennent le code de l'aéroport, le lieu, la latitude (degrés, minutes, secondes),
+ * la direction (N/S/E/O) et la longitude (degrés, minutes, secondes), et la direction (N/S/E/O).
+ * </p>
+ * 
  */
 public class Aeroport {
         private String codeAero;
@@ -24,9 +44,13 @@ public class Aeroport {
         private double y;
         
     /**
-     *
-     * @param scan
-     * @throws FileNotFoundException
+     * Constructeur de la classe {@code Aeroport}.
+     * <p>
+     * Initialise un objet {@code Aeroport} en lisant les informations depuis un {@code Scanner}.
+     * </p>
+     * 
+     * @param scan le scanner à partir duquel les informations de l'aéroport sont lues
+     * @throws FileNotFoundException si le fichier est introuvable
      */
     public Aeroport(Scanner scan) throws FileNotFoundException{
                 String[] parts = scan.nextLine().split(";");
@@ -57,9 +81,13 @@ public class Aeroport {
         }
 
     /**
-     *
-     * @param port
-     * @return
+     * Crée un graphe des aéroports.
+     * <p>
+     * La méthode lit une liste d'objets {@code Aeroport} pour créer un graphe où chaque aéroport est représenté par un nœud.
+     * </p>
+     * 
+     * @param port la liste des aéroports
+     * @return un objet {@code Graph} représentant le graphe des aéroports
      */
     public static Graph setAeroport(List<Aeroport> port){
             Graph g = new MultiGraph("Aerien france");
@@ -74,59 +102,66 @@ public class Aeroport {
         }
 
     /**
-     *
-     * @return
+     * Retourne le code de l'aéroport.
+     * 
+     * @return le code de l'aéroport
      */
     public String getCodeAero() {
             return codeAero;
         }
 
     /**
-     *
-     * @return
+     * Retourne le lieu de l'aéroport.
+     * 
+     * @return le lieu de l'aéroport
      */
     public String getLieu() {
             return lieu;
         }
 
     /**
-     *
-     * @return
+     * Retourne la latitude de l'aéroport.
+     * 
+     * @return la latitude de l'aéroport
      */
     public double getLatitude() {
             return latitude;
         }
 
     /**
-     *
-     * @return
+     * Retourne la longitude de l'aéroport.
+     * 
+     * @return la longitude de l'aéroport
      */
     public double getLongitude() {
             return longitude;
         }
 
     /**
-     *
-     * @return
+     * Retourne la coordonnée X de l'aéroport.
+     * 
+     * @return la coordonnée X de l'aéroport
      */
     public double getX() {
             return x;
         }
 
     /**
-     *
-     * @return
+     * Retourne la coordonnée Y de l'aéroport.
+     * 
+     * @return la coordonnée Y de l'aéroport
      */
     public double getY() {
             return y;
         }
 
     /**
-     *
-     * @return
+     * Retourne une représentation sous forme de chaîne de l'objet {@code Aeroport}.
+     * 
+     * @return une chaîne représentant l'objet {@code Aeroport}
      */
     @Override
-        public String toString(){
-            return this.codeAero+";"+this.lieu+"; "+this.latitude+" ; "+this.longitude+" ; "+this.x+" ; "+this.y;
+    public String toString(){
+        return this.codeAero+";"+this.lieu+"; "+this.latitude+" ; "+this.longitude+" ; "+this.x+" ; "+this.y;
         }
-    }
+}

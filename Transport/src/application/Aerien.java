@@ -70,7 +70,7 @@ public class Aerien {
                                 vol.add(new Vols(scanVol));
                             }
                         }
-                        setVolsAeroport(vol,port,setAeroport(port));
+                        //setVolsAeroport(vol,port,setAeroport(port));
                         setVolsCollision(vol,port);
                         System.out.print(": fait");
                         break;
@@ -94,7 +94,6 @@ public class Aerien {
                         switch(choix2){
                             case 1 :
                                 Gloutonne(gcolor);
-                                colorierGraphe(gcolor,"couleur");
                                 break;
                             case 2 :
                                 welshPowell(gcolor);
