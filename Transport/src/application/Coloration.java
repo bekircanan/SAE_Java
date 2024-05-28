@@ -67,10 +67,10 @@ public class Coloration extends JFrame {
 
             if (gcolor != null) {
                 org.graphstream.ui.swingViewer.Viewer viewer = gcolor.display();
-                gcolor.setAttribute("ui.quality");
-                gcolor.setAttribute("ui.antialias");
-                viewer.enableAutoLayout();
-                kMaxLabel.setText("kMax: " + gcolor.getAttribute("kMax"));
+                        gcolor.setAttribute("ui.quality");
+                        gcolor.setAttribute("ui.antialias");
+                        viewer.enableAutoLayout();
+                        kMaxLabel.setText("kMax: " + gcolor.getAttribute("kMax"));
             }
 
         } catch (NumberFormatException ex) {
