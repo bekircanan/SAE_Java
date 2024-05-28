@@ -14,10 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import org.graphstream.graph.Graph;
-
-import static construction.Intersection.setVolsCollision;
 import org.graphstream.ui.swingViewer.Viewer;
+import static construction.Intersection.setVolsCollision;
 
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
+ */
 
 /**
  *
@@ -30,7 +33,7 @@ public class Aerien {
     /**
      * @throws java.io.IOException
      */
-    public static void Aerien() throws IOException{
+    public static void main() throws IOException{
         List<Aeroport> port = new ArrayList<>();
         try (Scanner scanAero = new Scanner(new File("DataTest\\aeroports.txt"))) {
             while (scanAero.hasNextLine()) {
