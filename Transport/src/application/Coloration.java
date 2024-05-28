@@ -103,9 +103,7 @@ public class Coloration extends JFrame {
         cont.gridy = 1;
         controlPanel.add(kMaxLabel, cont);
         
-        cont.gridx = 0;
-        cont.gridy = 1;
-        controlPanel.add(kMaxLabel, cont);
+        
         
 
         cont.gridx = 1;
