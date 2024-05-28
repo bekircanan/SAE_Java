@@ -44,34 +44,37 @@ public class Algos {
      * </p>
      * 
      * @param g le graphe à colorier
+     * @return 
      */
-    public static void Gloutonne(Graph g) {
-        int color,k=0;
-        int maxColors = g.getNodeCount();
-        for (Node n : g) {
-            n.addAttribute("couleur", 0);
-        }
-        for (Node node : g) {
-            boolean[] couleursUtilisees = new boolean[maxColors+1];
-            Iterator<Node> it = node.getNeighborNodeIterator();
-            while (it.hasNext()) {
-                Node neighbor = it.next();
-                 color = neighbor.getAttribute("couleur");
-                if (color >= 1 && color <= maxColors) {
-                    couleursUtilisees[color] = true;
-                }
-            }
-            
-             color = 1;
-            while (couleursUtilisees[color]) {
-                color++;
-            }
-            k=Math.max(k, color);
-            node.setAttribute("couleur", color);
-        }
-        System.out.println("The chromatic number of this graph is : "+k+" where kMax is : "+g.getAttribute("kMax"));
-        colorierGraphe(g,"couleur");
+    public static int Gloutonne(Graph g) {
+    int color,k=0;
+    int maxColors = g.getNodeCount();
+    for (Node n : g) {
+        n.addAttribute("couleur", 0);
     }
+    for (Node node : g) {
+        boolean[] couleursUtilisees = new boolean[maxColors+1];
+        Iterator<Node> it = node.getNeighborNodeIterator();
+        while (it.hasNext()) {
+            Node neighbor = it.next();
+             color = neighbor.getAttribute("couleur");
+            if (color >= 1 && color <= maxColors) {
+                couleursUtilisees[color] = true;
+            }
+        }
+        
+         color = 1;
+        while (couleursUtilisees[color]) {
+            color++;
+        }
+        k=Math.max(k, color);
+        node.setAttribute("couleur", color);
+    }
+    System.out.println("The chromatic number of this graph is : "+k+" where kMax is : "+g.getAttribute("kMax"));
+    colorierGraphe(g,"couleur");
+    return(k);
+}
+
     
     
     
@@ -82,8 +85,9 @@ public class Algos {
      * </p>
      * 
      * @param g le graphe à colorier
+     * @return 
      */
-    public static void welshPowell(Graph g){
+    public static int welshPowell(Graph g){
         WelshPowell wp=new WelshPowell("color");
         wp.init(g);
         wp.compute();
@@ -96,6 +100,7 @@ public class Algos {
                int col = (int) n.getNumber("color");
                n.setAttribute("ui.style", "fill-color:rgba("+cols[col].getRed()+","+cols[col].getGreen()+","+cols[col].getBlue()+",200);" );
         }
+        return (wp.getChromaticNumber());
     }
     
     /**
@@ -105,8 +110,9 @@ public class Algos {
      * </p>
      * 
      * @param g le graphe à colorier
+     * @return 
      */
-     public static void largestFirstColoring(Graph g) {
+     public static int largestFirstColoring(Graph g) {
         
         List<Node> nodes = new ArrayList<>(g.getNodeSet());
         nodes.sort((n1, n2) -> Integer.compare(n2.getDegree(), n1.getDegree()));
@@ -136,9 +142,10 @@ public class Algos {
             colorierGraphe(g,"color");
         }
         System.out.println("The chromatic number of this graph is : "+k+" where kMax is : "+g.getAttribute("kMax"));
+        return(k);
     }
      
-    private static void colorierGraphe(Graph g, String attribut) {
+    public static void colorierGraphe(Graph g, String attribut) {
         int max = g.getNodeCount();
         Color[] cols = new Color[max + 1];
         for (int i = 0; i <= max; i++) {
