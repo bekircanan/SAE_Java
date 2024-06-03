@@ -41,7 +41,7 @@ public class Intersection {
      * @param port la liste des aéroports
      * @param g le graphe dans lequel ajouter les arêtes
      */
-    public static void setVolsAeroport(List<Vols> vols,List<Aeroport> port,Graph g){
+    public static Graph setVolsAeroport(List<Vols> vols,List<Aeroport> port,Graph g){
         int cpt=0;
         int taille=vols.size();
         g.setStrict(false);
@@ -59,6 +59,7 @@ public class Intersection {
         System.out.println("nbAretes :"+cpt);
         Viewer viewer = g.display();
         viewer.disableAutoLayout();
+        return g;
     }
     
     /**
@@ -67,7 +68,7 @@ public class Intersection {
      * @param vols la liste des vols
      * @param port la liste des aéroports
      */
-    public static void setVolsCollision(List<Vols> vols, List<Aeroport> port){
+    public static Graph setVolsCollision(List<Vols> vols, List<Aeroport> port){
         Graph g=new DefaultGraph("Vols");
         g.setStrict(false);
         collision(vols,port,g);
@@ -78,7 +79,8 @@ public class Intersection {
         cc.init(g);
         System.out.println("nb Composantes : "+cc.getConnectedComponentsCount());
         System.out.println("diametre : "+ diameter(g));
-        g.display();
+        //g.display();
+        return g;
     }
     
     private static void collision(List<Vols> vols,List<Aeroport> port,Graph g){

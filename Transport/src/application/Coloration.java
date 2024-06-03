@@ -7,13 +7,13 @@ import construction.Graphe;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 
 import org.graphstream.graph.Graph;
 
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.graphstream.graph.Node;
 import org.graphstream.ui.swingViewer.View;
 import org.graphstream.ui.swingViewer.Viewer;
 
@@ -51,7 +51,6 @@ public class Coloration extends JFrame {
                 if (selectedAlgorithm != null) {
                     switch (selectedAlgorithm) {
                         case "Gloutonne" -> {
-                            Gloutonne(gcolor);
                             chromaticNumber = Gloutonne(gcolor);
                         }
                         case "welshPowell" -> {
@@ -90,23 +89,6 @@ public class Coloration extends JFrame {
         cont.gridx = 0;
         cont.gridy = 1;
         controlPanel.add(kMaxLabel, cont);
-        
-        cont.gridx = 0;
-        cont.gridy = 1;
-        controlPanel.add(kMaxLabel, cont);
-        
-        cont.gridx = 0;
-        cont.gridy = 1;
-        controlPanel.add(kMaxLabel, cont);
-        
-        cont.gridx = 0;
-        cont.gridy = 1;
-        controlPanel.add(kMaxLabel, cont);
-        
-        cont.gridx = 0;
-        cont.gridy = 1;
-        controlPanel.add(kMaxLabel, cont);
-        
 
         cont.gridx = 1;
         controlPanel.add(chromLabel, cont);
@@ -119,29 +101,23 @@ public class Coloration extends JFrame {
         setVisible(true);
     }
 
-    
-
     private void displayGraph(Graph g) {
-    graphPanel.removeAll();
-    
-    Viewer viewer = new Viewer(g, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
-    viewer.enableAutoLayout();  // Facultatif : pour un agencement automatique du graphique
+        graphPanel.removeAll();
 
-    // Empêcher l'ouverture d'une fenêtre de visionneuse externe
-    viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
+        Viewer viewer = new Viewer(g, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
+        viewer.enableAutoLayout();  // Optional: for automatic layout of the graph
 
-    View view = viewer.addDefaultView(false);
-    
-    // Définir une taille spécifique pour la vue du graphique
-    view.setPreferredSize(new Dimension(500, 500));
-    
-    graphPanel.add((Component) view);
-    graphPanel.revalidate();
-    graphPanel.repaint();
-}
+        // Prevent the opening of an external viewer window
+        viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
 
+        View view = viewer.addDefaultView(false);
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(Coloration::new);
+        // Set a specific size for the graph view
+        view.setPreferredSize(new Dimension(500, 500));
+
+        graphPanel.add((Component) view);
+        graphPanel.revalidate();
+        graphPanel.repaint();
     }
+
 }
