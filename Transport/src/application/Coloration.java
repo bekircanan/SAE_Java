@@ -8,18 +8,22 @@ import construction.Graphe;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import org.graphstream.graph.Graph;
 
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import org.graphstream.ui.swingViewer.View;
 import org.graphstream.ui.swingViewer.Viewer;
 
 public class Coloration extends JFrame {
     private JPanel graphPanel;
     private JLabel chromLabel;
+    private JButton zoomInButton;
+    private JButton zoomOutButton;
 
     public Coloration() {
         setTitle("Coloration");
@@ -33,6 +37,9 @@ public class Coloration extends JFrame {
 
         JButton button = new JButton("Lancer Algorithme");
 
+        zoomInButton = new JButton("+");
+        zoomOutButton = new JButton("-");
+
         JComboBox<String> comboBox = new JComboBox<>(new String[]{"Gloutonne", "welshPowell", "largestFirstColoring"});
         chromLabel = new JLabel("Chromatic number: ");
         JLabel kMaxLabel = new JLabel("kMax: ");
@@ -42,31 +49,32 @@ public class Coloration extends JFrame {
             Graph gcolor;
 
             try {
-                String input = JOptionPane.showInputDialog("Entrez un nombre (entre 0 et 19):");
-                int choix2 = Integer.parseInt(input);
-                gcolor = Graphe.chargerGraphe("DataTest\\graph-test" + choix2 + ".txt");
+                JFileChooser fileChooser = new JFileChooser();
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("TXT files", "txt");
+                fileChooser.setFileFilter(filter);
+                int returnValue = fileChooser.showOpenDialog(null);
+                if (returnValue == JFileChooser.APPROVE_OPTION) {
+                    String filePath = fileChooser.getSelectedFile().getAbsolutePath();
+                    gcolor = Graphe.chargerGraphe(filePath);
 
-                int chromaticNumber = 0;
+                    int chromaticNumber = 0;
 
-                if (selectedAlgorithm != null) {
-                    switch (selectedAlgorithm) {
-                        case "Gloutonne" -> {
-                            chromaticNumber = Gloutonne(gcolor);
+                    if (selectedAlgorithm != null) {
+                        switch (selectedAlgorithm) {
+                            case "Gloutonne" -> chromaticNumber = Gloutonne(gcolor);
+                            case "welshPowell" -> chromaticNumber = welshPowell(gcolor);
+                            case "largestFirstColoring" -> chromaticNumber = largestFirstColoring(gcolor);
+                            default -> JOptionPane.showMessageDialog(null, "Sélection d'algorithme non valide.");
                         }
-                        case "welshPowell" -> {
-                            chromaticNumber = welshPowell(gcolor);
-                        }
-                        case "largestFirstColoring" -> {
-                            chromaticNumber = largestFirstColoring(gcolor);
-                        }
-                        default -> JOptionPane.showMessageDialog(null, "Sélection d'algorithme non valide.");
                     }
-                }
 
-                if (gcolor != null) {
-                    displayGraph(gcolor);
-                    chromLabel.setText("Chromatic number: " + chromaticNumber);
-                    kMaxLabel.setText("kMax: " + gcolor.getAttribute("kMax"));
+                    if (gcolor != null) {
+                        displayGraph(gcolor);
+                        chromLabel.setText("Chromatic number: " + chromaticNumber);
+                        kMaxLabel.setText("kMax: " + gcolor.getAttribute("kMax"));
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(null, "Aucun fichier sélectionné.");
                 }
 
             } catch (NumberFormatException ex) {
@@ -93,12 +101,37 @@ public class Coloration extends JFrame {
         cont.gridx = 1;
         controlPanel.add(chromLabel, cont);
 
+        cont.gridx = 2;
+        controlPanel.add(zoomInButton, cont);
+
+        cont.gridx = 3;
+        controlPanel.add(zoomOutButton, cont);
+
         graphPanel = new JPanel(new BorderLayout());
         graphPanel.setPreferredSize(new Dimension(600, 400));
 
         add(controlPanel, BorderLayout.NORTH);
         add(graphPanel, BorderLayout.CENTER);
         setVisible(true);
+
+        zoomInButton.addActionListener(new ZoomHandler(1 / 1.1));
+        zoomOutButton.addActionListener(new ZoomHandler(1.1));
+    }
+
+    private class ZoomHandler implements ActionListener {
+        private double zoomFactor;
+
+        public ZoomHandler(double zoomFactor) {
+            this.zoomFactor = zoomFactor;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (graphPanel.getComponentCount() > 0) {
+                View view = (View) graphPanel.getComponent(0);
+                view.getCamera().setViewPercent(view.getCamera().getViewPercent() * zoomFactor);
+            }
+        }
     }
 
     private void displayGraph(Graph g) {
@@ -119,5 +152,4 @@ public class Coloration extends JFrame {
         graphPanel.revalidate();
         graphPanel.repaint();
     }
-
 }

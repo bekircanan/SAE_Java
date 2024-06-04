@@ -25,8 +25,10 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import org.graphstream.ui.swingViewer.View;
 import org.graphstream.ui.swingViewer.Viewer;
 import org.jxmapviewer.JXMapViewer;
@@ -42,6 +44,8 @@ public class IntersectionIHM extends JFrame {
     private String chiffre;
     private JPanel graphPanel;
     private JPanel mapPanel;
+    
+    
 
     public IntersectionIHM() {
         setTitle("Intersection");
@@ -63,7 +67,13 @@ public class IntersectionIHM extends JFrame {
         cont.gridx = 0;
         cont.gridy = 1;
         panel.add(button, cont);
-        
+        JButton zoomInButton = new JButton("+");
+        cont.gridx = 2;
+       panel.add(zoomInButton, cont);
+       
+       JButton zoomOutButton = new JButton("-");
+       cont.gridx = 3;
+       panel.add(zoomOutButton, cont);
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -77,13 +87,14 @@ public class IntersectionIHM extends JFrame {
                     } catch (FileNotFoundException ex) {
                         Logger.getLogger(IntersectionIHM.class.getName()).log(Level.SEVERE, null, ex);
                     }
-
-                    String input = JOptionPane.showInputDialog("Entrez un nombre (entre 0 et 19):");
-                    if (input != null) {
-                        chiffre = input; // Store input for file name
-
+                    //TODO fair recherche fichier dans explorateur fichier
+                    JFileChooser fileChooser = new JFileChooser();
+                    fileChooser.setFileFilter(new FileNameExtensionFilter("CSV files", "csv"));
+                    int returnValue = fileChooser.showOpenDialog(null);
+                    if (returnValue == JFileChooser.APPROVE_OPTION) {
+                        File flightFile = fileChooser.getSelectedFile();
                         List<Vols> vol = new ArrayList<>();
-                        try (Scanner scanVol = new Scanner(new File("DataTest/vol-test" + chiffre + ".csv"))) {
+                        try (Scanner scanVol = new Scanner(flightFile)) {
                             while (scanVol.hasNextLine()) {
                                 vol.add(new Vols(scanVol));
                             }
@@ -128,6 +139,25 @@ public class IntersectionIHM extends JFrame {
         add(graphPanel, BorderLayout.CENTER);
         add(mapPanel, BorderLayout.SOUTH);
         setVisible(true);
+        
+        zoomInButton.addActionListener((ActionListener) new ZoomHandler(1 / 1.1));
+        zoomOutButton.addActionListener(new ZoomHandler(1.1));
+    }
+    //TODO zoomer que pour choix VOL
+    private class ZoomHandler implements ActionListener {
+        private double zoomFactor;
+
+        public ZoomHandler(double zoomFactor) {
+            this.zoomFactor = zoomFactor;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (graphPanel.getComponentCount() > 0) {
+                View view = (View) graphPanel.getComponent(0);
+                view.getCamera().setViewPercent(view.getCamera().getViewPercent() * zoomFactor);
+            }
+        }
     }
 
 private void initMapPanel() {
