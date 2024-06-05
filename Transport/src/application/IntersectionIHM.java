@@ -79,7 +79,7 @@ public class IntersectionIHM extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String selectedOption = (String) comboBox.getSelectedItem();
                 if (selectedOption != null) {
-                    List<Aeroport> port = new ArrayList<>();
+                    List<Aeroport> port = new ArrayList<>(); 
                     try (Scanner scanAero = new Scanner(new File("DataTest/aeroports.txt"))) {
                         while (scanAero.hasNextLine()) {
                             port.add(new Aeroport(scanAero));

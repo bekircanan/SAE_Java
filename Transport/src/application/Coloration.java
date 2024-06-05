@@ -24,6 +24,9 @@ public class Coloration extends JFrame {
     private JLabel chromLabel;
     private JButton zoomInButton;
     private JButton zoomOutButton;
+    private JTextField kMaxField;
+    private JLabel kMaxLabel;
+    private Graph currentGraph;
 
     public Coloration() {
         setTitle("Coloration");
@@ -42,7 +45,12 @@ public class Coloration extends JFrame {
 
         JComboBox<String> comboBox = new JComboBox<>(new String[]{"Gloutonne", "welshPowell", "largestFirstColoring"});
         chromLabel = new JLabel("Chromatic number: ");
-        JLabel kMaxLabel = new JLabel("kMax: ");
+        kMaxLabel = new JLabel("kMax: ");
+        kMaxField = new JTextField(5);
+        JButton updateKMaxButton = new JButton("Update kMax");
+
+        // Ajouter un espace entre les composants
+        cont.insets = new Insets(30, 5, 30, 5);
 
         button.addActionListener((var e) -> {
             String selectedAlgorithm = (String) comboBox.getSelectedItem();
@@ -69,6 +77,7 @@ public class Coloration extends JFrame {
                     }
 
                     if (gcolor != null) {
+                        currentGraph = gcolor;
                         displayGraph(gcolor);
                         chromLabel.setText("Chromatic number: " + chromaticNumber);
                         kMaxLabel.setText("kMax: " + gcolor.getAttribute("kMax"));
@@ -85,33 +94,68 @@ public class Coloration extends JFrame {
             }
         });
 
+        updateKMaxButton.addActionListener((var e) -> {
+            try {
+                if (currentGraph != null) {
+                    int newKMax = Integer.parseInt(kMaxField.getText());
+                    currentGraph.setAttribute("kMax", newKMax);
+                    kMaxLabel.setText("kMax: " + newKMax);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Aucun graphe chargé.");
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(null, "Entrée invalide. Assurez-vous de saisir un nombre valide.");
+            }
+        });
+
         cont.gridx = 0;
         cont.gridy = 0;
-        cont.anchor = GridBagConstraints.LINE_START;
-        cont.insets = new Insets(0, 0, 10, 10);
+        cont.anchor = GridBagConstraints.CENTER;
+        cont.gridwidth = 2; // Pour fusionner sur 2 colonnes
         controlPanel.add(comboBox, cont);
 
-        cont.gridx = 1;
+        cont.gridy = 1;
         controlPanel.add(button, cont);
 
         cont.gridx = 0;
-        cont.gridy = 1;
+        cont.gridy = 2;
+        cont.gridwidth = 1; 
         controlPanel.add(kMaxLabel, cont);
 
         cont.gridx = 1;
         controlPanel.add(chromLabel, cont);
 
-        cont.gridx = 2;
-        controlPanel.add(zoomInButton, cont);
+        cont.gridx = 0;
+        cont.gridy = 3;
+        controlPanel.add(new JLabel("Nouveau kMax: "), cont);
 
-        cont.gridx = 3;
-        controlPanel.add(zoomOutButton, cont);
+        cont.gridx = 1;
+        controlPanel.add(kMaxField, cont);
+
+        cont.gridx = 0;
+        cont.gridy = 4;
+        cont.gridwidth = 2; // Pour fusionner sur 2 colonnes
+        controlPanel.add(updateKMaxButton, cont);
+
+        // Ajoute les boutons à droite
+        add(controlPanel, BorderLayout.LINE_END);
 
         graphPanel = new JPanel(new BorderLayout());
         graphPanel.setPreferredSize(new Dimension(600, 400));
 
-        add(controlPanel, BorderLayout.NORTH);
-        add(graphPanel, BorderLayout.CENTER);
+        JScrollPane jsp = new JScrollPane(graphPanel);
+        // Ajoute le JScrollPane avec le panneau du graphique
+        add(jsp, BorderLayout.CENTER);
+
+        cont.gridx = 0;
+        cont.gridy = 5;
+        cont.gridwidth = 3; // Pour fusionner sur 2 colonnes
+        controlPanel.add(zoomInButton, cont);
+
+        cont.gridx = 1;
+        controlPanel.add(zoomOutButton, cont);
+
+        // Ajoute le graphique à gauche
         setVisible(true);
 
         zoomInButton.addActionListener(new ZoomHandler(1 / 1.1));
@@ -148,8 +192,12 @@ public class Coloration extends JFrame {
         // Set a specific size for the graph view
         view.setPreferredSize(new Dimension(500, 500));
 
-        graphPanel.add((Component) view);
+        graphPanel.add((Component) view, BorderLayout.CENTER);
         graphPanel.revalidate();
         graphPanel.repaint();
+    }
+
+    public static void main(String[] args) {
+        new Coloration();
     }
 }
