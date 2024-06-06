@@ -41,7 +41,7 @@ public class Intersection {
      * @param port la liste des aéroports
      * @param g le graphe dans lequel ajouter les arêtes
      */
-    public static Graph setVolsAeroport(List<Vols> vols,List<Aeroport> port,Graph g){
+    public static int[] setVolsAeroport(List<Vols> vols,List<Aeroport> port,Graph g){
         int cpt=0;
         int taille=vols.size();
         g.setStrict(false);
@@ -57,9 +57,10 @@ public class Intersection {
        
         System.out.println("nbNoeuds :"+g.getNodeCount());
         System.out.println("nbAretes :"+cpt);
+        
         Viewer viewer = g.display();
         viewer.disableAutoLayout();
-        return g;
+        return new int[]{g.getNodeCount(), cpt};
     }
     
     /**
@@ -68,21 +69,21 @@ public class Intersection {
      * @param vols la liste des vols
      * @param port la liste des aéroports
      */
-    public static Graph setVolsCollision(List<Vols> vols, List<Aeroport> port){
-        Graph g=new DefaultGraph("Vols");
-        g.setStrict(false);
-        collision(vols,port,g);
-        System.out.println("nbNoeuds :"+g.getNodeCount());
-        System.out.println("nbAretes :"+g.getEdgeCount());
-        System.out.println("degre Moyen : "+(double)(g.getEdgeCount()*2)/g.getNodeCount());
-        ConnectedComponents cc = new ConnectedComponents();
-        cc.init(g);
-        System.out.println("nb Composantes : "+cc.getConnectedComponentsCount());
-        System.out.println("diametre : "+ diameter(g));
-        //g.display();
-        return g;
-    }
-    
+    public static double[] setVolsCollision(List<Vols> vols, List<Aeroport> port) {
+    Graph g = new DefaultGraph("Vols");
+    g.setStrict(false);
+    collision(vols, port, g);
+    System.out.println("nbNoeuds :" + g.getNodeCount());
+    System.out.println("nbAretes :" + g.getEdgeCount());
+    System.out.println("degre Moyen : " + (double) (g.getEdgeCount() * 2) / g.getNodeCount());
+    ConnectedComponents cc = new ConnectedComponents();
+    cc.init(g);
+    System.out.println("nb Composantes : " + cc.getConnectedComponentsCount());
+    System.out.println("diametre : " + diameter(g));
+    g.display();
+    return new double[]{g.getNodeCount(), g.getEdgeCount(), (g.getEdgeCount() * 2) / g.getNodeCount(),cc.getConnectedComponentsCount() , diameter(g)};
+}
+
     private static void collision(List<Vols> vols,List<Aeroport> port,Graph g){
         int taille=vols.size();
         int cpt=1;
@@ -199,3 +200,4 @@ public class Intersection {
         }
     }
 }
+

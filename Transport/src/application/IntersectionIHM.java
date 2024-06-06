@@ -53,7 +53,7 @@ public class IntersectionIHM extends JFrame {
         setSize(1200, 800); // Set a proper size for the main frame
         setLocationRelativeTo(null);
 
-        JPanel panel = new JPanel();
+        JPanel panel = new JPanel(new GridBagLayout());
         panel.setLayout(new GridBagLayout());
         GridBagConstraints cont = new GridBagConstraints();
 
@@ -85,7 +85,9 @@ public class IntersectionIHM extends JFrame {
                             port.add(new Aeroport(scanAero));
                         }
                     } catch (FileNotFoundException ex) {
-                        Logger.getLogger(IntersectionIHM.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger. getLogger(IntersectionIHM.class.getName()).log(Level.SEVERE, null, ex);
+                        JOptionPane.showMessageDialog(null, "Fichier de vol non trouvé.");
+                        return; // Exit the action listener
                     }
                     //TODO fair recherche fichier dans explorateur fichier
                     JFileChooser fileChooser = new JFileChooser();
@@ -103,6 +105,21 @@ public class IntersectionIHM extends JFrame {
                             JOptionPane.showMessageDialog(null, "Fichier de vol non trouvé.");
                             return; // Exit the action listener
                         }
+                        
+                        case "Vol" -> {
+    setVolsCollision(vol, port);
+    double[] intersection = setVolsCollision(vol, port); // Modification du type de retour à double[]
+    System.out.println("Contenu du tableau intersection : ");
+    for (double value : intersection) {
+        System.out.print(value + " ");
+    }
+    System.out.println(); // Pour passer à la ligne
+    nbNoeuds.setText("nbNoeuds : " + intersection[0]);
+    nbAretes.setText("nbAretes : " + intersection[1]);
+    degMoy.setText("degMoy : " + intersection[2]);
+    nbComposants.setText("nbComposants : " + intersection[3]);
+    diametre.setText("diametre : " + intersection[4]);
+}
 
                         switch (selectedOption) {
                             case "Graphique de l'aéroport":
@@ -159,6 +176,8 @@ public class IntersectionIHM extends JFrame {
             }
         }
     }
+    
+    
 
 private void initMapPanel() {
     JXMapViewer mapViewer = new JXMapViewer();
@@ -202,3 +221,4 @@ private void initMapPanel() {
         SwingUtilities.invokeLater(IntersectionIHM::new);
     }
 }
+
