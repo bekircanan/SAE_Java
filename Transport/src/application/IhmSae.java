@@ -87,6 +87,13 @@ public class IhmSae extends JFrame {
                 new Coloration();
             }
         });
+        
+        coloration.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new IntersectionIHM();
+            }
+        });
 
         add(panel);
         setVisible(true);
