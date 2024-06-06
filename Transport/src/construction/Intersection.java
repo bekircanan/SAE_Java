@@ -79,6 +79,7 @@ public class Intersection {
         System.out.println("nb Composantes : "+cc.getConnectedComponentsCount());
         System.out.println("diametre : "+ diameter(g));
         g.display();
+        //Vols.exportTXT(g);
     }
     
     private static void collision(List<Vols> vols,List<Aeroport> port,Graph g){
@@ -117,6 +118,8 @@ public class Intersection {
             System.out.println("colinaire ");
             System.out.println("vol 1 : "+v1.getArriveaero().getX()+" | "+v1.getArriveaero().getY());
             System.out.println("vol 2 : "+v2.getArriveaero().getX()+" | "+v2.getArriveaero().getY());
+            System.out.println("vol 1 :"+v1.getHeure()+ "heure - "+v1.getMin()+" + "+v1.getDuree());
+            System.out.println("vol 2 :"+v2.getHeure()+ "heure - "+v2.getMin()+" + "+v2.getDuree());
             System.out.println("-------------------------------------------------------------------------");
             }
             return ((arrivalTime1 >= departureTime2 && arrivalTime1 <= arrivalTime2) || 
@@ -128,7 +131,7 @@ public class Intersection {
         timeVol1 = (v1.getHeure() * 60 + v1.getMin()) + (Point.distance(v1.getDepartaero().getX(), v1.getDepartaero().getY(), inter.x, inter.y) / distanceVol1 * v1.getDuree());
         timeVol2 = (v2.getHeure() * 60 + v2.getMin()) + (Point.distance(v2.getDepartaero().getX(), v2.getDepartaero().getY(), inter.x, inter.y) / distanceVol2 * v2.getDuree());
         
-        if(Math.abs(timeVol1-timeVol2) < 15){
+        if(Math.abs(timeVol1-timeVol2) < 15 && 1>2){
             System.out.println(v1.getDepart()+"|"+v1.getArrive()+" et "+v2.getDepart()+"|"+v2.getArrive());
             System.out.println("intersection : "+inter.x+" | "+inter.y);
             System.out.println("vol 1 : "+v1.getArriveaero().getX()+" | "+v1.getArriveaero().getY());

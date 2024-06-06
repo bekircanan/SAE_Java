@@ -2,6 +2,7 @@ package application;
 
 import construction.Aeroport;
 import static construction.Aeroport.setAeroport;
+import construction.Algos;
 import static construction.Algos.*;
 import construction.Graphe;
 import static construction.Intersection.setVolsAeroport;
@@ -75,6 +76,7 @@ public class Aerien {
                         System.out.print(": fait");
                         break;
                     case 3 :
+                        System.setProperty("org.graphstream.ui", "javafx");
                         Graph gcolor;
                         try(Scanner scanFile = new Scanner(System.in)){
                             System.out.println("Entrer un nombre(entre 0 et 19).");
@@ -91,15 +93,36 @@ public class Aerien {
                             System.out.print(": ");
                             choix2 = scanFile.nextInt();
                         }
+                        long startTime,endTime,executionTime;
                         switch(choix2){
                             case 1 :
+                                startTime = System.currentTimeMillis();
                                 Gloutonne(gcolor);
+                                System.out.println("Conflit : "+Algos.getConflit(gcolor));
+                                endTime = System.currentTimeMillis();
+                                executionTime = endTime - startTime;
+                                System.out.println(executionTime+" ms");
                                 break;
                             case 2 :
+                                startTime = System.currentTimeMillis();
                                 welshPowell(gcolor);
+                                System.out.println("Conflit : "+Algos.getConflit(gcolor));
+                                endTime = System.currentTimeMillis();
+                                executionTime = endTime - startTime;
+                                System.out.println(executionTime+" ms");
                                 break;
                             case 3 :
-                                largestFirstColoring(gcolor);
+                                startTime = System.currentTimeMillis();
+                                //recursiveLargestFirst(gcolor);
+                                //System.out.println(localSearch(gcolor));
+                                //hillClimbing(gcolor,(int)gcolor.getNumber("kMax"));
+                                //System.out.println(countTotalConflicts(gcolor));
+                                dsatur(gcolor);
+                                System.out.println("Conflit : "+Algos.getConflit(gcolor));
+                                endTime = System.currentTimeMillis();
+                                executionTime = endTime - startTime;
+                                System.out.println(executionTime+" ms");
+                                
                                 break;
                                 
                         }
@@ -117,4 +140,3 @@ public class Aerien {
             
     }
 }
-
