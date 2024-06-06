@@ -53,33 +53,84 @@ public class Algos {
      * @return 
      */
     public static int Gloutonne(Graph g) {
-    int color,k=0;
+    int color, kMax = (int)g.getNumber("kMax");
     int maxColors = g.getNodeCount();
+    int totalConflicts = 0;
+
+    // Initialize all nodes with color 0
     for (Node n : g) {
-        n.addAttribute("couleur", 0);
+        n.addAttribute("color", 0);
     }
+
+    // Iterate through each node to assign colors
     for (Node node : g) {
-        boolean[] couleursUtilisees = new boolean[maxColors+1];
+        boolean[] couleursUtilisees = new boolean[maxColors + 1];
         Iterator<Node> it = node.getNeighborNodeIterator();
+
+        // Mark the colors used by neighboring nodes
         while (it.hasNext()) {
             Node neighbor = it.next();
-             color = neighbor.getAttribute("couleur");
+            color = neighbor.getAttribute("color");
             if (color >= 1 && color <= maxColors) {
                 couleursUtilisees[color] = true;
             }
         }
-        
-         color = 1;
-        while (couleursUtilisees[color]) {
+
+        // Find the first available color
+        color = 1;
+        while (color <= kMax && couleursUtilisees[color]) {
             color++;
         }
-        k=Math.max(k, color);
-        node.setAttribute("couleur", color);
+
+        // If no available color found, find the color with the least conflicts
+        if (color > kMax) {
+            int[] colorConflicts = new int[kMax];
+            for (int i = 0; i < kMax; i++) {
+                colorConflicts[i] = 0;
+            }
+            it = node.getNeighborNodeIterator();
+            while (it.hasNext()) {
+                Node neighbor = it.next();
+                int neighborColor = neighbor.getAttribute("color");
+                if (neighborColor >= 1 && neighborColor <= kMax) {
+                    colorConflicts[neighborColor - 1]++;
+                }
+            }
+
+            int minConflicts = Integer.MAX_VALUE;
+            int bestColor = 1;
+            for (int i = 0; i < kMax; i++) {
+                if (colorConflicts[i] < minConflicts) {
+                    minConflicts = colorConflicts[i];
+                    bestColor = i + 1;
+                }
+            }
+
+            color = bestColor;
+        }
+
+        // Update kMax and assign color to the node
+        kMax = Math.max(kMax, color);
+        node.setAttribute("color", color);
+
+        // Calculate conflicts for the current node
+        it = node.getNeighborNodeIterator();
+        while (it.hasNext()) {
+            Node neighbor = it.next();
+            int neighborColor = neighbor.getAttribute("color");
+            if (neighborColor == color) {
+                totalConflicts++;
+            }
+        }
     }
-    System.out.println("The chromatic number of this graph is : "+k+" where kMax is : "+g.getAttribute("kMax"));
-    colorierGraphe(g,"couleur");
-    return(k);
+
+    // Color the graph nodes visually
+    colorierGraphe(g, "color");
+
+    System.out.println(totalConflicts);
+    return totalConflicts;
 }
+
 
     
     
@@ -109,6 +160,61 @@ public class Algos {
         return (wp.getChromaticNumber());
     }
     
+    public static int largestFirstColoring(Graph g) {
+        List<Node> nodes = new ArrayList<>(g.getNodeSet());
+    nodes.sort((n1, n2) -> Integer.compare(n2.getDegree(), n1.getDegree()));
+    
+    Map<Node, Integer> colorMap = new HashMap<>();
+    int maxColorUsed = 0;
+    int totalConflicts = 0;
+    int kMax=(int)g.getNumber("kMax");
+    for (Node node : nodes) {
+        Set<Integer> usedColors = new HashSet<>();
+
+        for (Edge edge : node.getEachEdge()) {
+            Node adjacent = edge.getOpposite(node);
+            if (colorMap.containsKey(adjacent)) {
+                usedColors.add(colorMap.get(adjacent));
+            }
+        }
+
+        int nodeColor = 1;
+        while (usedColors.contains(nodeColor) && nodeColor <= kMax) {
+            nodeColor++;
+        }
+
+        if (nodeColor > kMax) {
+            Map<Integer, Integer> colorConflicts = new HashMap<>();
+            for (int color = 1; color <= kMax; color++) {
+                colorConflicts.put(color, 0);
+            }
+
+            for (Edge edge : node.getEachEdge()) {
+                Node adjacent = edge.getOpposite(node);
+                if (colorMap.containsKey(adjacent)) {
+                    int adjColor = colorMap.get(adjacent);
+                    colorConflicts.put(adjColor, colorConflicts.get(adjColor) + 1);
+                }
+            }
+
+            nodeColor = colorConflicts.entrySet().stream()
+                .min(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(1);
+
+            totalConflicts += colorConflicts.get(nodeColor);
+        }
+
+        maxColorUsed = Math.max(maxColorUsed, nodeColor);
+        colorMap.put(node, nodeColor);
+        node.addAttribute("color", nodeColor);
+    }
+    g.addAttribute("totalConflicts", totalConflicts);
+    colorierGraphe(g,"color");
+    System.out.println(totalConflicts);
+    return kMax;
+    }
+    
     /**
      * Applique une méthode de coloration en fonction de la plus grande première.
      * <p>
@@ -118,13 +224,14 @@ public class Algos {
      * @param g le graphe à colorier
      * @return 
      */
+    /*
      public static int largestFirstColoring(Graph g) {
         
         List<Node> nodes = new ArrayList<>(g.getNodeSet());
         nodes.sort((n1, n2) -> Integer.compare(n2.getDegree(), n1.getDegree()));
         
         Map<Node, Integer> colorMap = new HashMap<>();
-        int k=0;
+        int kMax=0;
 
         for (Node node : nodes) {
             Set<Integer> usedColors = new HashSet<>();
@@ -141,21 +248,21 @@ public class Algos {
             while (usedColors.contains(nodeColor)) {
                 nodeColor++;
             }
-            k=Math.max(k,nodeColor);
+            kMax=Math.max(kMax,nodeColor);
 
             colorMap.put(node, nodeColor);
             node.setAttribute("color", nodeColor);
             colorierGraphe(g,"color");
         }
-        System.out.println("The chromatic number of this graph is : "+k+" where kMax is : "+g.getAttribute("kMax"));
-        return(k);
+        System.out.println("The chromatic number of this graph is : "+kMax+" where kMax is : "+g.getAttribute("kMax"));
+        return(kMax);
     }
-     
-    public static void colorierGraphe(Graph g, String attribut) {
+    */
+    private static void colorierGraphe(Graph g, String attribut) {
         int max = g.getNodeCount();
         Color[] cols = new Color[max + 1];
         for (int i = 0; i <= max; i++) {
-            cols[i] = Color.getHSBColor((float) (Math.random()*10000)+10, 0.8f, 0.9f);
+            cols[i] = Color.getHSBColor((float) ((double) (Math.random()*100000.0)+5.0), 0.8f, 0.9f);
         }
         for(Node n : g){ 
                int col = (int) n.getNumber(attribut);
@@ -186,8 +293,9 @@ public class Algos {
         return conf;
     }
     
-    public static int dsatur(Graph graph) {
-        int k=0;
+    public static int dsatur(Graph g) {
+        int kMax=(int)g.getNumber("kMax");
+        int totalConflicts = 0;
         PriorityQueue<Node> nodeQueue = new PriorityQueue<>((a, b) -> {
             int dsatA = a.getAttribute("dsat");
             int dsatB = b.getAttribute("dsat");
@@ -198,11 +306,12 @@ public class Algos {
         });
 
         Map<Node, Integer> nodeColor = new HashMap<>();
-        Set<Integer> usedColors = new HashSet<>();
+        Map<Node, Integer> conflictCount = new HashMap<>();
 
-        for (Node node : graph) {
+        for (Node node : g) {
             node.addAttribute("dsat", 0);
             nodeQueue.add(node);
+            conflictCount.put(node, 0);
         }
 
         while (!nodeQueue.isEmpty()) {
@@ -216,13 +325,29 @@ public class Algos {
             }
 
             int color = 0;
-            while (neighborColors.contains(color)) {
+            while (neighborColors.contains(color) && color < kMax) {
                 color++;
             }
+
+            if (color >= kMax) {
+                // Find the color that causes the least conflict
+                Map<Integer, Integer> colorConflicts = new HashMap<>();
+                for (int c = 0; c < kMax; c++) {
+                    colorConflicts.put(c, 0);
+                }
+                for (Edge edge : node.getEachEdge()) {
+                    Node neighbor = edge.getOpposite(node);
+                    if (nodeColor.containsKey(neighbor)) {
+                        int neighborColor = nodeColor.get(neighbor);
+                        colorConflicts.put(neighborColor, colorConflicts.get(neighborColor) + 1);
+                    }
+                }
+                color = colorConflicts.entrySet().stream().min(Map.Entry.comparingByValue()).get().getKey();
+                totalConflicts += colorConflicts.get(color);
+            }
+
             nodeColor.put(node, color);
             node.setAttribute("color", color);
-            System.out.println(node+" == "+node.getAttribute("color"));
-            usedColors.add(color);
 
             for (Edge edge : node.getEachEdge()) {
                 Node neighbor = edge.getOpposite(node);
@@ -234,8 +359,9 @@ public class Algos {
                 }
             }
         }
-            colorierGraphe(graph,"color");
-            return(k);
+        colorierGraphe(g, "color");
+        System.out.println(totalConflicts);
+        return totalConflicts;
     }
     
     public static void recursiveLargestFirst(Graph graph) {

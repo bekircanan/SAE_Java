@@ -30,7 +30,10 @@ import org.graphstream.ui.swingViewer.Viewer;
  * 
  */
 public class Intersection {
-    
+    private static int MARGE=15;
+    public void setMarge(int nb){
+        MARGE=nb;
+    }
     /**
      * Associe les vols aux aéroports et ajoute les arêtes correspondantes au graphe.
      * <p>
@@ -115,6 +118,9 @@ public class Intersection {
             double departureTime2=v2.getHeure()* 60+ v2.getMin();
             double arrivalTime1=departureTime1+v1.getDuree();
             double arrivalTime2=departureTime2+v2.getDuree();
+            /*if(v1.getDepart().equals(v2.getDepart())||v1.getArrive().equals(v2.getArrive())){
+                return Math.abs(arrivalTime2-arrivalTime2)<MARGE;
+            }*/
             if((arrivalTime1 >= departureTime2 && arrivalTime1 <= arrivalTime2) || 
                     (arrivalTime2 >= departureTime1 && arrivalTime2 <= arrivalTime1)){
             System.out.println(v1.getDepart()+"|"+v1.getArrive()+" et "+v2.getDepart()+"|"+v2.getArrive());
@@ -142,7 +148,7 @@ public class Intersection {
             System.out.println("-------------------------------------------------------------------------");
         }
         
-        return Math.abs(timeVol1-timeVol2) < 15;
+        return Math.abs(timeVol1-timeVol2) < MARGE;
     }
     
     private static Point2D.Double intersection(Vols v1,Vols v2,List<Aeroport> port){
