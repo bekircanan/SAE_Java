@@ -58,6 +58,8 @@ public class Coloration extends JFrame {
 
             try {
                 JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setCurrentDirectory(new java.io.File("."));
+                fileChooser.setSelectedFile(new java.io.File("."));
                 FileNameExtensionFilter filter = new FileNameExtensionFilter("TXT files", "txt");
                 fileChooser.setFileFilter(filter);
                 int returnValue = fileChooser.showOpenDialog(null);

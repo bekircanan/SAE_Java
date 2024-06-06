@@ -140,6 +140,8 @@ public class IntersectionIHM extends JFrame {
 
     private List<Vols> loadVols() {
         JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setCurrentDirectory(new java.io.File("."));
+        fileChooser.setSelectedFile(new java.io.File("."));
         fileChooser.setFileFilter(new FileNameExtensionFilter("CSV files", "csv"));
         int returnValue = fileChooser.showOpenDialog(null);
         if (returnValue == JFileChooser.APPROVE_OPTION) {
