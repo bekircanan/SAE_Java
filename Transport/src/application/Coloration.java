@@ -1,6 +1,7 @@
 package application;
 
 import static construction.Algos.Gloutonne;
+import static construction.Algos.dsatur;
 import static construction.Algos.largestFirstColoring;
 import static construction.Algos.welshPowell;
 import construction.Graphe;
@@ -42,7 +43,7 @@ public class Coloration extends JFrame {
         zoomInButton = new JButton("+");
         zoomOutButton = new JButton("-");
 
-        JComboBox<String> comboBox = new JComboBox<>(new String[]{"Gloutonne", "welshPowell", "largestFirstColoring"});
+        JComboBox<String> comboBox = new JComboBox<>(new String[]{"Gloutonne", "welshPowell", "largestFirstColoring","Dsatur"});
         chromLabel = new JLabel("Chromatic number: ");
         kMaxLabel = new JLabel("kMax: ");
         kMaxField = new JTextField(5);
@@ -71,6 +72,7 @@ public class Coloration extends JFrame {
                             case "Gloutonne" -> chromaticNumber = Gloutonne(gcolor);
                             case "welshPowell" -> chromaticNumber = welshPowell(gcolor);
                             case "largestFirstColoring" -> chromaticNumber = largestFirstColoring(gcolor);
+                            case "Dsatur" -> chromaticNumber = dsatur(gcolor);
                             default -> JOptionPane.showMessageDialog(null, "Sélection d'algorithme non valide.");
                         }
                     }

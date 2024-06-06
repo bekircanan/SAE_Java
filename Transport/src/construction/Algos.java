@@ -186,7 +186,8 @@ public class Algos {
         return conf;
     }
     
-    public static void dsatur(Graph graph) {
+    public static int dsatur(Graph graph) {
+        int k=0;
         PriorityQueue<Node> nodeQueue = new PriorityQueue<>((a, b) -> {
             int dsatA = a.getAttribute("dsat");
             int dsatB = b.getAttribute("dsat");
@@ -234,6 +235,7 @@ public class Algos {
             }
         }
             colorierGraphe(graph,"color");
+            return(k);
     }
     
     public static void recursiveLargestFirst(Graph graph) {
