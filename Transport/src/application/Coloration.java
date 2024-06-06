@@ -13,7 +13,6 @@ import org.graphstream.graph.Graph;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.graphstream.graph.Node;
 import org.graphstream.ui.swingViewer.View;
 import org.graphstream.ui.swingViewer.Viewer;
 
@@ -139,7 +138,5 @@ public class Coloration extends JFrame {
 }
 
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(Coloration::new);
-    }
+    
 }
