@@ -1,34 +1,23 @@
 package application;
 
 import construction.Aeroport;
-import construction.Vols;
 import static construction.Aeroport.setAeroport;
 import static construction.Intersection.setVolsAeroport;
-import static construction.Intersection.setVolsCollision;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import org.graphstream.graph.Graph;
+import construction.Vols;
 
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-import javax.swing.filechooser.FileNameExtensionFilter;
+
+import org.graphstream.graph.Graph;
 import org.graphstream.ui.swingViewer.View;
 import org.graphstream.ui.swingViewer.Viewer;
 import org.jxmapviewer.JXMapViewer;
@@ -41,128 +30,151 @@ import org.jxmapviewer.viewer.TileFactoryInfo;
 import org.jxmapviewer.viewer.WaypointPainter;
 
 public class IntersectionIHM extends JFrame {
-    private String chiffre;
     private JPanel graphPanel;
     private JPanel mapPanel;
-    
-    
+    private JComboBox<String> comboBox;
+    private JButton zoomInButton;
+    private JButton zoomOutButton;
+    private JXMapViewer mapViewer;
+    private Set<MyWaypoint> waypoints = new HashSet<>();
 
     public IntersectionIHM() {
         setTitle("Intersection");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setSize(1200, 800); // Set a proper size for the main frame
+        setSize(1200, 800);
         setLocationRelativeTo(null);
 
         JPanel panel = new JPanel(new GridBagLayout());
-        panel.setLayout(new GridBagLayout());
         GridBagConstraints cont = new GridBagConstraints();
 
         String[] options = {"Graphique de l'aéroport", "Vol"};
-        JComboBox<String> comboBox = new JComboBox<>(options);
+        comboBox = new JComboBox<>(options);
         cont.gridx = 0;
         cont.gridy = 0;
         panel.add(comboBox, cont);
-        
+
         JButton button = new JButton("Lancer les algos");
-        cont.gridx = 0;
         cont.gridy = 1;
         panel.add(button, cont);
-        JButton zoomInButton = new JButton("+");
+
+        zoomInButton = new JButton("+");
         cont.gridx = 2;
-       panel.add(zoomInButton, cont);
-       
-       JButton zoomOutButton = new JButton("-");
-       cont.gridx = 3;
-       panel.add(zoomOutButton, cont);
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String selectedOption = (String) comboBox.getSelectedItem();
-                if (selectedOption != null) {
-                    List<Aeroport> port = new ArrayList<>(); 
-                    try (Scanner scanAero = new Scanner(new File("DataTest/aeroports.txt"))) {
-                        while (scanAero.hasNextLine()) {
-                            port.add(new Aeroport(scanAero));
-                        }
-                    } catch (FileNotFoundException ex) {
-                        Logger. getLogger(IntersectionIHM.class.getName()).log(Level.SEVERE, null, ex);
-                        JOptionPane.showMessageDialog(null, "Fichier de vol non trouvé.");
-                        return; // Exit the action listener
-                    }
-                    //TODO fair recherche fichier dans explorateur fichier
-                    JFileChooser fileChooser = new JFileChooser();
-                    fileChooser.setFileFilter(new FileNameExtensionFilter("CSV files", "csv"));
-                    int returnValue = fileChooser.showOpenDialog(null);
-                    if (returnValue == JFileChooser.APPROVE_OPTION) {
-                        File flightFile = fileChooser.getSelectedFile();
-                        List<Vols> vol = new ArrayList<>();
-                        try (Scanner scanVol = new Scanner(flightFile)) {
-                            while (scanVol.hasNextLine()) {
-                                vol.add(new Vols(scanVol));
-                            }
-                        } catch (FileNotFoundException ex) {
-                            Logger.getLogger(IntersectionIHM.class.getName()).log(Level.SEVERE, null, ex);
-                            JOptionPane.showMessageDialog(null, "Fichier de vol non trouvé.");
-                            return; // Exit the action listener
-                        }
-                        
-                        case "Vol" -> {
-    setVolsCollision(vol, port);
-    double[] intersection = setVolsCollision(vol, port); // Modification du type de retour à double[]
-    System.out.println("Contenu du tableau intersection : ");
-    for (double value : intersection) {
-        System.out.print(value + " ");
-    }
-    System.out.println(); // Pour passer à la ligne
-    nbNoeuds.setText("nbNoeuds : " + intersection[0]);
-    nbAretes.setText("nbAretes : " + intersection[1]);
-    degMoy.setText("degMoy : " + intersection[2]);
-    nbComposants.setText("nbComposants : " + intersection[3]);
-    diametre.setText("diametre : " + intersection[4]);
-}
+        panel.add(zoomInButton, cont);
 
-                        switch (selectedOption) {
-                            case "Graphique de l'aéroport":
-                                mapPanel.setVisible(true);
-                                setVolsAeroport(vol, port, setAeroport(port));
-                                //displayGraph(setVolsAeroport(vol, port, setAeroport(port)));
-                                break;
+        zoomOutButton = new JButton("-");
+        cont.gridx = 3;
+        panel.add(zoomOutButton, cont);
 
-                            case "Vol":
-                                mapPanel.setVisible(false);
-                                displayGraph(setVolsCollision(vol, port));
-                                break;
-
-                            default:
-                                JOptionPane.showMessageDialog(null, "Sélection non valide.");
-                                break;
-                        }
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Veuillez entrer un nombre valide.");
-                    }
-                }
-            }
-        });
+        button.addActionListener(new AlgoButtonListener());
+        zoomInButton.addActionListener(new ZoomHandler(1 / 1.1));
+        zoomOutButton.addActionListener(new ZoomHandler(1.1));
 
         graphPanel = new JPanel(new BorderLayout());
-        graphPanel.setPreferredSize(new Dimension(1200, 700)); // Adjust size to fit properly within the frame
+        graphPanel.setPreferredSize(new Dimension(1200, 700));
 
         mapPanel = new JPanel(new BorderLayout());
-        mapPanel.setPreferredSize(new Dimension(1200, 700)); // Adjust size to fit properly within the frame
+        mapPanel.setPreferredSize(new Dimension(1200, 700));
         initMapPanel();
-        mapPanel.setVisible(false); // Initially hidden
+        mapPanel.setVisible(false);
 
         add(panel, BorderLayout.NORTH);
         add(graphPanel, BorderLayout.CENTER);
         add(mapPanel, BorderLayout.SOUTH);
         setVisible(true);
-        
-        zoomInButton.addActionListener((ActionListener) new ZoomHandler(1 / 1.1));
-        zoomOutButton.addActionListener(new ZoomHandler(1.1));
     }
-    //TODO zoomer que pour choix VOL
+
+    private class AlgoButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String selectedOption = (String) comboBox.getSelectedItem();
+            if (selectedOption != null) {
+                List<Aeroport> ports = loadAeroports();
+                if (ports == null) {
+                    JOptionPane.showMessageDialog(null, "Fichier d'aéroport non trouvé.");
+                    return;
+                }
+
+                List<Vols> vols = loadVols();
+                if (vols == null) {
+                    JOptionPane.showMessageDialog(null, "Fichier de vol non trouvé.");
+                    return;
+                }
+
+                switch (selectedOption) {
+                    case "Graphique de l'aéroport" -> {
+                        mapPanel.setVisible(true);
+                        graphPanel.setVisible(false);
+                        setAeroport(mapViewer, ports); // Appel de la méthode setAeroport() pour afficher les aéroports sur la carte
+                        
+}
+
+                    case "Vol" -> {
+                        mapPanel.setVisible(false);
+                        graphPanel.setVisible(true);
+                        displayGraph(setVolsCollision(vols, ports));
+                        break;
+                    }
+
+                    default -> JOptionPane.showMessageDialog(null, "Sélection non valide.");
+                }
+            }
+        }
+    }
+
+    private List<Aeroport> loadAeroports() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setCurrentDirectory(new java.io.File("."));
+        fileChooser.setSelectedFile(new java.io.File("."));
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Text files", "txt"));
+        int returnValue = fileChooser.showOpenDialog(null);
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            File airportFile = fileChooser.getSelectedFile();
+            if (!airportFile.exists()) {
+                JOptionPane.showMessageDialog(null, "Fichier d'aéroport non trouvé.");
+                return null;
+            }
+            List<Aeroport> ports = new ArrayList<>();
+            try (Scanner scanAero = new Scanner(airportFile)) {
+                while (scanAero.hasNextLine()) {
+                    ports.add(new Aeroport(scanAero));
+                }
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(IntersectionIHM.class.getName()).log(Level.SEVERE, null, ex);
+                return null;
+            }
+            return ports;
+        }
+        return null;
+    }
+
+    private List<Vols> loadVols() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setCurrentDirectory(new java.io.File("."));
+        fileChooser.setSelectedFile(new java.io.File("."));
+        fileChooser.setFileFilter(new FileNameExtensionFilter("CSV files", "csv"));
+        int returnValue = fileChooser.showOpenDialog(null);
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            File flightFile = fileChooser.getSelectedFile();
+            if (!flightFile.exists()) {
+                JOptionPane.showMessageDialog(null, "Fichier de vol non trouvé.");
+                return null;
+            }
+            List<Vols> vols = new ArrayList<>();
+            try (Scanner scanVol = new Scanner(flightFile)) {
+                while (scanVol.hasNextLine()) {
+                    vols.add(new Vols(scanVol));
+                }
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(IntersectionIHM.class.getName()).log(Level.SEVERE, null, ex);
+                return null;
+            }
+            return vols;
+        }
+        return null;
+    }
+
     private class ZoomHandler implements ActionListener {
-        private double zoomFactor;
+        private final double zoomFactor;
 
         public ZoomHandler(double zoomFactor) {
             this.zoomFactor = zoomFactor;
@@ -170,55 +182,64 @@ public class IntersectionIHM extends JFrame {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (graphPanel.getComponentCount() > 0) {
+            if (graphPanel.isVisible() && graphPanel.getComponentCount() > 0) {
                 View view = (View) graphPanel.getComponent(0);
                 view.getCamera().setViewPercent(view.getCamera().getViewPercent() * zoomFactor);
+            } else if (mapViewer != null) {
+                int zoom = mapViewer.getZoom();
+                mapViewer.setZoom((int) (zoom * zoomFactor));
             }
         }
     }
-    
-    
 
-private void initMapPanel() {
-    JXMapViewer mapViewer = new JXMapViewer();
-    TileFactoryInfo info = new OSMTileFactoryInfo();
-    DefaultTileFactory tileFactory = new DefaultTileFactory(info);
-    mapViewer.setTileFactory(tileFactory);
+    private void initMapPanel() {
+        mapViewer = new JXMapViewer();
+        TileFactoryInfo info = new OSMTileFactoryInfo();
+        DefaultTileFactory tileFactory = new DefaultTileFactory(info);
+        mapViewer.setTileFactory(tileFactory);
 
-    GeoPosition initialPosition = new GeoPosition(46.7506229, 2.2942103);
-    mapViewer.setAddressLocation(initialPosition);
-    mapViewer.setZoom(5);
+        GeoPosition initialPosition = new GeoPosition(46.5768014,2.6674444);
+        mapViewer.setAddressLocation(initialPosition);
+        mapViewer.setZoom(5);
 
-   
+        mapViewer.addMouseListener(new PanMouseInputListener(mapViewer));
+        mapViewer.addMouseMotionListener(new PanMouseInputListener(mapViewer));
+        mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCenter(mapViewer));
 
-    
+        mapPanel.add(mapViewer, BorderLayout.CENTER);
+    }
 
-    // Ajouter les listeners pour interagir avec la carte
-    mapViewer.addMouseListener(new PanMouseInputListener(mapViewer));
-    mapViewer.addMouseMotionListener(new PanMouseInputListener(mapViewer));
-    mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCenter(mapViewer));
+    private void displayAirportsOnMap(List<Aeroport> airports) {
+        waypoints.clear();
+        EventWaypoint event = new EventWaypoint() {
+            @Override
+            public void selected(MyWaypoint waypoint) {
+                JOptionPane.showMessageDialog(null, "Aéroport sélectionné : " + waypoint.getAeroport().getLieu());
+            }
+        };
 
-    mapPanel.add(mapViewer, BorderLayout.CENTER);
-}
+        for (Aeroport aeroport : airports) {
+            MyWaypoint waypoint = new MyWaypoint(aeroport, event);
+            waypoints.add(waypoint);
+        }
 
+        WaypointPainter<MyWaypoint> waypointPainter = new WaypointRender();
+        waypointPainter.setWaypoints(waypoints);
+        mapViewer.setOverlayPainter(waypointPainter);
+    }
 
-    private void displayGraph(Graph g) {
+    private void displayGraph(Graph graph) {
         graphPanel.removeAll();
-
-        Viewer viewer = new Viewer(g, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
-        viewer.enableAutoLayout();
-        viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
-
+        Viewer viewer = new Viewer(graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
         View view = viewer.addDefaultView(false);
-        view.setPreferredSize(new Dimension(1200, 700)); // Adjust size to fit properly within the panel
-
         graphPanel.add((Component) view, BorderLayout.CENTER);
         graphPanel.revalidate();
         graphPanel.repaint();
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(IntersectionIHM::new);
+    private Graph setVolsCollision(List<Vols> vols, List<Aeroport> aeroports) {
+        // Implement this method based on your collision detection logic
+        return null;
     }
-}
 
+}

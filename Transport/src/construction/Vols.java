@@ -1,5 +1,10 @@
 package construction;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Iterator;
 import java.util.Scanner;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
 
 /**
  * La classe {@code Vols} représente un vol avec des informations telles que le code du vol,
@@ -149,5 +154,27 @@ public class Vols {
     @Override
     public String toString(){
         return this.codeVol+" ; "+this.depart+" ; "+this.arrive+" ; "+this.heure+" ; "+this.min+" ; "+this.duree;
+    }
+    
+    public static void exportTXT(Graph g){
+        try(FileWriter fichier = new FileWriter("..//..//filename.txt")) {
+            int now,next;
+            fichier.write(g.getNodeCount()+"\n");
+            fichier.write("0\n");
+            for (Node node : g) {
+                now=node.getIndex();
+                Iterator<Node> it = node.getNeighborNodeIterator();
+                while (it.hasNext()) {
+                    Node neighbor = it.next();
+                    next=neighbor.getIndex();
+                    if(next>now){
+                        fichier.write(now +" "+next+"\n");
+                    }
+                }
+            }
+        } catch (IOException e) {
+          System.out.println("Probleme avec fichier");
+            e.printStackTrace();
+        }
     }
 }

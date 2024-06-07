@@ -1,6 +1,7 @@
 package application;
 
 import static construction.Algos.Gloutonne;
+import static construction.Algos.dsatur;
 import static construction.Algos.largestFirstColoring;
 import static construction.Algos.welshPowell;
 import construction.Graphe;
@@ -14,6 +15,7 @@ import org.graphstream.graph.Graph;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import org.graphstream.ui.swingViewer.View;
 import org.graphstream.ui.swingViewer.Viewer;
 
@@ -41,7 +43,7 @@ public class Coloration extends JFrame {
         zoomInButton = new JButton("+");
         zoomOutButton = new JButton("-");
 
-        JComboBox<String> comboBox = new JComboBox<>(new String[]{"Gloutonne", "welshPowell", "largestFirstColoring"});
+        JComboBox<String> comboBox = new JComboBox<>(new String[]{"Gloutonne", "welshPowell", "largestFirstColoring","Dsatur"});
         chromLabel = new JLabel("Chromatic number: ");
         kMaxLabel = new JLabel("kMax: ");
         kMaxField = new JTextField(5);
@@ -56,6 +58,8 @@ public class Coloration extends JFrame {
 
             try {
                 JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setCurrentDirectory(new java.io.File("."));
+                fileChooser.setSelectedFile(new java.io.File("."));
                 FileNameExtensionFilter filter = new FileNameExtensionFilter("TXT files", "txt");
                 fileChooser.setFileFilter(filter);
                 int returnValue = fileChooser.showOpenDialog(null);
@@ -70,6 +74,7 @@ public class Coloration extends JFrame {
                             case "Gloutonne" -> chromaticNumber = Gloutonne(gcolor);
                             case "welshPowell" -> chromaticNumber = welshPowell(gcolor);
                             case "largestFirstColoring" -> chromaticNumber = largestFirstColoring(gcolor);
+                            case "Dsatur" -> chromaticNumber = dsatur(gcolor);
                             default -> JOptionPane.showMessageDialog(null, "Sélection d'algorithme non valide.");
                         }
                     }
@@ -193,9 +198,5 @@ public class Coloration extends JFrame {
         graphPanel.add((Component) view, BorderLayout.CENTER);
         graphPanel.revalidate();
         graphPanel.repaint();
-    }
-
-    public static void main(String[] args) {
-        new Coloration();
     }
 }
