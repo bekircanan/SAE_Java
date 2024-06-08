@@ -27,6 +27,7 @@ public class Coloration extends JFrame {
     private JTextField kMaxField;
     private JLabel kMaxLabel;
     private Graph currentGraph;
+    private JComboBox<String> comboBox;
 
     public Coloration() {
         setTitle("Coloration");
@@ -43,7 +44,7 @@ public class Coloration extends JFrame {
         zoomInButton = new JButton("+");
         zoomOutButton = new JButton("-");
 
-        JComboBox<String> comboBox = new JComboBox<>(new String[]{"Gloutonne", "welshPowell", "largestFirstColoring","Dsatur"});
+        comboBox = new JComboBox<>(new String[]{"Gloutonne", "welshPowell", "largestFirstColoring", "Dsatur"});
         chromLabel = new JLabel("Chromatic number: ");
         kMaxLabel = new JLabel("kMax: ");
         kMaxField = new JTextField(5);
@@ -81,7 +82,7 @@ public class Coloration extends JFrame {
 
                     if (gcolor != null) {
                         currentGraph = gcolor;
-                        displayGraph(gcolor);
+                        displayGraph(gcolor, chromaticNumber);
                         chromLabel.setText("Chromatic number: " + chromaticNumber);
                         kMaxLabel.setText("kMax: " + gcolor.getAttribute("kMax"));
                     }
@@ -103,6 +104,22 @@ public class Coloration extends JFrame {
                     int newKMax = Integer.parseInt(kMaxField.getText());
                     currentGraph.setAttribute("kMax", newKMax);
                     kMaxLabel.setText("kMax: " + newKMax);
+
+                    // Recalculate chromatic number with the updated kMax
+                    String selectedAlgorithm = (String) comboBox.getSelectedItem();
+                    int chromaticNumber = 0;
+                    if (selectedAlgorithm != null) {
+                        switch (selectedAlgorithm) {
+                            case "Gloutonne" -> chromaticNumber = Gloutonne(currentGraph);
+                            case "welshPowell" -> chromaticNumber = welshPowell(currentGraph);
+                            case "largestFirstColoring" -> chromaticNumber = largestFirstColoring(currentGraph);
+                            case "Dsatur" -> chromaticNumber = dsatur(currentGraph);
+                            default -> JOptionPane.showMessageDialog(null, "Sélection d'algorithme non valide.");
+                        }
+                    }
+
+                    displayGraph(currentGraph, chromaticNumber);
+                    chromLabel.setText("Chromatic number: " + chromaticNumber);
                 } else {
                     JOptionPane.showMessageDialog(null, "Aucun graphe chargé.");
                 }
@@ -122,7 +139,7 @@ public class Coloration extends JFrame {
 
         cont.gridx = 0;
         cont.gridy = 2;
-        cont.gridwidth = 1; 
+        cont.gridwidth = 1;
         controlPanel.add(kMaxLabel, cont);
 
         cont.gridx = 1;
@@ -181,7 +198,7 @@ public class Coloration extends JFrame {
         }
     }
 
-    private void displayGraph(Graph g) {
+    private void displayGraph(Graph g, int chromaticNumber) {
         graphPanel.removeAll();
 
         Viewer viewer = new Viewer(g, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
