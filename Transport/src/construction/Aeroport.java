@@ -1,9 +1,8 @@
-
-    package construction;
-
-    import java.io.FileNotFoundException;
-    import java.util.List;
-    import java.util.Scanner;
+package construction;
+import java.io.FileNotFoundException;
+import java.util.List;
+import java.util.Scanner;
+import org.graphstream.graph.Edge;
     import org.graphstream.graph.Graph;
     import org.graphstream.graph.Node;
     import org.graphstream.graph.implementations.MultiGraph;
@@ -100,6 +99,15 @@ public class Aeroport {
             }
             return g;
         }
+    
+    public static Graph volParHeure(Graph g,int heure){
+        for(Node n:g){
+            for(Edge e:n){
+                
+            }
+        }
+        return null;
+    }
 
     /**
      * Retourne le code de l'aéroport.

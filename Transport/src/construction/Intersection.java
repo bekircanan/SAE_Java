@@ -30,7 +30,10 @@ import org.graphstream.ui.swingViewer.Viewer;
  * 
  */
 public class Intersection {
-    
+    private static int MARGE=15;
+    public void setMarge(int nb){
+        MARGE=nb;
+    }
     /**
      * Associe les vols aux aéroports et ajoute les arêtes correspondantes au graphe.
      * <p>
@@ -40,8 +43,9 @@ public class Intersection {
      * @param vols la liste des vols
      * @param port la liste des aéroports
      * @param g le graphe dans lequel ajouter les arêtes
+     * @return 
      */
-    public static int[] setVolsAeroport(List<Vols> vols,List<Aeroport> port,Graph g){
+    public static Graph setVolsAeroport(List<Vols> vols,List<Aeroport> port,Graph g){
         int cpt=0;
         int taille=vols.size();
         g.setStrict(false);
@@ -60,7 +64,7 @@ public class Intersection {
         
         Viewer viewer = g.display();
         viewer.disableAutoLayout();
-        return new int[]{g.getNodeCount(), cpt};
+        return g;
     }
     
     /**
@@ -68,8 +72,9 @@ public class Intersection {
      * 
      * @param vols la liste des vols
      * @param port la liste des aéroports
+     * @return 
      */
-    public static double[] setVolsCollision(List<Vols> vols, List<Aeroport> port) {
+    public static Graph setVolsCollision(List<Vols> vols, List<Aeroport> port) {
     Graph g = new DefaultGraph("Vols");
     g.setStrict(false);
     collision(vols, port, g);
@@ -80,8 +85,8 @@ public class Intersection {
     cc.init(g);
     System.out.println("nb Composantes : " + cc.getConnectedComponentsCount());
     System.out.println("diametre : " + diameter(g));
-    g.display();
-    return new double[]{g.getNodeCount(), g.getEdgeCount(), (g.getEdgeCount() * 2) / g.getNodeCount(),cc.getConnectedComponentsCount() , diameter(g)};
+    
+    return g;
 }
 
     private static void collision(List<Vols> vols,List<Aeroport> port,Graph g){
@@ -114,13 +119,13 @@ public class Intersection {
             double departureTime2=v2.getHeure()* 60+ v2.getMin();
             double arrivalTime1=departureTime1+v1.getDuree();
             double arrivalTime2=departureTime2+v2.getDuree();
-            if((arrivalTime1 >= departureTime2 && arrivalTime1 <= arrivalTime2) || 
-                    (arrivalTime2 >= departureTime1 && arrivalTime2 <= arrivalTime1)){
-            System.out.println(v1.getDepart()+"|"+v1.getArrive()+" et "+v2.getDepart()+"|"+v2.getArrive());
-            System.out.println("colinaire ");
-            System.out.println("vol 1 : "+v1.getArriveaero().getX()+" | "+v1.getArriveaero().getY());
-            System.out.println("vol 2 : "+v2.getArriveaero().getX()+" | "+v2.getArriveaero().getY());
-            System.out.println("-------------------------------------------------------------------------");
+            // A = D , B = C
+            if(v1.getDepart().equals(v2.getArrive())&&v1.getArrive().equals(v2.getDepart())){
+                return (arrivalTime1+MARGE >= departureTime2 &&arrivalTime2+MARGE  >= departureTime1/*(Math.abs(arrivalTime1-departureTime2)<MARGE)||(Math.abs(arrivalTime2-departureTime1)<MARGE)*/);
+            }
+            //A = C, B = D
+            else if(v1.getDepart().equals(v2.getDepart())&&v1.getArrive().equals(v2.getArrive())){
+                return Math.abs(arrivalTime2-arrivalTime1) < MARGE;
             }
             return ((arrivalTime1 >= departureTime2 && arrivalTime1 <= arrivalTime2) || 
                     (arrivalTime2 >= departureTime1 && arrivalTime2 <= arrivalTime1));
@@ -131,15 +136,7 @@ public class Intersection {
         timeVol1 = (v1.getHeure() * 60 + v1.getMin()) + (Point.distance(v1.getDepartaero().getX(), v1.getDepartaero().getY(), inter.x, inter.y) / distanceVol1 * v1.getDuree());
         timeVol2 = (v2.getHeure() * 60 + v2.getMin()) + (Point.distance(v2.getDepartaero().getX(), v2.getDepartaero().getY(), inter.x, inter.y) / distanceVol2 * v2.getDuree());
         
-        if(Math.abs(timeVol1-timeVol2) < 15){
-            System.out.println(v1.getDepart()+"|"+v1.getArrive()+" et "+v2.getDepart()+"|"+v2.getArrive());
-            System.out.println("intersection : "+inter.x+" | "+inter.y);
-            System.out.println("vol 1 : "+v1.getArriveaero().getX()+" | "+v1.getArriveaero().getY());
-            System.out.println("vol 2 : "+v2.getArriveaero().getX()+" | "+v2.getArriveaero().getY());
-            System.out.println("-------------------------------------------------------------------------");
-        }
-        
-        return Math.abs(timeVol1-timeVol2) < 15;
+        return Math.abs(timeVol1-timeVol2) < MARGE;
     }
     
     private static Point2D.Double intersection(Vols v1,Vols v2,List<Aeroport> port){
@@ -200,4 +197,3 @@ public class Intersection {
         }
     }
 }
-

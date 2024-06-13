@@ -71,9 +71,12 @@ public class Graphe {
             }
             
             for(Node n:g){
+                n.addAttribute("degree", 0);
+                n.setAttribute("degree", n.getDegree());
                 n.setAttribute("ui.style", "size:20px;");
                 n.setAttribute("ui.label", n.getId());
             }
+            
             for(Edge e:g.getEdgeSet()){
                 e.setAttribute("ui.label", e.getId());
             }
