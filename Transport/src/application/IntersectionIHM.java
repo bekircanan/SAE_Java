@@ -47,7 +47,7 @@ public class IntersectionIHM extends JFrame {
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints cont = new GridBagConstraints();
 
-        String[] options = {"Graphique de l'aéroport", "Vol"};
+        String[] options = {"Graphique de l'aéroport", /*"Vol"*/};
         comboBox = new JComboBox<>(options);
         cont.gridx = 0;
         cont.gridy = 0;
@@ -105,15 +105,16 @@ public class IntersectionIHM extends JFrame {
                         mapPanel.setVisible(true);
                         graphPanel.setVisible(false);
                         setAeroport(mapViewer, ports); // Appel de la méthode setAeroport() pour afficher les aéroports sur la carte
+                        //setVolsAeroport(vols, ports , mapViewer);
                         
 }
 
-                    case "Vol" -> {
+                    /*case "Vol" -> {
                         mapPanel.setVisible(false);
                         graphPanel.setVisible(true);
                         displayGraph(setVolsCollision(vols, ports));
                         break;
-                    }
+                    }*/
 
                     default -> JOptionPane.showMessageDialog(null, "Sélection non valide.");
                 }
@@ -200,7 +201,7 @@ public class IntersectionIHM extends JFrame {
 
         GeoPosition initialPosition = new GeoPosition(46.5768014,2.6674444);
         mapViewer.setAddressLocation(initialPosition);
-        mapViewer.setZoom(5);
+        mapViewer.setZoom(13);
 
         mapViewer.addMouseListener(new PanMouseInputListener(mapViewer));
         mapViewer.addMouseMotionListener(new PanMouseInputListener(mapViewer));

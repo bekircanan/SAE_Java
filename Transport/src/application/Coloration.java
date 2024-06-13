@@ -1,21 +1,25 @@
 package application;
 
-import static construction.Algos.Gloutonne;
-import static construction.Algos.dsatur;
-import static construction.Algos.largestFirstColoring;
-import static construction.Algos.welshPowell;
+import construction.Aeroport;
 import construction.Graphe;
+import construction.Vols;
+import construction.Algos;
+import construction.Intersection;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import org.graphstream.graph.Graph;
-
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import org.graphstream.graph.Graph;
 import org.graphstream.ui.swingViewer.View;
 import org.graphstream.ui.swingViewer.Viewer;
 
@@ -28,6 +32,8 @@ public class Coloration extends JFrame {
     private JLabel kMaxLabel;
     private Graph currentGraph;
     private JComboBox<String> comboBox;
+    private JLabel LabelAirport;
+    private List<Aeroport> airports;
 
     public Coloration() {
         setTitle("Coloration");
@@ -40,51 +46,78 @@ public class Coloration extends JFrame {
         GridBagConstraints cont = new GridBagConstraints();
 
         JButton button = new JButton("Lancer Algorithme");
-
+        JButton ButtonAirport = new JButton("Charger un aéroport");
+        LabelAirport = new JLabel("Aucun aéroport chargé");
         zoomInButton = new JButton("+");
         zoomOutButton = new JButton("-");
 
-        comboBox = new JComboBox<>(new String[]{"Gloutonne", "welshPowell", "largestFirstColoring", "Dsatur"});
+        comboBox = new JComboBox<>(new String[]{"Gloutonne", "Welsh-Powell", "Largest First Coloring", "Dsatur"});
         chromLabel = new JLabel("Chromatic number: ");
         kMaxLabel = new JLabel("kMax: ");
         kMaxField = new JTextField(5);
         JButton updateKMaxButton = new JButton("Update kMax");
 
-        // Ajouter un espace entre les composants
         cont.insets = new Insets(30, 5, 30, 5);
 
-        button.addActionListener((var e) -> {
+        ButtonAirport.addActionListener((ActionEvent e) -> {
+            File selectedFile = selectFile();
+            if (selectedFile != null) {
+                airports = loadAeroports(selectedFile);
+                if (airports != null) {
+                    LabelAirport.setText(selectedFile.getName());
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Aucun fichier sélectionné.");
+            }
+        });
+
+        // Initialisez votre bouton "Lancer Algorithme"
+        button.addActionListener((ActionEvent e) -> {
             String selectedAlgorithm = (String) comboBox.getSelectedItem();
             Graph gcolor;
 
             try {
-                JFileChooser fileChooser = new JFileChooser();
-                fileChooser.setCurrentDirectory(new java.io.File("."));
-                fileChooser.setSelectedFile(new java.io.File("."));
-                FileNameExtensionFilter filter = new FileNameExtensionFilter("TXT files", "txt");
-                fileChooser.setFileFilter(filter);
-                int returnValue = fileChooser.showOpenDialog(null);
-                if (returnValue == JFileChooser.APPROVE_OPTION) {
-                    String filePath = fileChooser.getSelectedFile().getAbsolutePath();
-                    gcolor = Graphe.chargerGraphe(filePath);
+                File selectedFile = airports != null ? selectFile() : null; // Utilisez le fichier d'aéroport déjà chargé
+                if (selectedFile != null) {
+                    if (selectedFile.getName().endsWith(".txt")) {
+                        gcolor = Graphe.chargerGraphe(selectedFile.getAbsolutePath());
+                    } else if (selectedFile.getName().endsWith(".csv")) {
+                        List<Vols> vols = loadVols(selectedFile);
+                        
+                        // Utilisez les aéroports déjà chargés pour l'intersection
+                        gcolor = Intersection.setVolsCollision(vols, airports);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Format de fichier non supporté.");
+                        return;
+                    }
 
                     int chromaticNumber = 0;
 
                     if (selectedAlgorithm != null) {
                         switch (selectedAlgorithm) {
-                            case "Gloutonne" -> chromaticNumber = Gloutonne(gcolor);
-                            case "welshPowell" -> chromaticNumber = welshPowell(gcolor);
-                            case "largestFirstColoring" -> chromaticNumber = largestFirstColoring(gcolor);
-                            case "Dsatur" -> chromaticNumber = dsatur(gcolor);
-                            default -> JOptionPane.showMessageDialog(null, "Sélection d'algorithme non valide.");
+                            case "Gloutonne":
+                                chromaticNumber = Algos.Gloutonne(gcolor);
+                                break;
+                            case "Welsh-Powell":
+                                chromaticNumber = Algos.welshPowell(gcolor);
+                                break;
+                            case "Largest First Coloring":
+                                chromaticNumber = Algos.largestFirstColoring(gcolor);
+                                break;
+                            case "Dsatur":
+                                chromaticNumber = Algos.dsatur(gcolor);
+                                break;
+                            default:
+                                JOptionPane.showMessageDialog(null, "Sélection d'algorithme non valide.");
+                                break;
                         }
                     }
 
                     if (gcolor != null) {
                         currentGraph = gcolor;
                         displayGraph(gcolor, chromaticNumber);
-                        chromLabel.setText("Chromatic number: " + chromaticNumber);
-                        kMaxLabel.setText("kMax: " + gcolor.getAttribute("kMax"));
+                        chromLabel.setText("Nombre chromatique : " + chromaticNumber);
+                        kMaxLabel.setText("kMax : " + gcolor.getAttribute("kMax"));
                     }
                 } else {
                     JOptionPane.showMessageDialog(null, "Aucun fichier sélectionné.");
@@ -98,23 +131,33 @@ public class Coloration extends JFrame {
             }
         });
 
-        updateKMaxButton.addActionListener((var e) -> {
+
+        updateKMaxButton.addActionListener((ActionEvent e) -> {
             try {
                 if (currentGraph != null) {
                     int newKMax = Integer.parseInt(kMaxField.getText());
                     currentGraph.setAttribute("kMax", newKMax);
                     kMaxLabel.setText("kMax: " + newKMax);
 
-                    // Recalculate chromatic number with the updated kMax
                     String selectedAlgorithm = (String) comboBox.getSelectedItem();
                     int chromaticNumber = 0;
                     if (selectedAlgorithm != null) {
                         switch (selectedAlgorithm) {
-                            case "Gloutonne" -> chromaticNumber = Gloutonne(currentGraph);
-                            case "welshPowell" -> chromaticNumber = welshPowell(currentGraph);
-                            case "largestFirstColoring" -> chromaticNumber = largestFirstColoring(currentGraph);
-                            case "Dsatur" -> chromaticNumber = dsatur(currentGraph);
-                            default -> JOptionPane.showMessageDialog(null, "Sélection d'algorithme non valide.");
+                            case "Gloutonne":
+                                chromaticNumber = Algos.Gloutonne(currentGraph);
+                                break;
+                            case "Welsh-Powell":
+                                chromaticNumber = Algos.welshPowell(currentGraph);
+                                break;
+                            case "Largest First Coloring":
+                                chromaticNumber = Algos.largestFirstColoring(currentGraph);
+                                break;
+                            case "Dsatur":
+                                chromaticNumber = Algos.dsatur(currentGraph);
+                                break;
+                            default:
+                                JOptionPane.showMessageDialog(null, "Sélection d'algorithme non valide.");
+                                break;
                         }
                     }
 
@@ -128,54 +171,66 @@ public class Coloration extends JFrame {
             }
         });
 
+       
+        // Add spacing before the first two components
+        cont.insets = new Insets(20, 5, 5, 5);
+
         cont.gridx = 0;
         cont.gridy = 0;
         cont.anchor = GridBagConstraints.CENTER;
-        cont.gridwidth = 2; // Pour fusionner sur 2 colonnes
-        controlPanel.add(comboBox, cont);
+        cont.gridwidth = 2;
+        controlPanel.add(LabelAirport, cont);
 
         cont.gridy = 1;
+        controlPanel.add(ButtonAirport, cont);
+
+        // Add spacing between other components
+        cont.insets = new Insets(10, 5, 10, 5);
+
+        cont.gridy = 2;
+        controlPanel.add(comboBox, cont);
+
+        cont.gridy = 3;
         controlPanel.add(button, cont);
 
-        cont.gridx = 0;
-        cont.gridy = 2;
+        // Add spacing between kMaxLabel and chromLabel
+        cont.gridy = 4;
         cont.gridwidth = 1;
         controlPanel.add(kMaxLabel, cont);
 
         cont.gridx = 1;
+        cont.insets = new Insets(10, 15, 10, 5); // Add more space on the left
         controlPanel.add(chromLabel, cont);
 
         cont.gridx = 0;
-        cont.gridy = 3;
+        cont.gridy = 5;
+        cont.insets = new Insets(10, 5, 10, 5); // Reset the space
         controlPanel.add(new JLabel("Nouveau kMax: "), cont);
 
         cont.gridx = 1;
         controlPanel.add(kMaxField, cont);
 
         cont.gridx = 0;
-        cont.gridy = 4;
-        cont.gridwidth = 2; // Pour fusionner sur 2 colonnes
+        cont.gridy = 6;
+        cont.gridwidth = 2;
         controlPanel.add(updateKMaxButton, cont);
 
-        // Ajoute les boutons à droite
         add(controlPanel, BorderLayout.LINE_END);
 
         graphPanel = new JPanel(new BorderLayout());
         graphPanel.setPreferredSize(new Dimension(600, 400));
 
         JScrollPane jsp = new JScrollPane(graphPanel);
-        // Ajoute le JScrollPane avec le panneau du graphique
         add(jsp, BorderLayout.CENTER);
 
         cont.gridx = 0;
-        cont.gridy = 5;
-        cont.gridwidth = 3; // Pour fusionner sur 2 colonnes
+        cont.gridy = 7;
+        cont.gridwidth = 1;
         controlPanel.add(zoomInButton, cont);
 
         cont.gridx = 1;
         controlPanel.add(zoomOutButton, cont);
 
-        // Ajoute le graphique à gauche
         setVisible(true);
 
         zoomInButton.addActionListener(new ZoomHandler(1 / 1.1));
@@ -198,22 +253,64 @@ public class Coloration extends JFrame {
         }
     }
 
+    private File selectFile() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setCurrentDirectory(new File("."));
+        int returnValue = fileChooser.showOpenDialog(null);
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            return fileChooser.getSelectedFile();
+        }
+        return null;
+    }
+
+    private List<Vols> loadVols(File csvFile) throws IOException {
+        List<Vols> vols = new ArrayList<>();
+        try (Scanner scanVol = new Scanner(csvFile)) {
+            while (scanVol.hasNextLine()) {
+                vols.add(new Vols(scanVol));
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Coloration.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IOException("File not found: " + csvFile.getAbsolutePath(), ex);
+        }
+
+        return vols;
+    }
+
+    private List<Aeroport> loadAeroports(File txtFile) {
+    if (!txtFile.exists()) {
+        JOptionPane.showMessageDialog(null, "Fichier d'aéroport non trouvé.");
+        return null;
+    }
+    List<Aeroport> ports = new ArrayList<>();
+    try (Scanner scanAero = new Scanner(txtFile)) {
+        while (scanAero.hasNextLine()) {
+            ports.add(new Aeroport(scanAero));
+        }
+    } catch (FileNotFoundException ex) {
+        Logger.getLogger(Coloration.class.getName()).log(Level.SEVERE, null, ex);
+        return null;
+    }
+    return ports;
+}
+
+
     private void displayGraph(Graph g, int chromaticNumber) {
         graphPanel.removeAll();
 
         Viewer viewer = new Viewer(g, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
-        viewer.enableAutoLayout();  // Optional: for automatic layout of the graph
-
-        // Prevent the opening of an external viewer window
+        viewer.enableAutoLayout();
         viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
 
         View view = viewer.addDefaultView(false);
-
-        // Set a specific size for the graph view
         view.setPreferredSize(new Dimension(500, 500));
 
         graphPanel.add((Component) view, BorderLayout.CENTER);
         graphPanel.revalidate();
         graphPanel.repaint();
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(Coloration::new);
     }
 }

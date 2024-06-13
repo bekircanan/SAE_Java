@@ -482,4 +482,8 @@ public class Algos {
         }
         return totalConflicts;
     }
+
+    public static int runAlgorithm(String selectedAlgorithm, Graph gcolor) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }
