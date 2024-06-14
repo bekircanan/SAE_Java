@@ -1,7 +1,7 @@
 package construction;
 
-import construction.Aeroport;
-import construction.Vols;
+import modele.Aeroport;
+import modele.Vol;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.Point2D;
@@ -21,10 +21,10 @@ import org.jxmapviewer.viewer.Waypoint;
 import org.jxmapviewer.viewer.WaypointPainter;
 
 /**
- * The {@code Intersection} class manages interactions and collisions between flights in a graph.
+ * The {@code AlgorithmIntersection} class manages interactions and collisions between flights in a graph.
  * This class allows detection and visualization of collisions between flights and creates graphs of these interactions.
  */
-public class Intersection {
+public class AlgorithmIntersection {
     private static int MARGE=15;
     public void setMarge(int nb){
         MARGE=nb;
@@ -40,7 +40,7 @@ public class Intersection {
      * @param g le graphe dans lequel ajouter les arêtes
      * @return 
      */
-    public static Graph setVolsAeroport(List<Vols> vols,List<Aeroport> port,Graph g){
+    public static Graph setVolsAeroport(List<Vol> vols,List<Aeroport> port,Graph g){
         int cpt=0;
         int taille=vols.size();
         g.setStrict(false);
@@ -69,24 +69,17 @@ public class Intersection {
      * @param ports the list of airports
      * @return the graph of collisions
      */
-    public static Graph setVolsCollision(List<Vols> vols, List<Aeroport> ports) {
+    public static Graph setVolsCollision(List<Vol> vols, List<Aeroport> ports) {
         Graph g = new DefaultGraph("Vols");
         g.setStrict(false);
         collision(vols, ports, g);
-        System.out.println("nbNoeuds :" + g.getNodeCount());
-        System.out.println("nbAretes :" + g.getEdgeCount());
-        System.out.println("degre Moyen : " + (double) (g.getEdgeCount() * 2) / g.getNodeCount());
-        ConnectedComponents cc = new ConnectedComponents();
-        cc.init(g);
-        System.out.println("nb Composantes : " + cc.getConnectedComponentsCount());
-        System.out.println("diametre : " + diameter(g));
         return g;
     }
 
-    private static void collision(List<Vols> vols, List<Aeroport> ports, Graph g) {
+    private static void collision(List<Vol> vols, List<Aeroport> ports, Graph g) {
         int taille = vols.size();
         int cpt = 1;
-        for (Vols v : vols) {
+        for (Vol v : vols) {
             Node n = g.addNode(v.getCodeVol());
             n.setAttribute("label", v.getDepart() + "|" + v.getArrive());
             n.setAttribute("ui-label", v.getDepart() + "|" + v.getArrive());
@@ -103,7 +96,7 @@ public class Intersection {
         }
     }
 
-    private static boolean checkCollision(Vols v1, Vols v2, List<Aeroport> ports) {
+    private static boolean checkCollision(Vol v1, Vol v2, List<Aeroport> ports) {
         Point2D.Double inter = intersection(v1, v2, ports);
         if (inter == null) {
             return false;
@@ -131,7 +124,7 @@ public class Intersection {
         return Math.abs(timeVol1-timeVol2) < MARGE;
     }
 
-    private static Point2D.Double intersection(Vols v1, Vols v2, List<Aeroport> ports) {
+    private static Point2D.Double intersection(Vol v1, Vol v2, List<Aeroport> ports) {
         Point2D.Double pointA = null, pointB = null, pointC = null, pointD = null;
         for (Aeroport a : ports) {
             if (v1.getDepart().equals(a.getCodeAero())) {

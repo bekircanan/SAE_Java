@@ -1,4 +1,4 @@
-package application;
+package vue;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -16,8 +16,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JLabel;
 
-public class IhmSae extends JFrame {
-    public IhmSae() {
+public class Main extends JFrame {
+    public Main() {
         setExtendedState(JFrame.MAXIMIZED_BOTH); 
         setTitle("Menu principal");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -28,8 +28,8 @@ public class IhmSae extends JFrame {
         GridBagConstraints cont = new GridBagConstraints();
 
         JButton coloration = new JButton("Graphe coloration");
-        JButton intersection = new JButton("Graphe Intersection/collision");
-        JLabel titre = new JLabel("Choix de l'algorithme");
+        JButton intersection = new JButton("Carte de france");
+        JLabel titre = new JLabel("Choix de la fonctionnalite");
 
         // Définir les couleurs de fond des boutons
         coloration.setBackground(new Color(100, 181, 246)); // Bleu clair
@@ -58,7 +58,7 @@ public class IhmSae extends JFrame {
 
         // Définir le texte de l'infobulle
         coloration.setToolTipText("Cliquez pour commencer la coloration de graphe");
-        intersection.setToolTipText("Cliquez pour commencer l'intersection/collision de graphe");
+        intersection.setToolTipText("Cliquez pour Carte de france");
 
         // Définir les marges autour des boutons et du titre
         cont.insets = new Insets(20, 20, 20, 20);
@@ -82,18 +82,12 @@ public class IhmSae extends JFrame {
         cont.anchor = GridBagConstraints.CENTER;
         panel.add(intersection, cont);
 
-        coloration.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {   
-                openSecondaryWindow(new Coloration(), "Coloration");
-            }
+        coloration.addActionListener((ActionEvent e) -> {
+            openSecondaryWindow(new FenetreColoration(), "Coloration");
         });
         
-        intersection.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                openSecondaryWindow(new IntersectionIHM(), "Intersection");
-            }
+        intersection.addActionListener((ActionEvent e) -> {
+            openSecondaryWindow(new FenetreCarte(), "Intersection");
         });
 
         add(panel);
@@ -111,17 +105,17 @@ public class IhmSae extends JFrame {
             Thread.currentThread().interrupt();
         }
         
-        IhmSae.this.setVisible(false);
+        Main.this.setVisible(false);
         
         secondaryFrame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                IhmSae.this.setVisible(true);
+                Main.this.setVisible(true);
             }
         });
     }
     
     public static void main(String[] args) {
-        new IhmSae();
+        new Main();
     }
 }

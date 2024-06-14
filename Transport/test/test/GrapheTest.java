@@ -8,7 +8,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import construction.Graphe;
+import construction.ChargerGraphe;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -27,7 +27,7 @@ public class GrapheTest {
     @Test
     public void testChargerGraphe() throws FileNotFoundException, IOException {
         // Charger le graphe à partir du fichier
-        Graph g = Graphe.chargerGraphe(filePath);
+        Graph g = ChargerGraphe.chargerGraphe(filePath);
 
         // Vérifier que le graphe a été chargé correctement
         Assert.assertNotNull(g);

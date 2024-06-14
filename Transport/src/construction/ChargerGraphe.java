@@ -11,7 +11,7 @@ import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
 
 /**
- * La classe {@code Graphe} représente un graphe construit à partir d'un fichier.
+ * La classe {@code ChargerGraphe} représente un graphe construit à partir d'un fichier.
  * Elle utilise la bibliothèque GraphStream pour créer et afficher le graphe.
  * <p>
  * La classe fournit une méthode statique {@code chargerGraphe} pour charger le graphe
@@ -21,8 +21,8 @@ import org.graphstream.graph.implementations.SingleGraph;
  * Exemple d'utilisation :
  * <pre>
  * {@code
- * Graph graph = Graphe.chargerGraphe("chemin/vers/fichier.txt");
- * }
+ Graph graph = ChargerGraphe.chargerGraphe("chemin/vers/fichier.txt");
+ }
  * </pre>
  * </p>
  * <p>
@@ -38,7 +38,7 @@ import org.graphstream.graph.implementations.SingleGraph;
  * </p>
  * 
  */
-public class Graphe {
+public class ChargerGraphe {
      static int sommets;
 
    /**

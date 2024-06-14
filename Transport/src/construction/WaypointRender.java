@@ -1,4 +1,4 @@
-package application;
+package construction;
 
 import java.awt.Graphics2D;
 import java.awt.Rectangle;

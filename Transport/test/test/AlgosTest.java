@@ -5,7 +5,7 @@ import org.graphstream.graph.implementations.SingleGraph;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import construction.Algos;
+import construction.AlgorithmColoration;
 
 public class AlgosTest {
     
@@ -33,7 +33,7 @@ public class AlgosTest {
     @Test
     public void testGloutonne() {
         // Appeler la méthode Gloutonne sur le graphe
-        int totalConflicts = Algos.Gloutonne(g);
+        int totalConflicts = AlgorithmColoration.Gloutonne(g);
         
         // Vérifier le nombre de conflits
         Assert.assertEquals(0, totalConflicts);
@@ -55,7 +55,7 @@ public class AlgosTest {
     
     public void welshPowellTest(){
         // Appeler la méthode Gloutonne sur le graphe
-        int totalConflicts = Algos.welshPowell(g);
+        int totalConflicts = AlgorithmColoration.welshPowell(g);
         
         // Vérifier le nombre de conflits
         Assert.assertEquals(0, totalConflicts);
@@ -77,7 +77,7 @@ public class AlgosTest {
     }
     public void dsaturTest(){
         // Appeler la méthode dsatur sur le graphe
-        int totalConflicts = Algos.dsatur(g);
+        int totalConflicts = AlgorithmColoration.dsatur(g);
         
         // Vérifier le nombre de conflits
         Assert.assertEquals(0, totalConflicts);

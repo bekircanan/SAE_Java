@@ -1,4 +1,4 @@
-package construction;
+package modele;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Iterator;
@@ -7,15 +7,15 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
 /**
- * La classe {@code Vols} représente un vol avec des informations telles que le code du vol,
+ * La classe {@code Vol} représente un vol avec des informations telles que le code du vol,
  * l'aéroport de départ, l'aéroport d'arrivée, l'heure de départ, les minutes de départ et la durée du vol.
  * <p>
  * Exemple d'utilisation :
  * <pre>
  * {@code
- * Scanner scan = new Scanner(new File("vols.txt"));
- * Vols vol = new Vols(scan);
- * }
+ Scanner scan = new Scanner(new File("vols.txt"));
+ Vol vol = new Vol(scan);
+ }
  * </pre>
  * </p>
  * <p>
@@ -26,7 +26,7 @@ import org.graphstream.graph.Node;
  * </p>
  * 
  */
-public class Vols {
+public class Vol {
     private String codeVol;
     private String depart;
     private String arrive;
@@ -44,7 +44,7 @@ public class Vols {
      * 
      * @param scan le scanner à partir duquel les informations du vol sont lues
      */
-    public Vols(Scanner scan){
+    public Vol(Scanner scan){
         String[] parts =  scan.nextLine().split(";");
         if (parts.length == 6) {
         this.codeVol=parts[0];
@@ -147,9 +147,9 @@ public class Vols {
     }
     
     /**
-    * Retourne une représentation sous forme de chaîne de l'objet {@code Vols}.
+    * Retourne une représentation sous forme de chaîne de l'objet {@code Vol}.
     * 
-    * @return une chaîne représentant l'objet {@code Vols}
+    * @return une chaîne représentant l'objet {@code Vol}
     */
     @Override
     public String toString(){

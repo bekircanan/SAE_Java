@@ -15,7 +15,7 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
 /**
- * La classe {@code Algos} fournit plusieurs algorithmes de coloration pour les graphes.
+ * La classe {@code AlgorithmColoration} fournit plusieurs algorithmes de coloration pour les graphes.
  * <p>
  * Les algorithmes incluent une méthode gloutonne, l'algorithme de Welsh-Powell et une méthode
  * de coloration en fonction de la plus grande première.
@@ -24,11 +24,11 @@ import org.graphstream.graph.Node;
  * Exemple d'utilisation :
  * <pre>
  * {@code
- * Graph g = new SingleGraph("Graphe");
- * Algos.Gloutonne(g);
- * Algos.welshPowell(g);
- * Algos.largestFirstColoring(g);
- * }
+ Graph g = new SingleGraph("Graphe");
+ AlgorithmColoration.Gloutonne(g);
+ AlgorithmColoration.welshPowell(g);
+ AlgorithmColoration.largestFirstColoring(g);
+ }
  * </pre>
  * </p>
  * <p>
@@ -36,7 +36,7 @@ import org.graphstream.graph.Node;
  * </p>
  * 
  */
-public class Algos {
+public class AlgorithmColoration {
     
     /**
      * Applique une méthode gloutonne pour colorier le graphe.
@@ -174,9 +174,13 @@ public class Algos {
         for (int i = 0; i <= max; i++) {
             cols[i] = Color.getHSBColor((float) ((double) (Math.random()*100000.0)+5.0), 0.8f, 0.9f);
         }
-        for(Node n : g){ 
-               int col = (int) n.getNumber("color");
-               n.setAttribute("ui.style", "fill-color:rgb("+cols[col].getRed()+","+cols[col].getGreen()+","+cols[col].getBlue()+");" );
+        for (Node n : g) {
+            int col = (int) n.getNumber("color");
+            if (col >= 0 && col <= max) {
+                n.setAttribute("ui.style", "fill-color:rgb(" + cols[col].getRed() + "," + cols[col].getGreen() + "," + cols[col].getBlue() + ");");
+            } else {
+                System.err.println("Invalid color index: " + col + " for node: " + n.getId());
+            }
         }
     }
     
