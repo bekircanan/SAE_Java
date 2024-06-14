@@ -108,14 +108,18 @@ public class Intersection {
         if (inter == null) {
             return false;
         }
-        if (inter.x == 0 && inter.y == 0) {
-            double departureTime1 = v1.getHeure() * 60 + v1.getMin();
-            double departureTime2 = v2.getHeure() * 60 + v2.getMin();
-            double arrivalTime1 = departureTime1 + v1.getDuree();
-            double arrivalTime2 = departureTime2 + v2.getDuree();
-
-            if ((arrivalTime1 >= departureTime2 && arrivalTime1 <= arrivalTime2) || (arrivalTime2 >= departureTime1 && arrivalTime2 <= arrivalTime1)) {
-                return true;
+        if(inter.x==0 && inter.y==0){
+            double departureTime1=v1.getHeure() * 60+ v1.getMin();
+            double departureTime2=v2.getHeure()* 60+ v2.getMin();
+            double arrivalTime1=departureTime1+v1.getDuree();
+            double arrivalTime2=departureTime2+v2.getDuree();
+            // A = D , B = C
+            if(v1.getDepart().equals(v2.getArrive())&&v1.getArrive().equals(v2.getDepart())){
+                return (arrivalTime1+MARGE >= departureTime2 &&arrivalTime2+MARGE  >= departureTime1/*(Math.abs(arrivalTime1-departureTime2)<MARGE)||(Math.abs(arrivalTime2-departureTime1)<MARGE)*/);
+            }
+            //A = C, B = D
+            else if(v1.getDepart().equals(v2.getDepart())&&v1.getArrive().equals(v2.getArrive())){
+                return Math.abs(arrivalTime2-arrivalTime1) < MARGE;
             }
         }
         double timeVol1, timeVol2;
@@ -123,8 +127,8 @@ public class Intersection {
         double distanceVol2 = Point.distance(v2.getDepartaero().getX(), v2.getDepartaero().getY(), v2.getArriveaero().getX(), v2.getArriveaero().getY());
         timeVol1 = (v1.getHeure() * 60 + v1.getMin()) + (Point.distance(v1.getDepartaero().getX(), v1.getDepartaero().getY(), inter.x, inter.y) / distanceVol1 * v1.getDuree());
         timeVol2 = (v2.getHeure() * 60 + v2.getMin()) + (Point.distance(v2.getDepartaero().getX(), v2.getDepartaero().getY(), inter.x, inter.y) / distanceVol2 * v2.getDuree());
-
-        return Math.abs(timeVol1 - timeVol2) < MARGE;
+        
+        return Math.abs(timeVol1-timeVol2) < MARGE;
     }
 
     private static Point2D.Double intersection(Vols v1, Vols v2, List<Aeroport> ports) {

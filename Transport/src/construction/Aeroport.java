@@ -123,6 +123,13 @@ public class Aeroport {
                 
             }
         }
+    
+    public static Graph volParHeure(Graph g,int heure){
+        for(Node n:g){
+            for(Edge e:n){
+                
+            }
+        }
         return null;
     }
 
