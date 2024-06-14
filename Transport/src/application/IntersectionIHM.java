@@ -111,7 +111,8 @@ public class IntersectionIHM extends JFrame {
                 switch (selectedOption) {
                     case "Graphique de l'aéroport" -> {
                         mapPanel.setVisible(true);
-                        displayGraph(setVolsAeroport(vols, ports, setAeroport(ports)));
+                        graphPanel.setVisible(false);
+                        setAeroport(mapViewer,ports);
                     }
 
                     case "Vol" -> {

@@ -5,25 +5,15 @@ import static construction.Algos.dsatur;
 import static construction.Algos.largestFirstColoring;
 import static construction.Algos.welshPowell;
 import construction.Graphe;
-import construction.Vols;
-import construction.Algos;
-import construction.Intersection;
-
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.graphstream.algorithm.ConnectedComponents;
 import static org.graphstream.algorithm.Toolkit.diameter;
+import org.graphstream.graph.Graph;
 import org.graphstream.ui.swingViewer.View;
 import org.graphstream.ui.swingViewer.Viewer;
 
@@ -63,7 +53,7 @@ public class Coloration extends JFrame {
         
         JButton button = new JButton("Lancer Algorithme");
         JButton ButtonAirport = new JButton("Charger un aéroport");
-        LabelAirport = new JLabel("Aucun aéroport chargé");
+        JLabel LabelAirport = new JLabel("Aucun aéroport chargé");
         zoomInButton = new JButton("+");
         zoomOutButton = new JButton("-");
 

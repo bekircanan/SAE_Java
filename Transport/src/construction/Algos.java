@@ -2,13 +2,9 @@ package construction;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
@@ -48,7 +44,6 @@ public class Algos {
      * Chaque nœud du graphe se voit attribuer la plus petite couleur non utilisée par ses voisins.
      * </p>
      * 
-     * @param graph
      * @param g le graphe à colorier
      * @return 
      */
@@ -111,38 +106,20 @@ public class Algos {
     
     public static int largestFirstColoring(Graph g) {
         List<Node> nodes = new ArrayList<>(g.getNodeSet());
-    nodes.sort((n1, n2) -> Integer.compare(n2.getDegree(), n1.getDegree()));
-    
-    Map<Node, Integer> colorMap = new HashMap<>();
-    int maxColorUsed = 0;
-    int totalConflicts = 0;
-    int kMax=(int)g.getNumber("kMax");
-    for (Node node : nodes) {
-        Set<Integer> usedColors = new HashSet<>();
+        nodes.sort((n1, n2) -> Integer.compare(n2.getDegree(), n1.getDegree()));
 
-        for (Edge edge : node.getEachEdge()) {
-            Node adjacent = edge.getOpposite(node);
-            if (colorMap.containsKey(adjacent)) {
-                usedColors.add(colorMap.get(adjacent));
-            }
-        }
+        Map<Node, Integer> colorMap = new HashMap<>();
+        int maxColorUsed = 0;
+        int totalConflicts = 0;
+        int kMax = (int) g.getNumber("kMax");
 
-        int nodeColor = 1;
-        while (usedColors.contains(nodeColor) && nodeColor <= kMax) {
-            nodeColor++;
-        }
-
-        if (nodeColor > kMax) {
-            Map<Integer, Integer> colorConflicts = new HashMap<>();
-            for (int color = 1; color <= kMax; color++) {
-                colorConflicts.put(color, 0);
-            }
+        for (Node node : nodes) {
+            Set<Integer> usedColors = new HashSet<>();
 
             for (Edge edge : node.getEachEdge()) {
                 Node adjacent = edge.getOpposite(node);
                 if (colorMap.containsKey(adjacent)) {
-                    int adjColor = colorMap.get(adjacent);
-                    colorConflicts.put(adjColor, colorConflicts.get(adjColor) + 1);
+                    usedColors.add(colorMap.get(adjacent));
                 }
             }
 
@@ -204,8 +181,6 @@ public class Algos {
     }
     
     public static int dsatur(Graph g) {
-        int kMax=(int)g.getNumber("kMax");
-        int totalConflicts = 0;
         PriorityQueue<Node> nodeQueue = new PriorityQueue<>((a, b) -> {
             int dsatA = a.getAttribute("dsat");
             int dsatB = b.getAttribute("dsat");
@@ -232,29 +207,13 @@ public class Algos {
                 }
             }
 
-            int color = 0;
-            while (neighborColors.contains(color) && color < kMax) {
+            int color = 1;
+            while (neighborColors.contains(color)) {
                 color++;
             }
-
-            if (color >= kMax) {
-                Map<Integer, Integer> colorConflicts = new HashMap<>();
-                for (int c = 0; c < kMax; c++) {
-                    colorConflicts.put(c, 0);
-                }
-                for (Edge edge : node.getEachEdge()) {
-                    Node neighbor = edge.getOpposite(node);
-                    if (nodeColor.containsKey(neighbor)) {
-                        int neighborColor = nodeColor.get(neighbor);
-                        colorConflicts.put(neighborColor, colorConflicts.get(neighborColor) + 1);
-                    }
-                }
-                color = colorConflicts.entrySet().stream().min(Map.Entry.comparingByValue()).get().getKey();
-                totalConflicts += colorConflicts.get(color);
-            }
-
             nodeColor.put(node, color);
             node.setAttribute("color", color);
+            System.out.println(node+" == "+node.getAttribute("color"));
 
             for (Edge edge : node.getEachEdge()) {
                 Node neighbor = edge.getOpposite(node);

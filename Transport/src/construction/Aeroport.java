@@ -1,11 +1,12 @@
 package construction;
 import java.io.FileNotFoundException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 import org.graphstream.graph.Edge;
-    import org.graphstream.graph.Graph;
-    import org.graphstream.graph.Node;
-    import org.graphstream.graph.implementations.MultiGraph;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.viewer.DefaultWaypoint;
 import org.jxmapviewer.viewer.GeoPosition;
@@ -113,13 +114,6 @@ public class Aeroport {
 }
 
 
-    
-    public static Graph volParHeure(Graph g,int heure){
-        for(Node n:g){
-            for(Edge e:n){
-                
-            }
-        }
     
     public static Graph volParHeure(Graph g,int heure){
         for(Node n:g){
