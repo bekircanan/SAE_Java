@@ -12,7 +12,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
-import java.util.Queue;
 import java.util.Set;
 import org.graphstream.algorithm.coloring.WelshPowell;
 import org.graphstream.graph.Edge;
@@ -53,26 +52,24 @@ public class Algos {
      * @param g le graphe à colorier
      * @return 
      */
-    public static int Gloutonne(Graph graph) {
+    public static int Gloutonne(Graph g) {
         // Nombre maximum de couleurs possibles
         // (au pire cas, chaque sommet a une couleur différente)
-        int maxColors = graph.getNodeCount();
+        int maxColors = g.getNodeCount();
         // Tableau pour stocker les couleurs déjà utilisées -première couleur 1
         int[] usedColors = new int[maxColors+1];
         // Ajout de l'attribut dynamique couleur et initialisation à 0
-        for (Node n : graph) {
+        for (Node n : g) {
         n.addAttribute("couleur", 0);
         }
         // Pour chaque sommet, attribution d'une couleur non utilisée par ses voisins
-        for (Node node : graph) {
+        for (Node node : g) {
         // Réinitialiser le tableau des couleurs utilisées à 0
         for (int i = 0; i <= maxColors; i++) {
         usedColors[i] = 0;
         }
         // Parcourir les voisins du sommet pour marquer les couleurs utilisées
         Iterator<Node> it = node.getNeighborNodeIterator();
-
-        // Mark the colors used by neighboring nodes
         while (it.hasNext()) {
         Node neighbor = it.next();
         int color = (int)neighbor.getNumber("color");
@@ -88,10 +85,10 @@ public class Algos {
         // Attribuer la couleur au sommet
         node.setAttribute("color", color);
         }
-        colorierGraphe(graph);
-        return (int)graph.getNumber("kMax");
+        int con =recolorGraph(g);
+        colorierGraphe(g);
+        return con;
     }
-
 
     
     /**
@@ -107,16 +104,9 @@ public class Algos {
         WelshPowell wp=new WelshPowell("color");
         wp.init(g);
         wp.compute();
-        System.out.println("The chromatic number of this graph is : "+wp.getChromaticNumber()+" where kMax is : "+g.getAttribute("kMax"));
-        Color[] cols = new Color[wp.getChromaticNumber()];
-        for(int i=0;i< wp.getChromaticNumber();i++){
-               cols[i]=Color.getHSBColor((float) (Math.random()), 0.8f, 0.9f);
-        }
-        for(Node n : g){ 
-               int col = (int) n.getNumber("color");
-               n.setAttribute("ui.style", "fill-color:rgba("+cols[col].getRed()+","+cols[col].getGreen()+","+cols[col].getBlue()+",200);" );
-        }
-        return (wp.getChromaticNumber());
+        int con =recolorGraph(g);
+        colorierGraphe(g);
+        return con;
     }
     
     public static int largestFirstColoring(Graph g) {
@@ -156,22 +146,49 @@ public class Algos {
                 }
             }
 
-            nodeColor = colorConflicts.entrySet().stream()
-                .min(Map.Entry.comparingByValue())
-                .map(Map.Entry::getKey)
-                .orElse(1);
+            int nodeColor = 1;
+            while (usedColors.contains(nodeColor) && nodeColor <= kMax) {
+                nodeColor++;
+            }
 
-            totalConflicts += colorConflicts.get(nodeColor);
+            if (nodeColor > kMax) {
+                Map<Integer, Integer> colorConflicts = new HashMap<>();
+                for (int color = 1; color <= kMax; color++) {
+                    colorConflicts.put(color, 0);
+                }
+
+                for (Edge edge : node.getEachEdge()) {
+                    Node adjacent = edge.getOpposite(node);
+                    if (colorMap.containsKey(adjacent)) {
+                        int adjColor = colorMap.get(adjacent);
+                        colorConflicts.put(adjColor, colorConflicts.get(adjColor) + 1);
+                    }
+                }
+
+                nodeColor = colorConflicts.entrySet().stream()
+                    .min(Map.Entry.comparingByValue())
+                    .map(Map.Entry::getKey)
+                    .orElse(1);
+
+                totalConflicts += colorConflicts.get(nodeColor);
+            }
+
+            maxColorUsed = Math.max(maxColorUsed, nodeColor);
+            colorMap.put(node, nodeColor);
+            node.addAttribute("color", nodeColor);
+
+            for (Edge edge : node.getEachEdge()) {
+                Node adjacent = edge.getOpposite(node);
+                if (colorMap.containsKey(adjacent) && colorMap.get(adjacent).equals(nodeColor)) {
+                    edge.setAttribute("ui.style", "fill-color: red;");
+                }
+            }
         }
-
-        maxColorUsed = Math.max(maxColorUsed, nodeColor);
-        colorMap.put(node, nodeColor);
-        node.addAttribute("color", nodeColor);
-    }
-    g.addAttribute("totalConflicts", totalConflicts);
-    colorierGraphe(g);
-    System.out.println(totalConflicts);
-    return kMax;
+        
+        g.addAttribute("totalConflicts", totalConflicts);
+        colorierGraphe(g);
+        System.out.println(totalConflicts);
+        return totalConflicts;
     }
     
     private static void colorierGraphe(Graph g) {
@@ -246,48 +263,49 @@ public class Algos {
                     neighbor.setAttribute("dsat", dsat + 1);
                     nodeQueue.remove(neighbor);
                     nodeQueue.add(neighbor);
-                } else if (nodeColor.get(node).equals(nodeColor.get(neighbor))) {
-                    edge.setAttribute("ui.style", "fill-color: red;");
                 }
             }
         }
+        int con =recolorGraph(g);
         colorierGraphe(g);
-        return totalConflicts;
+        return con;
     }
     
-    public static void recursiveLargestFirst(Graph graph) {
-        List<Node> nodes = new ArrayList<>(graph.getNodeSet());
-        nodes.sort(Comparator.comparing(n -> (Integer) n.getAttribute("degree"), Comparator.reverseOrder()));
-
-        Map<Node, Integer> nodeColor = new HashMap<>();
-        int currentColor = 0;
-
-        while (!nodes.isEmpty()) {
-            Node node = nodes.get(0);
-            assignColor(node, nodeColor, currentColor);
-            nodes.removeIf(n -> nodeColor.containsKey(n));
-            currentColor++;
-        }
-    }
-
-    private static void assignColor(Node node, Map<Node, Integer> nodeColor, int color) {
-        Queue<Node> queue = new LinkedList<>();
-        queue.add(node);
-
-        while (!queue.isEmpty()) {
-            Node current = queue.poll();
-            nodeColor.put(current, color);
-            current.setAttribute("color", color);
-
-            List<Node> neighbors = new ArrayList<>();
-            for (Edge edge : current.getEachEdge()) {
-                Node neighbor = edge.getOpposite(current);
-                if (!nodeColor.containsKey(neighbor)) {
-                    neighbors.add(neighbor);
+    public static int recolorGraph(Graph g) {
+        int totalConflicts = 0;
+        int kMax=(int)g.getNumber("kMax");
+        for (Node node : g) {
+            int color = (int) node.getAttribute("color");
+            if (color > kMax) {
+                Map<Integer, Integer> neighborColorCount = new HashMap<>();
+                Iterator<? extends Node> neighbors = node.getNeighborNodeIterator();
+                while (neighbors.hasNext()) {
+                    Node neighbor = neighbors.next();
+                    int neighborColor = (int) neighbor.getAttribute("color");
+                    neighborColorCount.put(neighborColor, neighborColorCount.getOrDefault(neighborColor, 0) + 1);
                 }
+
+                int newColor = -1;
+                int minConflicts = Integer.MAX_VALUE;
+
+                for (int i = 1; i <= kMax; i++) {
+                    int conflicts = neighborColorCount.getOrDefault(i, 0);
+                    if (conflicts < minConflicts) {
+                        minConflicts = conflicts;
+                        newColor = i;
+                    }
+                }
+                node.setAttribute("color", newColor);
             }
-            neighbors.sort(Comparator.comparing(n -> (int) n.getAttribute("degree"), Comparator.reverseOrder()));
-            queue.addAll(neighbors);
         }
+        for (Edge edge : g.getEdgeSet()) {
+            Node node0 = edge.getNode0();
+            Node node1 = edge.getNode1();
+            if (node0.getAttribute("color").equals(node1.getAttribute("color"))) {
+                edge.setAttribute("ui.style", "fill-color: red;");
+                totalConflicts++;
+            }
+        }
+        return totalConflicts;
     }
 }

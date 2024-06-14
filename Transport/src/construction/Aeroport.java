@@ -1,10 +1,7 @@
 package construction;
 import java.io.FileNotFoundException;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
-import java.util.Set;
 import org.graphstream.graph.Edge;
     import org.graphstream.graph.Graph;
     import org.graphstream.graph.Node;

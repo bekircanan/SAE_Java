@@ -25,20 +25,20 @@ import org.jxmapviewer.viewer.WaypointPainter;
  * This class allows detection and visualization of collisions between flights and creates graphs of these interactions.
  */
 public class Intersection {
-    private static int MARGE = 15;
-
-    public void setMarge(int nb) {
-        MARGE = nb;
+    private static int MARGE=15;
+    public void setMarge(int nb){
+        MARGE=nb;
     }
-
     /**
-     * Associates flights with airports and adds the corresponding edges to the graph.
-     * Creates edges in the graph for flights in collision.
-     *
-     * @param vols    the list of flights
-     * @param ports   the list of airports
-     * @param mapViewer the map viewer to visualize the flights
-     * @return the graph with added edges
+     * Associe les vols aux aéroports et ajoute les arêtes correspondantes au graphe.
+     * <p>
+     * Crée des arêtes dans le graphe pour les vols en collision.
+     * </p>
+     * 
+     * @param vols la liste des vols
+     * @param port la liste des aéroports
+     * @param g le graphe dans lequel ajouter les arêtes
+     * @return 
      */
     public static Graph setVolsAeroport(List<Vols> vols,List<Aeroport> port,Graph g){
         int cpt=0;
