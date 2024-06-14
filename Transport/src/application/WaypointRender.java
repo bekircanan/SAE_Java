@@ -1,34 +1,24 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package application;
 
-/**
- *
- * @author A
- */
-import org.jxmapviewer.viewer.DefaultWaypointRenderer;
-import org.jxmapviewer.viewer.Waypoint;
-import org.jxmapviewer.viewer.WaypointRenderer;
-
-import java.awt.*;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.geom.Point2D;
+import javax.swing.JButton;
 import org.jxmapviewer.JXMapViewer;
+import org.jxmapviewer.viewer.WaypointPainter;
 
-public class WaypointRender implements WaypointRenderer<MyWaypoint> {
-    private final DefaultWaypointRenderer defaultRenderer = new DefaultWaypointRenderer();
+public class WaypointRender extends WaypointPainter<MyWaypoint> {
 
-    /**
-     *
-     * @param g
-     * @param map
-     * @param waypoint
-     * @return
-     */
     @Override
-    public void paintWaypoint(Graphics2D g, JXMapViewer map, MyWaypoint waypoint) {
-        defaultRenderer.paintWaypoint(g, map, (Waypoint) waypoint);
-        // You can customize the waypoint rendering here if needed
-        
+    protected void doPaint(Graphics2D g, JXMapViewer map, int width, int height) {
+        for (MyWaypoint wp : getWaypoints()) {
+            Point2D p = map.getTileFactory().geoToPixel(wp.getPosition(), map.getZoom());
+            Rectangle rec = map.getViewportBounds();
+            int x = (int) (p.getX() - rec.getX());
+            int y = (int) (p.getY() - rec.getY());
+            JButton cmd = wp.getButton();
+            cmd.setLocation(x - cmd.getWidth() / 2, y - cmd.getHeight());
+            map.add(cmd);
+        }
     }
 }

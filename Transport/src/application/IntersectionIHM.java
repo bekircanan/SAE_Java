@@ -14,9 +14,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JButton;
@@ -36,6 +35,7 @@ import org.jxmapviewer.input.ZoomMouseWheelListenerCenter;
 import org.jxmapviewer.viewer.DefaultTileFactory;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.jxmapviewer.viewer.TileFactoryInfo;
+import org.jxmapviewer.viewer.WaypointPainter;
 
 public class IntersectionIHM extends JFrame {
     private JPanel graphPanel;
@@ -43,6 +43,8 @@ public class IntersectionIHM extends JFrame {
     private JComboBox<String> comboBox;
     private JButton zoomInButton;
     private JButton zoomOutButton;
+    private JXMapViewer mapViewer;
+    private Set<MyWaypoint> waypoints = new HashSet<>();
 
     public IntersectionIHM() {
         setTitle("Intersection");

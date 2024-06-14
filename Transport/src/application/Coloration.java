@@ -5,14 +5,20 @@ import static construction.Algos.dsatur;
 import static construction.Algos.largestFirstColoring;
 import static construction.Algos.welshPowell;
 import construction.Graphe;
+import construction.Vols;
+import construction.Algos;
+import construction.Intersection;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import org.graphstream.graph.Graph;
-
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -56,6 +62,10 @@ public class Coloration extends JFrame {
         GridBagConstraints cont = new GridBagConstraints();
         
         JButton button = new JButton("Lancer Algorithme");
+        JButton ButtonAirport = new JButton("Charger un aéroport");
+        LabelAirport = new JLabel("Aucun aéroport chargé");
+        zoomInButton = new JButton("+");
+        zoomOutButton = new JButton("-");
 
         zoomInButton = new JButton("-");
         zoomOutButton = new JButton("+");
@@ -267,6 +277,21 @@ graphPanel.setPreferredSize(new Dimension(600, 400));
 
 
         // Ajoute les boutons à droite
+        add(controlPanel, BorderLayout.LINE_END);
+
+        cont.gridx = 0;
+        cont.gridy = 5;
+        cont.insets = new Insets(10, 5, 10, 5); // Reset the space
+        controlPanel.add(new JLabel("Nouveau kMax: "), cont);
+
+        cont.gridx = 1;
+        controlPanel.add(kMaxField, cont);
+
+        cont.gridx = 0;
+        cont.gridy = 6;
+        cont.gridwidth = 2;
+        controlPanel.add(updateKMaxButton, cont);
+
         add(controlPanel, BorderLayout.LINE_END);
 
         graphPanel = new JPanel(new BorderLayout());

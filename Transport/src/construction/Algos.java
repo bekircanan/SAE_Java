@@ -2,6 +2,8 @@ package construction;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -69,6 +71,8 @@ public class Algos {
         }
         // Parcourir les voisins du sommet pour marquer les couleurs utilisées
         Iterator<Node> it = node.getNeighborNodeIterator();
+
+        // Mark the colors used by neighboring nodes
         while (it.hasNext()) {
         Node neighbor = it.next();
         int color = (int)neighbor.getNumber("color");
@@ -87,6 +91,7 @@ public class Algos {
         colorierGraphe(graph);
         return (int)graph.getNumber("kMax");
     }
+
 
     
     /**

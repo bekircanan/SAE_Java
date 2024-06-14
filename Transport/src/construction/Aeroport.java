@@ -1,11 +1,20 @@
 package construction;
 import java.io.FileNotFoundException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 import org.graphstream.graph.Edge;
     import org.graphstream.graph.Graph;
     import org.graphstream.graph.Node;
     import org.graphstream.graph.implementations.MultiGraph;
+import org.jxmapviewer.JXMapViewer;
+import org.jxmapviewer.viewer.DefaultWaypoint;
+import org.jxmapviewer.viewer.GeoPosition;
+import org.jxmapviewer.viewer.Waypoint;
+import org.jxmapviewer.viewer.WaypointPainter;
+
 
 /**
  * La classe {@code Aeroport} représente un aéroport avec des informations telles que le code,
@@ -88,16 +97,31 @@ public class Aeroport {
      * @param port la liste des aéroports
      * @return un objet {@code Graph} représentant le graphe des aéroports
      */
-    public static Graph setAeroport(List<Aeroport> port){
-            Graph g = new MultiGraph("Aerien france");
-            for(Aeroport a:port){
-                Node n=g.addNode(a.getCodeAero());
-                n.setAttribute("x", a.getX());
-                n.setAttribute("y", -a.getY());
-                n.setAttribute("label", a.getCodeAero());
-                n.setAttribute("ui-label", a.getCodeAero());
+    public static void setAeroport(JXMapViewer mapViewer, List<Aeroport> ports) {
+    WaypointPainter<Waypoint> waypointPainter = new WaypointPainter<>();
+    Set<Waypoint> waypoints = new HashSet<>();
+    
+    // Iterate through each airport and add it as a waypoint
+    for (Aeroport aeroport : ports) {
+        GeoPosition position = new GeoPosition(aeroport.getLatitude(), aeroport.getLongitude());
+        DefaultWaypoint waypoint = new DefaultWaypoint(position);
+        waypoints.add(waypoint); // Add each waypoint to the set
+    }
+    
+    // Set the waypoints to the waypoint painter after all airports are added
+    waypointPainter.setWaypoints(waypoints);
+    
+    // Set the overlay painter of the mapViewer
+    mapViewer.setOverlayPainter(waypointPainter);
+}
+
+
+    
+    public static Graph volParHeure(Graph g,int heure){
+        for(Node n:g){
+            for(Edge e:n){
+                
             }
-            return g;
         }
     
     public static Graph volParHeure(Graph g,int heure){
