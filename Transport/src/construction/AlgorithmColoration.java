@@ -1,7 +1,10 @@
 package construction;
 
 import java.awt.Color;
+import static java.lang.Math.random;
+import static java.lang.StrictMath.random;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -164,7 +167,6 @@ public class AlgorithmColoration {
         
         g.addAttribute("totalConflicts", totalConflicts);
         colorierGraphe(g);
-        System.out.println(totalConflicts);
         return totalConflicts;
     }
     
@@ -185,13 +187,14 @@ public class AlgorithmColoration {
     }
     
     public static int dsatur(Graph g) {
-        PriorityQueue<Node> nodeQueue = new PriorityQueue<>((a, b) -> {
-            int dsatA = a.getAttribute("dsat");
-            int dsatB = b.getAttribute("dsat");
-            if (dsatA == dsatB) {
-                return b.getDegree() - a.getDegree();
+        PriorityQueue<Node> nodeQueue = new PriorityQueue<>((Node nodeA, Node nodeB) -> {
+            int dsatComparison = Integer.compare(nodeB.getAttribute("dsat"), nodeA.getAttribute("dsat"));
+            if (dsatComparison != 0) {
+                return dsatComparison;
+            } else {
+                Random random = new Random();
+                return random.nextBoolean() ? 1 : -1;
             }
-            return dsatB - dsatA;
         });
 
         Map<Node, Integer> nodeColor = new HashMap<>();
@@ -217,7 +220,6 @@ public class AlgorithmColoration {
             }
             nodeColor.put(node, color);
             node.setAttribute("color", color);
-            System.out.println(node+" == "+node.getAttribute("color"));
 
             for (Edge edge : node.getEachEdge()) {
                 Node neighbor = edge.getOpposite(node);

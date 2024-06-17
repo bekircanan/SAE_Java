@@ -113,17 +113,6 @@ public class Aeroport {
     mapViewer.setOverlayPainter(waypointPainter);
 }
 
-
-    
-    public static Graph volParHeure(Graph g,int heure){
-        for(Node n:g){
-            for(Edge e:n){
-                
-            }
-        }
-        return null;
-    }
-
     /**
      * Retourne le code de l'aéroport.
      * 
@@ -176,15 +165,5 @@ public class Aeroport {
      */
     public double getY() {
             return y;
-        }
-
-    /**
-     * Retourne une représentation sous forme de chaîne de l'objet {@code Aeroport}.
-     * 
-     * @return une chaîne représentant l'objet {@code Aeroport}
-     */
-    @Override
-    public String toString(){
-        return this.codeAero+";"+this.lieu+"; "+this.latitude+" ; "+this.longitude+" ; "+this.x+" ; "+this.y;
         }
 }

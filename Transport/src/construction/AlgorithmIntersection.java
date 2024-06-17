@@ -2,23 +2,13 @@ package construction;
 
 import modele.Aeroport;
 import modele.Vol;
-import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.Point2D;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import org.graphstream.algorithm.ConnectedComponents;
-import static org.graphstream.algorithm.Toolkit.diameter;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.DefaultGraph;
-import org.jxmapviewer.JXMapViewer;
-import org.jxmapviewer.viewer.DefaultWaypoint;
-import org.jxmapviewer.viewer.GeoPosition;
-import org.jxmapviewer.viewer.Waypoint;
-import org.jxmapviewer.viewer.WaypointPainter;
 
 /**
  * The {@code AlgorithmIntersection} class manages interactions and collisions between flights in a graph.
@@ -26,6 +16,7 @@ import org.jxmapviewer.viewer.WaypointPainter;
  */
 public class AlgorithmIntersection {
     private static int MARGE=15;
+    
     public void setMarge(int nb){
         MARGE=nb;
     }
@@ -53,11 +44,6 @@ public class AlgorithmIntersection {
                 }
             }
         }
-       
-        System.out.println("nbNoeuds :"+g.getNodeCount());
-        System.out.println("nbAretes :"+cpt);
-        
-         
         return g;
     }
 
@@ -88,8 +74,6 @@ public class AlgorithmIntersection {
             for (int j = i + 1; j < taille; j++) {
                 if (checkCollision(vols.get(i), vols.get(j), ports)) {
                     Edge e = g.addEdge(vols.get(i).getCodeVol() + " - " + vols.get(j).getCodeVol(), vols.get(i).getCodeVol(), vols.get(j).getCodeVol());
-                    e.setAttribute("label", Integer.toString(cpt));
-                    e.setAttribute("ui-label", Integer.toString(cpt));
                     cpt++;
                 }
             }
@@ -178,6 +162,33 @@ public class AlgorithmIntersection {
             return new Point2D.Double(x, y);
         } else {
             return null;
+        }
+    }
+    
+    public static void volParHeure(Graph g,int heure,List<Vol> vol){
+        for(Vol v:vol){
+            if(v.getHeure()!=heure){
+                Node n=g.getNode(v.getCodeVol());
+                for(Edge e:n){
+                    g.removeEdge(e);
+                }   
+            }
+        }
+    }
+    
+    public static void selectAeroport(String aeroport,List<Vol> vol,Graph g){
+        for(Vol v:vol){
+            if(!(v.getDepart().equals(aeroport))){
+                g.removeNode(v.getCodeVol());
+            }
+        }
+    }
+    
+    public static void selectLevel(int level,List<Vol> vol,Graph g){
+        for(Node n:g.getEachNode()){
+            if((int)n.getNumber("color")!=level){
+                g.removeNode(n);
+            }
         }
     }
 }

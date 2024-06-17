@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.filechooser.FileNameExtensionFilter;
+import static modele.Vol.exportTXT;
 import org.graphstream.algorithm.ConnectedComponents;
 import static org.graphstream.algorithm.Toolkit.diameter;
 import org.graphstream.graph.Edge;
@@ -34,13 +34,14 @@ public class FenetreColoration extends JFrame {
     private JTextField kMaxField;
     private JLabel nbConflits;
     private JLabel LabelAirport;
-    private JLabel nbNoeud;
     private JLabel nbAretes;
     private JLabel nbSommets;
     private JLabel CC;
     private JLabel DegMoy;
     private JLabel Diametre;
     private JLabel Degre;
+    private JButton intersection;
+    private JButton extraire;
     private ArrayList<Aeroport> airports;
     private Graph currentGraph;
     private static final double MIN_ZOOM = 0.1;
@@ -64,17 +65,18 @@ public class FenetreColoration extends JFrame {
         JLabel LabelAirport = new JLabel("Aucun aéroport chargé");
         zoomInButton = new JButton("+");
         zoomOutButton = new JButton("-");
+        intersection = new JButton("Carte de france");
 
         zoomInButton = new JButton("-");
         zoomOutButton = new JButton("+");
         nbConflits = new JLabel("Conflit : ");
-        nbNoeud = new JLabel("Noeuds : ");
         nbAretes = new JLabel("Arêtes : ");
         nbSommets = new JLabel("Sommets : ");
         CC = new JLabel("Composantes connexes : ");
         DegMoy = new JLabel("Degré moyen : ");
         Diametre = new JLabel("Diamètre : ");
         Degre = new JLabel("Degré : ");
+        extraire = new JButton("Extraire");
         zoomSlider = new JSlider(JSlider.HORIZONTAL, ZOOM_SLIDER_MIN, ZOOM_SLIDER_MAX, ZOOM_SLIDER_INIT);
 
         JComboBox<String> comboBox = new JComboBox<>(new String[]{"Gloutonne", "welshPowell", "largestFirstColoring","Dsatur"});
@@ -128,8 +130,15 @@ public class FenetreColoration extends JFrame {
 
                     if (gcolor != null) {
                         currentGraph = gcolor;
-                        displayGraph(gcolor);
-                        
+                        displayGraph(currentGraph);
+                        nbConflits.setText("Conflit : " + conflit);
+                        nbAretes.setText("Aretes : " + currentGraph.getEdgeCount());
+                        Diametre.setText("Diametre : " + (int)diameter(currentGraph));
+                        ConnectedComponents cc = new ConnectedComponents();
+                        cc.init(currentGraph);
+                        CC.setText("Composant : " + cc.getConnectedComponentsCount());
+                        DegMoy.setText("Degre Moyen : " + (double)(currentGraph.getEdgeCount()*2)/currentGraph.getNodeCount());
+                        nbSommets.setText("Sommets : " + currentGraph.getNodeCount());
                         nbConflits.setText("Conflits : " + conflit);
                     }
                 } else {
@@ -171,13 +180,12 @@ public class FenetreColoration extends JFrame {
                     
                     nbConflits.setText("Conflit : " + conflit);
                     nbAretes.setText("Aretes : " + currentGraph.getEdgeCount());
-                    Diametre.setText("Diametre : " + diameter(currentGraph));
+                    Diametre.setText("Diametre : " + (int)diameter(currentGraph));
                     ConnectedComponents cc = new ConnectedComponents();
                     cc.init(currentGraph);
                     CC.setText("Composant : " + cc.getConnectedComponentsCount());
                     DegMoy.setText("Degre Moyen : " + (double)(currentGraph.getEdgeCount()*2)/currentGraph.getNodeCount());
-                    nbNoeud.setText("Noeud : " + currentGraph.getNodeCount());
-                    nbSommets.setText("Sommets : " + currentGraph.getAttribute("kMax"));
+                    nbSommets.setText("Sommets : " + currentGraph.getNodeCount());
                     
                     
                 } else {
@@ -267,11 +275,6 @@ public class FenetreColoration extends JFrame {
         cont.gridy = 15;
         controlPanel.add(Box.createVerticalStrut(20), cont);
 
-        // zoomSlider en row 12, spans 2 colonnes
-        cont.gridy = 16;
-        cont.gridwidth = 2;
-        controlPanel.add(zoomSlider, cont);
-
         // Ajout du panel de contrôle à droite de la fenêtre principale
         add(controlPanel, BorderLayout.LINE_END);
 
@@ -296,8 +299,23 @@ public class FenetreColoration extends JFrame {
         cont.gridy = 7;
         cont.gridwidth = 2;
         controlPanel.add(updateKMaxButton, cont);
+        
+        // zoomSlider en row 12, spans 2 colonnes
+        cont.gridy = 16;
+        cont.gridwidth = 2;
+        controlPanel.add(zoomSlider, cont);
 
-        add(controlPanel, BorderLayout.LINE_END);
+        
+        cont.gridy = 17;
+        cont.gridwidth = 2;
+        controlPanel.add(intersection, cont);
+        
+        cont.gridy = 18;
+        cont.gridwidth = 2;
+        controlPanel.add(extraire, cont);
+        extraire.addActionListener((ActionEvent e) ->{
+            exportTXT(currentGraph);
+        });
 
         graphPanel = new JPanel(new BorderLayout());
         graphPanel.setPreferredSize(new Dimension(600, 400));
@@ -305,6 +323,11 @@ public class FenetreColoration extends JFrame {
         JScrollPane jsp = new JScrollPane(graphPanel);
         // Ajoute le JScrollPane avec le panneau du graphique
         add(jsp, BorderLayout.CENTER);
+        
+        intersection.addActionListener((ActionEvent e) -> {
+            openSecondaryWindow(new FenetreCarte(), "Intersection");
+            this.dispose();
+        });
 
         // Ajoute les actions des boutons de zoom avec des vérifications de limites
         zoomInButton.addActionListener(e -> zoomGraph(1.1));
@@ -316,6 +339,17 @@ public class FenetreColoration extends JFrame {
 
         setVisible(true);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
+    }
+    private void openSecondaryWindow(JFrame secondaryFrame, String title) {
+        secondaryFrame.setTitle(title);
+        secondaryFrame.setLocationRelativeTo(null);
+        secondaryFrame.setVisible(true);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        try {
+            Thread.sleep(250);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     private void zoomGraph(double zoomFactor) {
@@ -345,7 +379,7 @@ public class FenetreColoration extends JFrame {
     }
 
     private void displayGraph(Graph g) {
-        graphPanel        .removeAll();
+        graphPanel.removeAll();
 
         Viewer viewer = new Viewer(g, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
         viewer.enableAutoLayout();  // Optional: for automatic layout of the graph

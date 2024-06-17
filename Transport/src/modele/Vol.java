@@ -146,16 +146,6 @@ public class Vol {
         this.arriveaero = arriveaero;
     }
     
-    /**
-    * Retourne une représentation sous forme de chaîne de l'objet {@code Vol}.
-    * 
-    * @return une chaîne représentant l'objet {@code Vol}
-    */
-    @Override
-    public String toString(){
-        return this.codeVol+" ; "+this.depart+" ; "+this.arrive+" ; "+this.heure+" ; "+this.min+" ; "+this.duree;
-    }
-    
     public static void exportTXT(Graph g){
         try(FileWriter fichier = new FileWriter("..//..//filename.txt")) {
             int now,next;
@@ -174,7 +164,6 @@ public class Vol {
             }
         } catch (IOException e) {
           System.out.println("Probleme avec fichier");
-            e.printStackTrace();
         }
     }
 }
