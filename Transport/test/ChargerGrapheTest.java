@@ -1,11 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/UnitTests/JUnit4TestClass.java to edit this template
- */
-
 import construction.ChargerGraphe;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.InputMismatchException;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -14,15 +12,17 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import static org.junit.Assert.*;
 
-/**
- *
- * @author bekir
- */
 public class ChargerGrapheTest {
     private String filePath;
+
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
+
     public ChargerGrapheTest() {
     }
     
@@ -43,9 +43,6 @@ public class ChargerGrapheTest {
     public void tearDown() {
     }
 
-    // TODO add test methods here.
-    // The methods must be annotated with annotation @Test. For example:
-    //
     @Test
     public void testChargerGraphe() throws FileNotFoundException, IOException {
         // Charger le graphe à partir du fichier
@@ -95,7 +92,23 @@ public class ChargerGrapheTest {
         Assert.assertEquals("B-D", edgeBD.getId());
         Assert.assertEquals("C-D", edgeCD.getId());
     }
+
+    @Test(expected = FileNotFoundException.class)
+    public void testFileNotFoundException() throws FileNotFoundException, IOException {
+        // Utiliser un chemin de fichier qui n'existe pas
+        String invalidFilePath = "invalid/path/to/nonexistentfile.txt";
+        // Charger le graphe, ce qui devrait lancer une FileNotFoundException
+        ChargerGraphe.chargerGraphe(invalidFilePath);
+    }
+
+    @Test(expected = InputMismatchException.class)
+    public void testInputMismatchException() throws IOException {
+        // Créer un fichier temporaire mal formé
+        File tempFile = folder.newFile("malformedGraphe.txt");
+        try (FileWriter writer = new FileWriter(tempFile)) {
+            writer.write("invalid data\n");
+        }
+        // Charger le graphe, ce qui devrait lancer une InputMismatchException
+        ChargerGraphe.chargerGraphe(tempFile.getAbsolutePath());
+    }
 }
-
-    // public void hello() {}
-

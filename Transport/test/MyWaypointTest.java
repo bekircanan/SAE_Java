@@ -11,6 +11,9 @@ import static org.junit.Assert.*;
 import javax.swing.JButton;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
 import org.jxmapviewer.viewer.GeoPosition;
 
 public class MyWaypointTest {
@@ -71,10 +74,12 @@ public class MyWaypointTest {
     }
 
     @Test
-    public void testMyWaypointWithAeroport() {
+    public void testMyWaypointWithAeroport() throws FileNotFoundException {
         // Arrange
-        /*MockEventWaypoint event = new MockEventWaypoint();
-        Aeroport aeroport = new Aeroport("JFK", 40.6413, -73.7781);
+        MockEventWaypoint event = new MockEventWaypoint();
+        String aeroportData = "JFK , 40.6413, -73.7781";
+        Scanner scanner = new Scanner(new ByteArrayInputStream(aeroportData.getBytes()));
+        Aeroport aeroport = new Aeroport(scanner);
 
         // Act
         MyWaypoint waypoint = new MyWaypoint(aeroport, event);
@@ -83,7 +88,7 @@ public class MyWaypointTest {
         assertEquals("The name should be the airport code", aeroport.getCodeAero(), waypoint.getName());
         assertNotNull("Button should not be null", waypoint.getButton());
         assertEquals("Position should match the airport coordinates", new GeoPosition(aeroport.getLatitude(), aeroport.getLongitude()), waypoint.getPosition());
-        assertEquals("Aeroport object should be the same as the one passed in the constructor", aeroport, waypoint.getAeroport());*/
+        assertEquals("Aeroport object should be the same as the one passed in the constructor", aeroport, waypoint.getAeroport());
     }
 
     @Test
