@@ -25,8 +25,6 @@ public class MyWaypoint extends DefaultWaypoint {
         initButton(event);
     }
 
-    public MyWaypoint() {
-    }
 
     private void initButton(EventWaypoint event) {
         button = new JButton(name);
