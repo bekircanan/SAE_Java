@@ -15,7 +15,14 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JLabel;
 
+/**
+ * Classe principale représentant le menu principal de l'application.
+ */
 public class Main extends JFrame {
+    /**
+     * Constructeur de la classe Main.
+     * Initialise et configure l'interface utilisateur principale.
+     */
     public Main() {
         setExtendedState(JFrame.MAXIMIZED_BOTH); 
         setTitle("Menu principal");
@@ -93,6 +100,11 @@ public class Main extends JFrame {
         setVisible(true);
     }
 
+    /**
+     * Ouvre une fenêtre secondaire avec le contenu spécifié.
+     * @param secondaryFrame La fenêtre secondaire à ouvrir.
+     * @param title Le titre de la fenêtre secondaire.
+     */
     private void openSecondaryWindow(JFrame secondaryFrame, String title) {
         secondaryFrame.setTitle(title);
         secondaryFrame.setLocationRelativeTo(null);
@@ -114,6 +126,11 @@ public class Main extends JFrame {
         });
     }
     
+    /**
+     * Point d'entrée principal de l'application.
+     * Instancie et lance l'interface utilisateur principale.
+     * @param args Les arguments de la ligne de commande (non utilisés).
+     */
     public static void main(String[] args) {
         new Main();
     }

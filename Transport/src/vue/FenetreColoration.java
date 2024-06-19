@@ -4,7 +4,6 @@ import modele.Aeroport;
 import static construction.AlgorithmColoration.Gloutonne;
 import static construction.AlgorithmColoration.dsatur;
 import static construction.AlgorithmColoration.largestFirstColoring;
-import static construction.AlgorithmColoration.welshPowell;
 import construction.ChargerGraphe;
 import construction.AlgorithmIntersection;
 import modele.Vol;
@@ -26,6 +25,11 @@ import org.graphstream.graph.Graph;
 import org.graphstream.ui.swingViewer.View;
 import org.graphstream.ui.swingViewer.Viewer;
 
+/**
+ * Fenêtre de coloration des graphes.
+ * Cette fenêtre permet de charger un graphe à partir d'un fichier, d'appliquer des algorithmes
+ * de coloration et d'afficher les résultats.
+ */
 public class FenetreColoration extends JFrame {
     private JPanel graphPanel;
     private JButton zoomInButton;
@@ -50,6 +54,10 @@ public class FenetreColoration extends JFrame {
     private static final int ZOOM_SLIDER_MAX = 200;
     private static final int ZOOM_SLIDER_INIT = 100;
 
+    /**
+     * Constructeur de la fenêtre de coloration.
+     * Initialise tous les composants de l'interface utilisateur.
+     */
     public FenetreColoration() {
         
         setExtendedState(JFrame.MAXIMIZED_BOTH); 
@@ -79,7 +87,7 @@ public class FenetreColoration extends JFrame {
         extraire = new JButton("Extraire");
         zoomSlider = new JSlider(JSlider.HORIZONTAL, ZOOM_SLIDER_MIN, ZOOM_SLIDER_MAX, ZOOM_SLIDER_INIT);
 
-        JComboBox<String> comboBox = new JComboBox<>(new String[]{"Gloutonne", "welshPowell", "largestFirstColoring","Dsatur"});
+        JComboBox<String> comboBox = new JComboBox<>(new String[]{"Gloutonne", "welshPowell","Dsatur"});
         
         kMaxField = new JTextField(10);
         
@@ -118,8 +126,7 @@ public class FenetreColoration extends JFrame {
                     if (selectedAlgorithm != null) {
                         switch (selectedAlgorithm) {
                             case "Gloutonne" -> conflit = Gloutonne(gcolor);
-                            case "welshPowell" -> conflit = welshPowell(gcolor);
-                            case "largestFirstColoring" -> conflit = largestFirstColoring(gcolor);
+                            case "welshPowell" -> conflit = largestFirstColoring(gcolor);
                             case "Dsatur" -> conflit = dsatur(gcolor);
                             default -> JOptionPane.showMessageDialog(null, "Sélection d'algorithme non valide.");
                         }
@@ -167,8 +174,7 @@ public class FenetreColoration extends JFrame {
                     if (selectedAlgorithm != null) {
                         switch (selectedAlgorithm) {
                             case "Gloutonne" -> conflit = Gloutonne(currentGraph);
-                            case "welshPowell" -> conflit = welshPowell(currentGraph);
-                            case "largestFirstColoring" -> conflit = largestFirstColoring(currentGraph);
+                            case "welshPowell" -> conflit = largestFirstColoring(currentGraph);
                             case "Dsatur" -> conflit = dsatur(currentGraph);
                             default -> JOptionPane.showMessageDialog(null, "Sélection d'algorithme non valide.");
                         }
@@ -340,6 +346,12 @@ public class FenetreColoration extends JFrame {
         setVisible(true);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
     }
+    
+    /**
+     * Ouvre une fenêtre secondaire avec une carte géographique.
+     * @param secondaryFrame La fenêtre secondaire à ouvrir.
+     * @param title Le titre de la fenêtre secondaire.
+     */
     private void openSecondaryWindow(JFrame secondaryFrame, String title) {
         secondaryFrame.setTitle(title);
         secondaryFrame.setLocationRelativeTo(null);
@@ -352,6 +364,10 @@ public class FenetreColoration extends JFrame {
         }
     }
 
+    /**
+     * Zoom sur le graphique affiché dans le panneau graphique.
+     * @param zoomFactor Le facteur de zoom à appliquer.
+     */
     private void zoomGraph(double zoomFactor) {
         if (graphPanel.getComponentCount() > 0) {
             View view = (View) graphPanel.getComponent(0);
@@ -371,6 +387,10 @@ public class FenetreColoration extends JFrame {
         }
     }
 
+    /**
+     * Ajuste le zoom du graphique affiché dans le panneau graphique.
+     * @param zoomValue La valeur de zoom à appliquer.
+     */
     private void setGraphZoom(double zoomValue) {
         if (graphPanel.getComponentCount() > 0) {
             View view = (View) graphPanel.getComponent(0);
@@ -378,6 +398,10 @@ public class FenetreColoration extends JFrame {
         }
     }
 
+    /**
+     * Affiche le graphe donné dans le panneau graphique.
+     * @param g Le graphe à afficher.
+     */
     private void displayGraph(Graph g) {
         graphPanel.removeAll();
 
@@ -396,6 +420,12 @@ public class FenetreColoration extends JFrame {
         graphPanel.revalidate();
         graphPanel.repaint();
     }
+    
+    /**
+     * Charge les aéroports à partir d'un fichier texte.
+     * @param txtFile Le fichier texte contenant les données des aéroports.
+     * @return Une liste d'objets Aeroport chargés depuis le fichier.
+     */
     private ArrayList<Aeroport> loadAeroports(File txtFile) {
         if (!txtFile.exists()) {
             JOptionPane.showMessageDialog(null, "Fichier d'aéroport non trouvé.");
@@ -412,6 +442,13 @@ public class FenetreColoration extends JFrame {
         }
         return ports;
     }
+    
+    /**
+     * Charge les vols à partir d'un fichier CSV.
+     * @param csvFile Le fichier CSV contenant les données des vols.
+     * @return Une liste d'objets Vol chargés depuis le fichier.
+     * @throws IOException Si une erreur de lecture du fichier se produit.
+     */
     private ArrayList<Vol> loadVols(File csvFile) throws IOException {
         ArrayList<Vol> vols = new ArrayList<>();
         try (Scanner scanVol = new Scanner(csvFile)) {
@@ -425,6 +462,11 @@ public class FenetreColoration extends JFrame {
 
         return vols;
     }
+    
+    /**
+    * Sélectionne un fichier à ouvrir via une boîte de dialogue.
+    * @return Le fichier sélectionné ou null si aucun fichier n'est sélectionné.
+    */
     private File selectFile() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(new File("."));

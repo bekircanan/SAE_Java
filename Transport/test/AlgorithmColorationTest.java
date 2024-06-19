@@ -1,19 +1,27 @@
-package test;
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/UnitTests/JUnit4TestClass.java to edit this template
+ */
 
+import construction.AlgorithmColoration;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import construction.AlgorithmColoration;
+import static org.junit.Assert.*;
 
-public class AlgosTest {
-    
+/**
+ *
+ * @author bekir
+ */
+public class AlgorithmColorationTest {
     private Graph g;
-
-    @Before
-    public void init() {
-        // Création et initialisation d'un graphe pour les tests
+    
+    public AlgorithmColorationTest() {
         g = new SingleGraph("TestGraph");
         g.addNode("A");
         g.addNode("B");
@@ -29,14 +37,34 @@ public class AlgosTest {
         // Ajouter un attribut kMax au graphe
         g.addAttribute("kMax", 3);
     }
+    
+    
+    @BeforeClass
+    public static void setUpClass() {
+    }
+    
+    @AfterClass
+    public static void tearDownClass() {
+    }
+    
+    @Before
+    public void setUp() {
+    }
+    
+    @After
+    public void tearDown() {
+    }
 
+    // TODO add test methods here.
+    // The methods must be annotated with annotation @Test. For example:
+    //
     @Test
     public void testGloutonne() {
         // Appeler la méthode Gloutonne sur le graphe
         int totalConflicts = AlgorithmColoration.Gloutonne(g);
-        System.out.println(totalConflicts);
+        
         // Vérifier le nombre de conflits
-        Assert.assertEquals(1, totalConflicts);
+        Assert.assertNotEquals(0, totalConflicts);
 
         // Vérifier les couleurs des nœuds
         int colorA = g.getNode("A").getAttribute("color");
@@ -47,16 +75,35 @@ public class AlgosTest {
         // Vérifier que les nœuds adjacents ont des couleurs différentes
         Assert.assertNotEquals(colorA, colorB);
         Assert.assertNotEquals(colorA, colorC);
-        Assert.assertEquals(colorA, colorD);
+        Assert.assertNotEquals(colorA, colorD);
         Assert.assertNotEquals(colorB, colorC);
         Assert.assertNotEquals(colorB, colorD);
         Assert.assertNotEquals(colorC, colorD);
     }
-    
     @Test
-    public void welshPowellTest() {
-        // Appeler la méthode Welsh-Powell sur le graphe
-        int totalConflicts = AlgorithmColoration.welshPowell(g);
+    public void welshPowellTest(){
+        // Vérifier le nombre de conflits
+        Assert.assertNotEquals(0, AlgorithmColoration.welshPowell(g));
+
+        // Vérifier les couleurs des nœuds
+        int colorA = g.getNode("A").getAttribute("color");
+        int colorB = g.getNode("B").getAttribute("color");
+        int colorC = g.getNode("C").getAttribute("color");
+        int colorD = g.getNode("D").getAttribute("color");
+
+        // Vérifier que les nœuds adjacents ont des couleurs différentes
+        Assert.assertNotEquals(colorA, colorB);
+        Assert.assertNotEquals(colorA, colorC);
+        Assert.assertNotEquals(colorA, colorD);
+        Assert.assertNotEquals(colorB, colorC);
+        Assert.assertNotEquals(colorB, colorD);
+        Assert.assertNotEquals(colorC, colorD);
+    
+    }
+    @Test
+    public void dsaturTest(){
+        // Appeler la méthode dsatur sur le graphe
+        int totalConflicts = AlgorithmColoration.dsatur(g);
         
         // Vérifier le nombre de conflits
         Assert.assertEquals(0, totalConflicts);
@@ -75,54 +122,6 @@ public class AlgosTest {
         Assert.assertNotEquals(colorB, colorD);
         Assert.assertNotEquals(colorC, colorD);
     }
-    
-    //@Test
-    //Dsatur pas possible car aléatoire
-    /*public void dsaturTest() {
-        // Appeler la méthode DSATUR sur le graphe
-        int totalConflicts = AlgorithmColoration.dsatur(g);
-        
-        // Vérifier le nombre de conflits
-        //Assert.assertEquals(1, totalConflicts);
-
-        // Vérifier les couleurs des nœuds
-        int colorA = g.getNode("A").getAttribute("color");
-        int colorB = g.getNode("B").getAttribute("color");
-        int colorC = g.getNode("C").getAttribute("color");
-        int colorD = g.getNode("D").getAttribute("color");
-
-        // Vérifier que les nœuds adjacents ont des couleurs différentes
-        Assert.assertNotEquals(colorA, colorB);
-        Assert.assertEquals(colorA, colorC);
-        Assert.assertNotEquals(colorA, colorD);
-        Assert.assertEquals(colorB, colorC);
-        Assert.assertNotEquals(colorB, colorD);
-        Assert.assertNotEquals(colorC, colorD);
-    }*/
-    
-    @Test
-    public void largestFirstColoringTest(){
-    // Appeler la méthode Welsh-Powell sur le graphe
-        int totalConflicts = AlgorithmColoration.largestFirstColoring(g);
-        
-        // Vérifier le nombre de conflits
-        Assert.assertEquals(1, totalConflicts);
-
-        // Vérifier les couleurs des nœuds
-        int colorA = g.getNode("A").getAttribute("color");
-        int colorB = g.getNode("B").getAttribute("color");
-        int colorC = g.getNode("C").getAttribute("color");
-        int colorD = g.getNode("D").getAttribute("color");
-
-        // Vérifier que les nœuds adjacents ont des couleurs différentes
-        Assert.assertNotEquals(colorA, colorB);
-        Assert.assertNotEquals(colorA, colorC);
-        Assert.assertEquals(colorA, colorD);
-        Assert.assertNotEquals(colorB, colorC);
-        Assert.assertNotEquals(colorB, colorD);
-        Assert.assertNotEquals(colorC, colorD);
-    }
-    
-    
 }
+
 

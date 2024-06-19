@@ -4,6 +4,7 @@ import modele.Aeroport;
 import modele.Vol;
 import java.awt.Point;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.List;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -11,12 +12,17 @@ import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.DefaultGraph;
 
 /**
- * The {@code AlgorithmIntersection} class manages interactions and collisions between flights in a graph.
- * This class allows detection and visualization of collisions between flights and creates graphs of these interactions.
+ * La classe {@code AlgorithmIntersection} gère les interactions et les collisions entre les vols dans un graphe.
+ * Elle permet la détection et la visualisation des collisions entre les vols et crée des graphes de ces interactions.
  */
 public class AlgorithmIntersection {
     private static int MARGE=15;
     
+     /**
+     * Définit la marge utilisée pour la vérification des collisions entre vols.
+     *
+     * @param nb la valeur de la marge
+     */
     public void setMarge(int nb){
         MARGE=nb;
     }
@@ -25,11 +31,11 @@ public class AlgorithmIntersection {
      * <p>
      * Crée des arêtes dans le graphe pour les vols en collision.
      * </p>
-     * 
+     *
      * @param vols la liste des vols
-     * @param port la liste des aéroports
+     * @param ports la liste des aéroports
      * @param g le graphe dans lequel ajouter les arêtes
-     * @return 
+     * @return le graphe mis à jour avec les arêtes des vols en collision
      */
     public static Graph setVolsAeroport(List<Vol> vols,List<Aeroport> port,Graph g){
         int cpt=0;
@@ -49,11 +55,11 @@ public class AlgorithmIntersection {
 
 
     /**
-     * Creates and displays a graph of collisions between flights.
+     * Crée et affiche un graphe des collisions entre les vols.
      *
-     * @param vols  the list of flights
-     * @param ports the list of airports
-     * @return the graph of collisions
+     * @param vols la liste des vols
+     * @param ports la liste des aéroports
+     * @return le graphe des collisions entre les vols
      */
     public static Graph setVolsCollision(List<Vol> vols, List<Aeroport> ports) {
         Graph g = new DefaultGraph("Vols");
@@ -61,8 +67,8 @@ public class AlgorithmIntersection {
         collision(vols, ports, g);
         return g;
     }
-
-    private static void collision(List<Vol> vols, List<Aeroport> ports, Graph g) {
+    
+    static void collision(List<Vol> vols, List<Aeroport> ports, Graph g) {
         int taille = vols.size();
         int cpt = 1;
         for (Vol v : vols) {
@@ -164,31 +170,57 @@ public class AlgorithmIntersection {
             return null;
         }
     }
-    
-    public static void volParHeure(Graph g,int heure,List<Vol> vol){
+     /**
+     * Sélectionne les vols à afficher dans le graphe selon l'heure spécifiée.
+     *
+     * @param g le graphe des vols
+     * @param heure l'heure à laquelle les vols doivent être sélectionnés
+     * @param vol la liste des vols
+     */
+    public static List<Vol> volParHeure(int heure,List<Vol> vol){
         for(Vol v:vol){
             if(v.getHeure()!=heure){
-                Node n=g.getNode(v.getCodeVol());
-                for(Edge e:n){
-                    g.removeEdge(e);
-                }   
+                vol.remove(v);
             }
         }
+        return vol;
     }
     
-    public static void selectAeroport(String aeroport,List<Vol> vol,Graph g){
-        for(Vol v:vol){
-            if(!(v.getDepart().equals(aeroport))){
-                g.removeNode(v.getCodeVol());
+     /**
+     * Sélectionne les vols à afficher dans le graphe selon l'aéroport spécifié.
+     *
+     * @param aeroport le code de l'aéroport à sélectionner
+     * @param vol la liste des vols
+     * @param g le graphe des vols
+     */
+    public static List<Vol> selectAeroport(String aeroport, List<Vol> vol) {
+        List<Vol> result = new ArrayList<>();
+        for (Vol v : vol) {
+            if (v.getDepart().equals(aeroport)) {
+                result.add(v);
             }
         }
+        return result;
     }
-    
-    public static void selectLevel(int level,List<Vol> vol,Graph g){
-        for(Node n:g.getEachNode()){
-            if((int)n.getNumber("color")!=level){
-                g.removeNode(n);
+     /**
+     * Sélectionne les vols à afficher dans le graphe selon le niveau de couleur spécifié.
+     *
+     * @param level le niveau de couleur à sélectionner
+     * @param vol la liste des vols
+     * @param g le graphe des vols
+     */
+    public static List<Vol> selectLevel(int level, List<Vol> vol, Graph g) {
+        List<Vol> result = new ArrayList<>();
+        for (Node n : g) {
+            if ((int) n.getNumber("color") == level) {
+                for (Vol v : vol) {
+                    if (n.equals(g.getNode(v.getCodeVol()))) {
+                        result.add(v);
+                        break;
+                    }
+                }
             }
         }
+        return result;
     }
 }
