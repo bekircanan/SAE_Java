@@ -19,7 +19,7 @@ public class MyWaypoint extends DefaultWaypoint {
         this.name = name;
         initButton();
     }
-
+    
     private void initButton() {
         button = new ButtonWaypoint();
         button.setToolTipText(name);
