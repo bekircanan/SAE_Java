@@ -1,53 +1,51 @@
 package construction;
 
-import modele.Aeroport;
-import modele.Vol;
 import java.awt.Point;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
 import java.util.List;
+import org.graphstream.algorithm.ConnectedComponents;
+import static org.graphstream.algorithm.Toolkit.diameter;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.DefaultGraph;
+import org.graphstream.ui.swingViewer.Viewer;
 
 /**
- * La classe {@code AlgorithmIntersection} gère les interactions et les collisions entre les vols dans un graphe.
- * Elle permet la détection et la visualisation des collisions entre les vols et crée des graphes de ces interactions.
+ * La classe {@code Intersection} gère les interactions et les collisions entre les vols d'un graphe.
+ * <p>
+ * Cette classe permet de détecter et de visualiser les collisions entre les vols et de créer des graphes de ces interactions.
+ * </p>
+ * 
+ * Exemple d'utilisation :
+ * <pre>
+ * {@code
+ * List<Vols> vols = ...;
+ * List<Aeroport> ports = ...;
+ * Graph graph = new DefaultGraph("Vols");
+ * Intersection.setVolsAeroport(vols, ports, graph);
+ * Intersection.setVolsCollision(vols, ports);
+ * }
+ * </pre>
+ * 
  */
-public class AlgorithmIntersection {
-    public static int MARGE = 15;
-    
-     /**
-     * Définit la marge utilisée pour la vérification des collisions entre vols.
-     *
-     * @param nb la valeur de la marge
-     */
-     public void setMarge(int nb) {
-        this.MARGE = nb;
-        
-    }
-    
-    // Getter method for MARGE if needed
-    public int getMarge() {
-        return this.MARGE;
-    }
-    
-    public static int getMarge(int nb){
-        return nb;
+public class Intersection {
+    private static int MARGE=15;
+    public void setMarge(int nb){
+        MARGE=nb;
     }
     /**
      * Associe les vols aux aéroports et ajoute les arêtes correspondantes au graphe.
      * <p>
      * Crée des arêtes dans le graphe pour les vols en collision.
      * </p>
-     *
+     * 
      * @param vols la liste des vols
-     * @param ports la liste des aéroports
+     * @param port la liste des aéroports
      * @param g le graphe dans lequel ajouter les arêtes
-     * @return le graphe mis à jour avec les arêtes des vols en collision
+     * @return 
      */
-    public static Graph setVolsAeroport(List<Vol> vols,List<Aeroport> port,Graph g){
+    public static Graph setVolsAeroport(List<Vols> vols,List<Aeroport> port,Graph g){
         int cpt=0;
         int taille=vols.size();
         g.setStrict(false);
@@ -60,44 +58,59 @@ public class AlgorithmIntersection {
                 }
             }
         }
-        return g;
-    }
-
-
-    /**
-     * Crée et affiche un graphe des collisions entre les vols.
-     *
-     * @param vols la liste des vols
-     * @param ports la liste des aéroports
-     * @return le graphe des collisions entre les vols
-     */
-    public static Graph setVolsCollision(List<Vol> vols, List<Aeroport> ports) {
-        Graph g = new DefaultGraph("Vols");
-        g.setStrict(false);
-        collision(vols, ports, g);
+       
+        System.out.println("nbNoeuds :"+g.getNodeCount());
+        System.out.println("nbAretes :"+cpt);
+        
+        Viewer viewer = g.display();
+        viewer.disableAutoLayout();
         return g;
     }
     
-    static void collision(List<Vol> vols, List<Aeroport> ports, Graph g) {
-        int taille = vols.size();
-        int cpt = 1;
-        for (Vol v : vols) {
-            Node n = g.addNode(v.getCodeVol());
-            n.setAttribute("label", v.getDepart() + "|" + v.getArrive());
-            n.setAttribute("ui-label", v.getDepart() + "|" + v.getArrive());
+    /**
+     * Crée et affiche un graphe des collisions entre les vols.
+     * 
+     * @param vols la liste des vols
+     * @param port la liste des aéroports
+     * @return 
+     */
+    public static Graph setVolsCollision(List<Vols> vols, List<Aeroport> port) {
+    Graph g = new DefaultGraph("Vols");
+    g.setStrict(false);
+    collision(vols, port, g);
+    System.out.println("nbNoeuds :" + g.getNodeCount());
+    System.out.println("nbAretes :" + g.getEdgeCount());
+    System.out.println("degre Moyen : " + (double) (g.getEdgeCount() * 2) / g.getNodeCount());
+    ConnectedComponents cc = new ConnectedComponents();
+    cc.init(g);
+    System.out.println("nb Composantes : " + cc.getConnectedComponentsCount());
+    System.out.println("diametre : " + diameter(g));
+    
+    return g;
+}
+
+    private static void collision(List<Vols> vols,List<Aeroport> port,Graph g){
+        int taille=vols.size();
+        int cpt=1;
+        for(Vols v:vols){
+            Node n =g.addNode(v.getCodeVol());
+            n.setAttribute("label",v.getDepart() + "|"+v.getArrive());
+            n.setAttribute("ui-label", v.getDepart() + "|"+v.getArrive());
         }
-        for (int i = 0; i < taille; i++) {
-            for (int j = i + 1; j < taille; j++) {
-                if (checkCollision(vols.get(i), vols.get(j), ports)) {
-                    Edge e = g.addEdge(vols.get(i).getCodeVol() + " - " + vols.get(j).getCodeVol(), vols.get(i).getCodeVol(), vols.get(j).getCodeVol());
+        for(int i=0;i<taille;i++){
+            for(int j=i+1;j<taille;j++){
+                if(checkCollision(vols.get(i),vols.get(j),port)){
+                    Edge e=g.addEdge(vols.get(i).getCodeVol()+" - "+ vols.get(j).getCodeVol(), vols.get(i).getCodeVol(), vols.get(j).getCodeVol());
+                    e.setAttribute("label",Integer.toString(cpt));
+                    e.setAttribute("ui-label", Integer.toString(cpt));
                     cpt++;
                 }
             }
         }
     }
-
-    private static boolean checkCollision(Vol v1, Vol v2, List<Aeroport> ports) {
-        Point2D.Double inter = intersection(v1, v2, ports);
+    
+    private static boolean checkCollision(Vols v1, Vols v2, List<Aeroport> port) {
+        Point2D.Double inter = intersection(v1, v2, port);
         if (inter == null) {
             return false;
         }
@@ -114,8 +127,10 @@ public class AlgorithmIntersection {
             else if(v1.getDepart().equals(v2.getDepart())&&v1.getArrive().equals(v2.getArrive())){
                 return Math.abs(arrivalTime2-arrivalTime1) < MARGE;
             }
+            return ((arrivalTime1 >= departureTime2 && arrivalTime1 <= arrivalTime2) || 
+                    (arrivalTime2 >= departureTime1 && arrivalTime2 <= arrivalTime1));
         }
-        double timeVol1, timeVol2;
+        double timeVol1,timeVol2;
         double distanceVol1 = Point.distance(v1.getDepartaero().getX(), v1.getDepartaero().getY(), v1.getArriveaero().getX(), v1.getArriveaero().getY());
         double distanceVol2 = Point.distance(v2.getDepartaero().getX(), v2.getDepartaero().getY(), v2.getArriveaero().getX(), v2.getArriveaero().getY());
         timeVol1 = (v1.getHeure() * 60 + v1.getMin()) + (Point.distance(v1.getDepartaero().getX(), v1.getDepartaero().getY(), inter.x, inter.y) / distanceVol1 * v1.getDuree());
@@ -123,10 +138,10 @@ public class AlgorithmIntersection {
         
         return Math.abs(timeVol1-timeVol2) < MARGE;
     }
-
-    private static Point2D.Double intersection(Vol v1, Vol v2, List<Aeroport> ports) {
+    
+    private static Point2D.Double intersection(Vols v1,Vols v2,List<Aeroport> port){
         Point2D.Double pointA = null, pointB = null, pointC = null, pointD = null;
-        for (Aeroport a : ports) {
+        for (Aeroport a : port) {
             if (v1.getDepart().equals(a.getCodeAero())) {
                 pointA = new Point2D.Double(a.getX(), a.getY());
                 v1.setDepartaero(a);
@@ -152,88 +167,33 @@ public class AlgorithmIntersection {
         double x2 = pointB.x, y2 = pointB.y;
         double x3 = pointC.x, y3 = pointC.y;
         double x4 = pointD.x, y4 = pointD.y;
-
+        
         double ABx = x2 - x1;
         double ABy = y2 - y1;
         double CDx = x4 - x3;
         double CDy = y4 - y3;
-
+        
         double denominator = ABx * CDy - ABy * CDx;
         double numerA = (x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3);
         double numerB = (x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3);
-
+        
         if (denominator == 0) {
-            if ((ABy / ABx) == (CDy / CDx)) {
-                return new Point2D.Double(0, 0);
+            if((ABy/ABx)==(CDy/CDx)){
+                return new Point2D.Double(0,0);
             }
             return null;
         }
         double u = numerA / denominator;
         double v = numerB / denominator;
-
-        if (u >= 0 - 0 && u <= 1 + 0.00001 && v >= 0 && v <= 1 + 0.00001) {
+        
+        
+        if (u >= 0-0 && u <= 1+0.00001 && v >= 0 && v <= 1+0.00001) {
             double x = x1 + u * ABx;
             double y = y1 + u * ABy;
-
+            
             return new Point2D.Double(x, y);
-        } else {
+        }else{
             return null;
         }
-    }
-     /**
- * Sélectionne les vols à afficher dans le graphe selon l'heure spécifiée.
- *
- * @param heure l'heure à laquelle les vols doivent être sélectionnés
-     * @param minute
- * @param vol la liste des vols
- * @return une liste des vols filtrés par heure
- */
-public static List<Vol> volParHeure(int heure,int minute ,List<Vol> vol) {
-    List<Vol> volsFiltres = new ArrayList<>();
-    for (Vol v : vol) {
-        if ((v.getHeure() == heure)&((v.getMin() > (minute - 30)) || (v.getMin() < (minute + 30)))) {
-            volsFiltres.add(v);
-        }
-    }
-    return volsFiltres;
-}
-
-    
-     /**
-     * Sélectionne les vols à afficher dans le graphe selon l'aéroport spécifié.
-     *
-     * @param aeroport le code de l'aéroport à sélectionner
-     * @param vol la liste des vols
-     * @param g le graphe des vols
-     */
-    public static List<Vol> selectAeroport(String aeroport, List<Vol> vol) {
-        List<Vol> result = new ArrayList<>();
-        for (Vol v : vol) {
-            if (v.getDepart().equals(aeroport)) {
-                result.add(v);
-            }
-        }
-        return result;
-    }
-     /**
-     * Sélectionne les vols à afficher dans le graphe selon le niveau de couleur spécifié.
-     *
-     * @param level le niveau de couleur à sélectionner
-     * @param vol la liste des vols
-     * @param g le graphe des vols
-     */
-    public static List<Vol> selectLevel(int level, List<Vol> vol, Graph g) {
-        List<Vol> result = new ArrayList<>();
-        for (Node n : g) {
-            if ((int) n.getNumber("color") == level) {
-                for (Vol v : vol) {
-                    if (n.equals(g.getNode(v.getCodeVol()))) {
-                        result.add(v);
-                        break;
-                    }
-                }
-            }
-        }
-        return result;
     }
 }

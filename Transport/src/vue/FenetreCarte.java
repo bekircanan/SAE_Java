@@ -1,18 +1,9 @@
 package vue;
 
-import construction.MyWaypoint;
-import construction.WaypointRender;
-import construction.jXMapviewerCustom;
-import modele.Aeroport;
-import modele.Vol;
-import org.jxmapviewer.JXMapViewer;
-import org.jxmapviewer.OSMTileFactoryInfo;
-import org.jxmapviewer.input.PanMouseInputListener;
-import org.jxmapviewer.input.ZoomMouseWheelListenerCenter;
-import org.jxmapviewer.viewer.DefaultTileFactory;
-import org.jxmapviewer.viewer.GeoPosition;
-import org.jxmapviewer.viewer.TileFactoryInfo;
-
+import static construction.AlgorithmColoration.Gloutonne;
+import static construction.AlgorithmColoration.dsatur;
+import static construction.AlgorithmColoration.largestFirstColoring;
+import construction.AlgorithmIntersection;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -27,9 +18,28 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static construction.AlgorithmIntersection.volParHeure;
 import static modele.Aeroport.setAeroport;
+
+import construction.MyWaypoint;
+import construction.WaypointRender;
+import construction.jXMapviewerCustom;
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
+import modele.Aeroport;
+import modele.Vol;
+import org.graphstream.algorithm.ConnectedComponents;
+import static org.graphstream.algorithm.Toolkit.diameter;
+import org.graphstream.graph.Graph;
+import org.jxmapviewer.JXMapViewer;
+import org.jxmapviewer.OSMTileFactoryInfo;
+import org.jxmapviewer.input.PanMouseInputListener;
+import org.jxmapviewer.input.ZoomMouseWheelListenerCenter;
 import org.jxmapviewer.painter.CompoundPainter;
-import org.jxmapviewer.viewer.Waypoint;
+import org.jxmapviewer.viewer.DefaultTileFactory;
+import org.jxmapviewer.viewer.GeoPosition;
+import org.jxmapviewer.viewer.TileFactoryInfo;
 import org.jxmapviewer.viewer.WaypointPainter;
 
 /**
@@ -39,13 +49,23 @@ public class FenetreCarte extends JFrame {
     private static List<Aeroport> ports;
     public static List<Vol> vols;
     private JPanel mapPanel;
+    private JPanel graph;
     private JLabel carteLabel;
     private JButton coloration;
     public static JButton chargeVol;
     private static JXMapViewer mapViewer;
-    private static Set<MyWaypoint> waypoints  = new HashSet<>();
+    private static Set<MyWaypoint> waypoints = new HashSet<>();
     private static final WaypointRender waypointRenderer = new WaypointRender();
+
+    private JTextField hourField;
+    private JTextField minuteField;
+    private JButton volheure;
+    private int hours = 0;
+    private int minutes = 0;
     
+    private JLabel marge;
+    private JTextField editmarge;
+
     /**
      * Constructeur de la classe FenetreCarte.
      * Initialise une fenêtre graphique avec des composants pour visualiser une carte et interagir avec les données des aéroports et des vols.
@@ -57,81 +77,191 @@ public class FenetreCarte extends JFrame {
         setSize(1200, 800);
         setLocationRelativeTo(null);
 
-        JPanel controlPanel = new JPanel(new GridBagLayout());
-        controlPanel.setPreferredSize(new Dimension(300, getHeight()));
-        GridBagConstraints cont = new GridBagConstraints();
-        cont.insets = new Insets(15, 15, 15, 15);
+        graph = new JPanel();
+        JPanel pan = new JPanel(new GridBagLayout());
+        pan.setPreferredSize(new Dimension(300, getHeight()));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(15, 15, 15, 15);
 
         carteLabel = new JLabel("Graphique de l'aéroport");
-        cont.gridx = 0;
-        cont.gridy = 0;
-        controlPanel.add(carteLabel, cont);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        pan.add(carteLabel, gbc);
 
         JButton button = new JButton("Lancer la carte");
-        cont.gridy = 1;
-        controlPanel.add(button, cont);
+        gbc.gridy = 1;
+        pan.add(button, gbc);
 
         button.addActionListener((ActionEvent e) -> {
             File selectedFile = selectFile();
             if (selectedFile != null) {
-                 ports = loadAeroports(selectedFile);
+                ports = loadAeroports(selectedFile);
                 if (ports == null) {
                     JOptionPane.showMessageDialog(null, "Fichier d'aéroport non trouvé.");
                     return;
                 }
                 mapPanel.setVisible(true);
-                setAeroport(mapViewer,waypoints,waypointRenderer, ports);
+                setAeroport(mapViewer, waypoints, waypointRenderer, ports);
                 mapViewer.setOverlayPainter(waypointRenderer);
             }
         });
 
         chargeVol = new JButton("Charger vols");
-        cont.gridy = 2;
-        controlPanel.add(chargeVol, cont);
+        gbc.gridy = 2;
+        pan.add(chargeVol, gbc);
 
-        chargeVol.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                File selectedFile = selectFile();
-                if (selectedFile != null) {
-                    try {
-                        vols = loadVols(selectedFile);
-                        if (!vols.isEmpty()) {
-                            chargeVol(vols);
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Aucun vol trouvé dans le fichier.");
-                        }
-                    } catch (IOException ex) {
-                        Logger.getLogger(FenetreCarte.class.getName()).log(Level.SEVERE, null, ex);
+        chargeVol.addActionListener(e -> {
+            File selectedFile = selectFile();
+            if (selectedFile != null) {
+                try {
+                    vols = loadVols(selectedFile);
+                    if (!vols.isEmpty()) {
+                        chargeVol(vols);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Aucun vol trouvé dans le fichier.");
                     }
+                } catch (IOException ex) {
+                    Logger.getLogger(FenetreCarte.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });
 
+        hourField = new JTextField(2);
+        minuteField = new JTextField(2);
+        editmarge = new JTextField(10);
+        hourField.setText(String.format("%02d", hours));
+        minuteField.setText(String.format("%02d", minutes));
+        marge = new JLabel("Marge : ");
+        
+        JButton updateMargeButton = new JButton("Modifier Marge");
+        JButton hourUpButton = new JButton("+1h");
+        JButton hourDownButton = new JButton("-1h");
+        JButton minuteUpButton = new JButton("+10m");
+        JButton minuteDownButton = new JButton("-10m");       
+        volheure = new JButton("Afficher les vols à l'heure +- 30 minutes");
 
-        coloration = new JButton("Fenetre coloration");
-        cont.gridy = 3;
-        controlPanel.add(coloration, cont);
+        hourUpButton.addActionListener(e -> adjustHours(1));
+        hourDownButton.addActionListener(e -> adjustHours(-1));
+        minuteUpButton.addActionListener(e -> adjustMinutes(10));
+        minuteDownButton.addActionListener(e -> adjustMinutes(-10));
 
-        coloration.addActionListener((ActionEvent e) -> {
-            openSecondaryWindow(new FenetreColoration(), "Coloration");
-            this.dispose();
+        volheure.addActionListener(e -> {
+            if (vols != null) {
+                try {
+                    int heure = Integer.parseInt(hourField.getText());
+                    int minute = Integer.parseInt(minuteField.getText());
+
+                    // Filtrer les vols pour afficher seulement ceux à l'heure spécifiée
+                    List<Vol> volsFiltres = volParHeure(heure,minute, vols);
+
+                    // Charger les vols filtrés sur la carte
+                    chargeVol(volsFiltres);
+
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(null, "Veuillez entrer une heure et des minutes valides.");
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Veuillez charger les vols avant de continuer.");
+            }
         });
+        
+        updateMargeButton.addActionListener((ActionEvent e) -> {
+            
+            
+         AlgorithmIntersection marge = new AlgorithmIntersection();
+        // Parse the integer value from the editmarge text field
+        int newmarge = Integer.parseInt(editmarge.getText());      
+        marge.setMarge(newmarge);
+        
+        
+        
+      
+   
+});
 
-        mapPanel = new JPanel(new BorderLayout());
-        initMapPanel();
 
-        add(controlPanel, BorderLayout.EAST);
-        add(mapPanel, BorderLayout.CENTER);
-        setVisible(true);
+
+        
+        
+        
+
+        // Ajout des composants au panneau de contrôle
+        // Initialisation de GridBagConstraints pour pan
+
+
+// Ajout de l'étiquette "Heures et Minutes:"
+gbc.gridy = 4;
+pan.add(new JLabel("Heures et Minutes:"), gbc);
+
+// Création et configuration de timePanel avec ses composants
+JPanel timePanel = new JPanel(new GridBagLayout());
+GridBagConstraints cont = new GridBagConstraints();
+cont.insets = new Insets(5, 5, 5, 5);
+cont.gridx = 0;
+cont.gridy = 0;
+timePanel.add(hourUpButton, cont);
+cont.gridx = 1;
+timePanel.add(minuteUpButton, cont);
+cont.gridx = 0;
+cont.gridy = 1;
+timePanel.add(hourField, cont);
+cont.gridx = 1;
+timePanel.add(minuteField, cont);
+cont.gridx = 0;
+cont.gridy = 2;
+timePanel.add(hourDownButton, cont);
+cont.gridx = 1;
+timePanel.add(minuteDownButton, cont);
+cont.gridx = 0;
+cont.gridy = 3;
+cont.gridwidth = 2;
+timePanel.add(volheure, cont);
+
+// Ajout des autres composants avec des contraintes appropriées
+cont.gridx = 0;
+cont.gridy = 8;
+cont.gridwidth = 1;
+pan.add(marge, cont);
+
+cont.gridx = 0;
+cont.gridy = 9;
+cont.gridwidth = 1;
+pan.add(editmarge, cont);
+
+cont.gridy = 10;
+cont.gridx = 0;
+cont.gridwidth = 2;
+pan.add(updateMargeButton, cont);
+
+// Ajout de timePanel dans pan
+gbc.gridy = 5;
+pan.add(timePanel, gbc);
+
+// Ajout du bouton "Fenetre coloration"
+coloration = new JButton("Fenetre coloration");
+gbc.gridy = 3;
+pan.add(coloration, gbc);
+
+coloration.addActionListener(e -> {
+    openSecondaryWindow(new FenetreColoration(), "Coloration");
+    this.dispose();
+});
+
+// Configuration de mapPanel
+mapPanel = new JPanel(new BorderLayout());
+initMapPanel();
+
+// Ajout des panneaux à la fenêtre principale
+add(pan, BorderLayout.EAST);
+add(mapPanel, BorderLayout.CENTER);
+setVisible(true);
     }
-    
 
     /**
      * Ouvre une fenêtre secondaire avec le titre spécifié.
      *
      * @param secondaryFrame la fenêtre secondaire à ouvrir
-     * @param title le titre de la fenêtre secondaire
+     * @param title          le titre de la fenêtre secondaire
      */
     private void openSecondaryWindow(JFrame secondaryFrame, String title) {
         secondaryFrame.setTitle(title);
@@ -145,15 +275,6 @@ public class FenetreCarte extends JFrame {
         }
     }
 
-    public static void chargeVol(List<Vol> vol){
-        org.jxmapviewer.painter.Painter<JXMapViewer> overlay=waypointRenderer.paintVol(vol, mapViewer, ports);
-        List<org.jxmapviewer.painter.Painter<JXMapViewer>> painters = new ArrayList<>();
-        painters.add(overlay);
-        painters.add(waypointRenderer);
-        CompoundPainter<JXMapViewer> painter = new CompoundPainter<>(painters);
-        mapViewer.setOverlayPainter(painter);
-    }
-    
     /**
      * Charge les données des aéroports à partir du fichier spécifié.
      *
@@ -166,7 +287,7 @@ public class FenetreCarte extends JFrame {
             return null;
         }
         ArrayList<Aeroport> ports = new ArrayList<>();
-        try (Scanner scanAero = new Scanner(txtFile)) {
+                try (Scanner scanAero = new Scanner(txtFile)) {
             while (scanAero.hasNextLine()) {
                 ports.add(new Aeroport(scanAero));
             }
@@ -231,4 +352,48 @@ public class FenetreCarte extends JFrame {
 
         mapPanel.add(mapViewer, BorderLayout.CENTER);
     }
+
+    /**
+     * Ajuste l'heure en fonction de l'incrément spécifié.
+     *
+     * @param increment l'incrément (+1 pour augmenter, -1 pour diminuer)
+     */
+    private void adjustHours(int increment) {
+        hours = (hours + increment + 24) % 24;
+        hourField.setText(String.format("%02d", hours));
+    }
+
+    /**
+     * Ajuste les minutes en fonction de l'incrément spécifié.
+     *
+     * @param increment l'incrément (+5 pour augmenter, -5 pour diminuer)
+     */
+    private void adjustMinutes(int increment) {
+        minutes = (minutes + increment) % 60;
+        if (minutes < 0) {
+            minutes += 60;
+            adjustHours(-1);
+        } else if (minutes >= 60) {
+            adjustHours(1);
+        }
+        minuteField.setText(String.format("%02d", minutes));
+    }
+
+    /**
+     * Charge les vols spécifiés sur la carte.
+     *
+     * @param vol la liste des vols à charger sur la carte
+     */
+    public static void chargeVol(List<Vol> vol) {
+        org.jxmapviewer.painter.Painter<JXMapViewer> overlay = waypointRenderer.paintVol(vol, mapViewer, ports);
+        List<org.jxmapviewer.painter.Painter<JXMapViewer>> painters = new ArrayList<>();
+        painters.add(overlay);
+        painters.add(waypointRenderer);
+        CompoundPainter<JXMapViewer> painter = new CompoundPainter<>(painters);
+        mapViewer.setOverlayPainter(painter);
+    }
+   
+    
 }
+
+       

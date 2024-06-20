@@ -1,5 +1,6 @@
 package vue;
 
+import construction.AlgorithmColoration;
 import modele.Aeroport;
 import static construction.AlgorithmColoration.Gloutonne;
 import static construction.AlgorithmColoration.dsatur;
@@ -45,6 +46,7 @@ public class FenetreColoration extends JFrame {
     private JLabel Diametre;
     private JLabel Degre;
     private JButton intersection;
+    
     private JButton extraire;
     private ArrayList<Aeroport> airports;
     private Graph currentGraph;
@@ -85,13 +87,16 @@ public class FenetreColoration extends JFrame {
         Diametre = new JLabel("Diamètre : ");
         Degre = new JLabel("Degré : ");
         extraire = new JButton("Extraire");
+        
         zoomSlider = new JSlider(JSlider.HORIZONTAL, ZOOM_SLIDER_MIN, ZOOM_SLIDER_MAX, ZOOM_SLIDER_INIT);
 
         JComboBox<String> comboBox = new JComboBox<>(new String[]{"Gloutonne", "welshPowell","Dsatur"});
         
         kMaxField = new JTextField(10);
         
+        
         JButton updateKMaxButton = new JButton("Modifier kMax");
+        
         
         // Ajouter un espace entre les composants
         cont.insets = new Insets(30, 5, 30, 5);
@@ -179,7 +184,7 @@ public class FenetreColoration extends JFrame {
                             default -> JOptionPane.showMessageDialog(null, "Sélection d'algorithme non valide.");
                         }
 
-                        // Affichez la valeur de kMax dans le JTextField
+                        
                         kMaxField.setText(String.valueOf((int)currentGraph.getNumber("kMax")));
                     }
                     
@@ -203,11 +208,17 @@ public class FenetreColoration extends JFrame {
             
         });
         
+         
+
+
+        
+        
         // Initial configuration for GridBagConstraints
         cont.anchor = GridBagConstraints.CENTER;
         cont.insets = new Insets(10, 10, 10, 10); // Espacement autour du ComboBox
         // Row 0: ComboBox, spans 2 columns
         // Utilisation de GridBagConstraints pour mieux organiser la mise en page
+
 
          cont.gridx = 0;
         cont.gridy = 0;
