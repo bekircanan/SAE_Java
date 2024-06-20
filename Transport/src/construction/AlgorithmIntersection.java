@@ -26,6 +26,10 @@ public class AlgorithmIntersection {
     public void setMarge(int nb){
         MARGE=nb;
     }
+    
+    public static int getMarge(int nb){
+        return nb;
+    }
     /**
      * Associe les vols aux aéroports et ajoute les arêtes correspondantes au graphe.
      * <p>

@@ -46,13 +46,20 @@ public class Vol {
      */
     public Vol(Scanner scan){
         String[] parts =  scan.nextLine().split(";");
-        if (parts.length == 6) {
-        this.codeVol=parts[0];
-        this.depart=parts[1];
-        this.arrive=parts[2];
-        this.heure=Integer.parseInt(parts[3]);
-        this.min=Integer.parseInt(parts[4]);
-        this.duree=Integer.parseInt(parts[5]);
+        if (parts.length != 6) {
+            throw new IllegalArgumentException("Invalid input format");
+        }
+        try {
+            this.codeVol = parts[0];
+            this.depart = parts[1];
+            this.arrive = parts[2];
+            if (depart.length() != 3 || arrive.length() != 3) {
+                throw new IllegalArgumentException("Airport codes must be 3 letters long");
+            }
+            this.heure = Integer.parseInt(parts[3]);
+            this.min = Integer.parseInt(parts[4]);
+            this.duree = Integer.parseInt(parts[5]);
+        } catch (NumberFormatException e) {
         }
     }
 

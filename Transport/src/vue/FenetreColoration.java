@@ -453,7 +453,10 @@ public class FenetreColoration extends JFrame {
         ArrayList<Vol> vols = new ArrayList<>();
         try (Scanner scanVol = new Scanner(csvFile)) {
             while (scanVol.hasNextLine()) {
-                vols.add(new Vol(scanVol));
+                 try {
+                    vols.add(new Vol(scanVol));
+                } catch (Exception e) {
+                }
             }
         } catch (FileNotFoundException ex) {
             Logger.getLogger(FenetreColoration.class.getName()).log(Level.SEVERE, null, ex);
