@@ -23,8 +23,14 @@ public class AlgorithmIntersection {
      *
      * @param nb la valeur de la marge
      */
-    public void setMarge(int nb){
-        MARGE = nb;
+     public void setMarge(int nb) {
+        this.MARGE = nb;
+        
+    }
+    
+    // Getter method for MARGE if needed
+    public int getMarge() {
+        return this.MARGE;
     }
     /**
      * Associe les vols aux aéroports et ajoute les arêtes correspondantes au graphe.

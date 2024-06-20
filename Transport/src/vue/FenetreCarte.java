@@ -3,6 +3,7 @@ package vue;
 import static construction.AlgorithmColoration.Gloutonne;
 import static construction.AlgorithmColoration.dsatur;
 import static construction.AlgorithmColoration.largestFirstColoring;
+import construction.AlgorithmIntersection;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -24,10 +25,13 @@ import static modele.Aeroport.setAeroport;
 import construction.MyWaypoint;
 import construction.WaypointRender;
 import construction.jXMapviewerCustom;
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
 import modele.Aeroport;
 import modele.Vol;
 import org.graphstream.algorithm.ConnectedComponents;
 import static org.graphstream.algorithm.Toolkit.diameter;
+import org.graphstream.graph.Graph;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
 import org.jxmapviewer.input.PanMouseInputListener;
@@ -74,19 +78,19 @@ public class FenetreCarte extends JFrame {
         setLocationRelativeTo(null);
 
         graph = new JPanel();
-        JPanel timeGbcrolPanel = new JPanel(new GridBagLayout());
-        timeGbcrolPanel.setPreferredSize(new Dimension(300, getHeight()));
+        JPanel pan = new JPanel(new GridBagLayout());
+        pan.setPreferredSize(new Dimension(300, getHeight()));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(15, 15, 15, 15);
 
         carteLabel = new JLabel("Graphique de l'aéroport");
         gbc.gridx = 0;
         gbc.gridy = 0;
-        timeGbcrolPanel.add(carteLabel, gbc);
+        pan.add(carteLabel, gbc);
 
         JButton button = new JButton("Lancer la carte");
         gbc.gridy = 1;
-        timeGbcrolPanel.add(button, gbc);
+        pan.add(button, gbc);
 
         button.addActionListener((ActionEvent e) -> {
             File selectedFile = selectFile();
@@ -104,7 +108,7 @@ public class FenetreCarte extends JFrame {
 
         chargeVol = new JButton("Charger vols");
         gbc.gridy = 2;
-        timeGbcrolPanel.add(chargeVol, gbc);
+        pan.add(chargeVol, gbc);
 
         chargeVol.addActionListener(e -> {
             File selectedFile = selectFile();
@@ -124,7 +128,7 @@ public class FenetreCarte extends JFrame {
 
         hourField = new JTextField(2);
         minuteField = new JTextField(2);
-        editmarge = new JTextField(100);
+        editmarge = new JTextField(10);
         hourField.setText(String.format("%02d", hours));
         minuteField.setText(String.format("%02d", minutes));
         marge = new JLabel("Marge : ");
@@ -132,14 +136,14 @@ public class FenetreCarte extends JFrame {
         JButton updateMargeButton = new JButton("Modifier Marge");
         JButton hourUpButton = new JButton("+1h");
         JButton hourDownButton = new JButton("-1h");
-        JButton minuteUpButton = new JButton("+5m");
-        JButton minuteDownButton = new JButton("-5m");
+        JButton minuteUpButton = new JButton("+10m");
+        JButton minuteDownButton = new JButton("-10m");       
         volheure = new JButton("Afficher les vols à l'heure +- 30 minutes");
 
         hourUpButton.addActionListener(e -> adjustHours(1));
         hourDownButton.addActionListener(e -> adjustHours(-1));
-        minuteUpButton.addActionListener(e -> adjustMinutes(5));
-        minuteDownButton.addActionListener(e -> adjustMinutes(-5));
+        minuteUpButton.addActionListener(e -> adjustMinutes(10));
+        minuteDownButton.addActionListener(e -> adjustMinutes(-10));
 
         volheure.addActionListener(e -> {
             if (vols != null) {
@@ -161,82 +165,82 @@ public class FenetreCarte extends JFrame {
             }
         });
         
-        /*updateMargeButton.addActionListener((ActionEvent e) -> {
-            
-            int newmarge = Integer.parseInt(editmarge.getText());
-            List<Vol> currentGraph = setMarge(newmarge);
-            
-            currentGraph.setAttribute("MARGE", newmarge);
-            
-           
-           
-                
-                editmarge.setText(String.valueOf((int)currentGraph.getNumber("MARGE")));
+        updateMargeButton.addActionListener((ActionEvent e) -> {
             
             
-           
-            
-            displayGraph(currentGraph); // Recharge le graphique après la mise à jour
+         AlgorithmIntersection marge = new AlgorithmIntersection();
+        // Parse the integer value from the editmarge text field
+        int newmarge = Integer.parseInt(editmarge.getText());      
+        marge.setMarge(newmarge);
         
-});*/
+        
+        
+      
+   
+});
+
+
+
         
         
         
 
-        // Ajout des composants au panneau de timeGbcrôle
-        // Initialisation de GridBagConstraints pour timeGbcrolPanel
+        // Ajout des composants au panneau de contrôle
+        // Initialisation de GridBagConstraints pour pan
 
 
 // Ajout de l'étiquette "Heures et Minutes:"
 gbc.gridy = 4;
-timeGbcrolPanel.add(new JLabel("Heures et Minutes:"), gbc);
+pan.add(new JLabel("Heures et Minutes:"), gbc);
 
 // Création et configuration de timePanel avec ses composants
 JPanel timePanel = new JPanel(new GridBagLayout());
-GridBagConstraints timeGbc = new GridBagConstraints();
-timeGbc.insets = new Insets(5, 5, 5, 5);
-timeGbc.gridx = 0;
-timeGbc.gridy = 0;
-timePanel.add(hourUpButton, timeGbc);
-timeGbc.gridx = 1;
-timePanel.add(minuteUpButton, timeGbc);
-timeGbc.gridx = 0;
-timeGbc.gridy = 1;
-timePanel.add(hourField, timeGbc);
-timeGbc.gridx = 1;
-timePanel.add(minuteField, timeGbc);
-timeGbc.gridx = 0;
-timeGbc.gridy = 2;
-timePanel.add(hourDownButton, timeGbc);
-timeGbc.gridx = 1;
-timePanel.add(minuteDownButton, timeGbc);
-timeGbc.gridx = 0;
-timeGbc.gridy = 3;
-timeGbc.gridwidth = 2;
-timePanel.add(volheure, timeGbc);
+GridBagConstraints cont = new GridBagConstraints();
+cont.insets = new Insets(5, 5, 5, 5);
+cont.gridx = 0;
+cont.gridy = 0;
+timePanel.add(hourUpButton, cont);
+cont.gridx = 1;
+timePanel.add(minuteUpButton, cont);
+cont.gridx = 0;
+cont.gridy = 1;
+timePanel.add(hourField, cont);
+cont.gridx = 1;
+timePanel.add(minuteField, cont);
+cont.gridx = 0;
+cont.gridy = 2;
+timePanel.add(hourDownButton, cont);
+cont.gridx = 1;
+timePanel.add(minuteDownButton, cont);
+cont.gridx = 0;
+cont.gridy = 3;
+cont.gridwidth = 2;
+timePanel.add(volheure, cont);
 
 // Ajout des autres composants avec des contraintes appropriées
-timeGbc.gridx = 0;
-timeGbc.gridy = 8;
-timeGbc.gridwidth = 1;
-timeGbcrolPanel.add(marge, timeGbc);
+cont.gridx = 0;
+cont.gridy = 8;
+cont.gridwidth = 1;
+pan.add(marge, cont);
 
-timeGbc.gridx = 15;
-timeGbcrolPanel.add(editmarge, timeGbc);
+cont.gridx = 0;
+cont.gridy = 9;
+cont.gridwidth = 1;
+pan.add(editmarge, cont);
 
-timeGbc.gridy = 9;
-timeGbc.gridx = 0;
-timeGbc.gridwidth = 2;
-timeGbcrolPanel.add(updateMargeButton, timeGbc);
+cont.gridy = 10;
+cont.gridx = 0;
+cont.gridwidth = 2;
+pan.add(updateMargeButton, cont);
 
-// Ajout de timePanel dans timeGbcrolPanel
+// Ajout de timePanel dans pan
 gbc.gridy = 5;
-timeGbcrolPanel.add(timePanel, gbc);
+pan.add(timePanel, gbc);
 
 // Ajout du bouton "Fenetre coloration"
 coloration = new JButton("Fenetre coloration");
 gbc.gridy = 3;
-timeGbcrolPanel.add(coloration, gbc);
+pan.add(coloration, gbc);
 
 coloration.addActionListener(e -> {
     openSecondaryWindow(new FenetreColoration(), "Coloration");
@@ -248,7 +252,7 @@ mapPanel = new JPanel(new BorderLayout());
 initMapPanel();
 
 // Ajout des panneaux à la fenêtre principale
-add(timeGbcrolPanel, BorderLayout.EAST);
+add(pan, BorderLayout.EAST);
 add(mapPanel, BorderLayout.CENTER);
 setVisible(true);
     }
@@ -274,7 +278,7 @@ setVisible(true);
     /**
      * Charge les données des aéroports à partir du fichier spécifié.
      *
-     * @param txtFile le fichier timeGbcenant les données des aéroports
+     * @param txtFile le fichier contenant les données des aéroports
      * @return une liste d'objets Aeroport chargés depuis le fichier
      */
     private ArrayList<Aeroport> loadAeroports(File txtFile) {
@@ -297,7 +301,7 @@ setVisible(true);
     /**
      * Charge les données des vols à partir du fichier CSV spécifié.
      *
-     * @param csvFile le fichier CSV timeGbcenant les données des vols
+     * @param csvFile le fichier CSV contenant les données des vols
      * @return une liste d'objets Vol chargés depuis le fichier
      * @throws IOException si une erreur d'entrée/sortie se produit lors de la lecture du fichier
      */
@@ -330,7 +334,7 @@ setVisible(true);
     }
 
     /**
-     * Initialise le panneau de la carte en créant un JXMapViewer avec un panneau de timeGbcrôle.
+     * Initialise le panneau de la carte en créant un JXMapViewer avec un panneau de contrôle.
      */
     private void initMapPanel() {
         TileFactoryInfo info = new OSMTileFactoryInfo();
@@ -388,6 +392,8 @@ setVisible(true);
         CompoundPainter<JXMapViewer> painter = new CompoundPainter<>(painters);
         mapViewer.setOverlayPainter(painter);
     }
+   
+    
 }
 
        
