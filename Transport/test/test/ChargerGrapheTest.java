@@ -1,3 +1,5 @@
+package test;
+
 import construction.ChargerGraphe;
 import java.io.File;
 import java.io.FileNotFoundException;

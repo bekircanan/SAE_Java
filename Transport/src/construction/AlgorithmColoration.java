@@ -1,10 +1,7 @@
 package construction;
 
 import java.awt.Color;
-import static java.lang.Math.random;
-import static java.lang.StrictMath.random;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -12,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
-import org.graphstream.algorithm.coloring.WelshPowell;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;

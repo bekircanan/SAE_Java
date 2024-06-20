@@ -1,4 +1,6 @@
-import construction.MyWaypoint;  // Import MyWaypoint class
+package test;
+
+import waypoint.MyWaypoint;  // Import MyWaypoint class
 import construction.EventWaypoint;  // Import EventWaypoint interface
 import modele.Aeroport;  // Import Aeroport class from modele package
 

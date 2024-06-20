@@ -1,6 +1,7 @@
-package construction;
+package waypoint;
 
-import modele.Aeroport;
+import bouton.ButtonWaypoint;
+import construction.AlgorithmIntersection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;

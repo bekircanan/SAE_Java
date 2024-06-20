@@ -1,6 +1,6 @@
 package vue;
 
-import construction.AlgorithmColoration;
+import bouton.StyleBouton;
 import modele.Aeroport;
 import static construction.AlgorithmColoration.Gloutonne;
 import static construction.AlgorithmColoration.dsatur;
@@ -23,8 +23,14 @@ import org.graphstream.algorithm.ConnectedComponents;
 import static org.graphstream.algorithm.Toolkit.diameter;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
+import org.graphstream.ui.layout.Layouts;
+import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 import org.graphstream.ui.swingViewer.View;
 import org.graphstream.ui.swingViewer.Viewer;
+import org.graphstream.ui.swingViewer.ViewerListener;
+import org.graphstream.ui.swingViewer.ViewerPipe;
+import static vue.Main.openSecondaryWindow;
 
 /**
  * Fenêtre de coloration des graphes.
@@ -33,22 +39,18 @@ import org.graphstream.ui.swingViewer.Viewer;
  */
 public class FenetreColoration extends JFrame {
     private JPanel graphPanel;
-    private JButton zoomInButton;
-    private JButton zoomOutButton;
     private JSlider zoomSlider;
-    private JTextField kMaxField;
+    private JLabel kMax;
     private JLabel nbConflits;
-    private JLabel LabelAirport;
     private JLabel nbAretes;
     private JLabel nbSommets;
     private JLabel CC;
     private JLabel DegMoy;
     private JLabel Diametre;
-    private JLabel Degre;
     private JButton intersection;
-    
     private JButton extraire;
-    private ArrayList<Aeroport> airports;
+    private ArrayList<Aeroport> aeroports;
+    private ArrayList<Vol> vols;
     private Graph currentGraph;
     private static final double MIN_ZOOM = 0.1;
     private static final double MAX_ZOOM = 2.0;
@@ -70,41 +72,28 @@ public class FenetreColoration extends JFrame {
         controlPanel.setLayout(new GridBagLayout());
         GridBagConstraints cont = new GridBagConstraints();
         
-        JButton button = new JButton("Lancer Algorithme");
-        JButton ButtonAirport = new JButton("Charger un aéroport");
+        JButton button = new StyleBouton("Lancer Algorithme");
+        JButton ButtonAirport = new StyleBouton("Charger un aéroport");
         JLabel LabelAirport = new JLabel("Aucun aéroport chargé");
-        zoomInButton = new JButton("+");
-        zoomOutButton = new JButton("-");
-        intersection = new JButton("Carte de france");
-
-        zoomInButton = new JButton("-");
-        zoomOutButton = new JButton("+");
+        intersection = new StyleBouton("Carte de france");
         nbConflits = new JLabel("Conflit : ");
         nbAretes = new JLabel("Arêtes : ");
         nbSommets = new JLabel("Sommets : ");
         CC = new JLabel("Composantes connexes : ");
         DegMoy = new JLabel("Degré moyen : ");
         Diametre = new JLabel("Diamètre : ");
-        Degre = new JLabel("Degré : ");
-        extraire = new JButton("Extraire");
-        
+        extraire = new StyleBouton("Extraire");
         zoomSlider = new JSlider(JSlider.HORIZONTAL, ZOOM_SLIDER_MIN, ZOOM_SLIDER_MAX, ZOOM_SLIDER_INIT);
-
         JComboBox<String> comboBox = new JComboBox<>(new String[]{"Gloutonne", "welshPowell","Dsatur"});
+        kMax=new JLabel("kMax :");
+        JButton updateKMaxButton = new StyleBouton("Modifier kMax");
         
-        kMaxField = new JTextField(10);
-        
-        
-        JButton updateKMaxButton = new JButton("Modifier kMax");
-        
-        
-        // Ajouter un espace entre les composants
         cont.insets = new Insets(30, 5, 30, 5);
         ButtonAirport.addActionListener((ActionEvent e) -> {
             File selectedFile = selectFile();
             if (selectedFile != null) {
-                airports = loadAeroports(selectedFile);
-                if (airports != null) {
+                loadAeroports(selectedFile);
+                if (aeroports != null) {
                     LabelAirport.setText(selectedFile.getName());
                 }
             }
@@ -114,14 +103,14 @@ public class FenetreColoration extends JFrame {
             Graph gcolor;
             
             try {
-                File selectedFile = airports != null ? selectFile() : null;
+                File selectedFile = aeroports != null ? selectFile() : null;
                 if (selectedFile != null) {
                     if (selectedFile.getName().endsWith(".txt")) {
                         gcolor = ChargerGraphe.chargerGraphe(selectedFile.getAbsolutePath());
                     } else if (selectedFile.getName().endsWith(".csv")) {
-                        ArrayList<Vol> vols = loadVols(selectedFile);
+                        loadVols(selectedFile);
                         // Utilisez les aéroports déjà chargés pour l'intersection
-                        gcolor = AlgorithmIntersection.setVolsCollision(vols, airports);
+                        gcolor = AlgorithmIntersection.setVolsCollision(vols, aeroports);
                         gcolor.addAttribute("kMax", 1);
                     } else {
                         JOptionPane.showMessageDialog(null, "Format de fichier non supporté.");
@@ -137,7 +126,7 @@ public class FenetreColoration extends JFrame {
                         }
 
                         // Affichez la valeur de kMax dans le JTextField
-                        kMaxField.setText(String.valueOf((int)gcolor.getNumber("kMax")));
+                        kMax.setText("kMax: "+String.valueOf((int)gcolor.getNumber("kMax")));
                     }
 
                     if (gcolor != null) {
@@ -166,61 +155,52 @@ public class FenetreColoration extends JFrame {
         });
 
         updateKMaxButton.addActionListener((var e) -> {
-            try {
-                if (currentGraph != null) {
-                    for (Edge edge : currentGraph.getEdgeSet()) {
-                        edge.setAttribute("ui.style", "fill-color: black;");
+            if (currentGraph != null) {
+                for (Edge edge : currentGraph.getEdgeSet()) {
+                edge.setAttribute("ui.style", "fill-color: black;");
+                }
+            }
+            String input = JOptionPane.showInputDialog("Entrez un nombre positif pour kMax :");
+            if (input != null) {
+                try {
+                    int newKMax = Integer.parseInt(input);
+                    if (newKMax <= 0) {
+                        throw new NumberFormatException();
                     }
-                    int newKMax = Integer.parseInt(kMaxField.getText());
-                    currentGraph.setAttribute("kMax", newKMax);
-                    
-                    String selectedAlgorithm = (String) comboBox.getSelectedItem();
-                    int conflit = 0;
-                    if (selectedAlgorithm != null) {
-                        switch (selectedAlgorithm) {
-                            case "Gloutonne" -> conflit = Gloutonne(currentGraph);
-                            case "welshPowell" -> conflit = largestFirstColoring(currentGraph);
-                            case "Dsatur" -> conflit = dsatur(currentGraph);
-                            default -> JOptionPane.showMessageDialog(null, "Sélection d'algorithme non valide.");
+                    if (currentGraph != null) {
+                        currentGraph.setAttribute("kMax", newKMax);
+                        kMax.setText("Kmax:"+String.valueOf(newKMax));
+
+                        String selectedAlgorithm = (String) comboBox.getSelectedItem();
+                        int conflit = 0;
+                        if (selectedAlgorithm != null) {
+                            switch (selectedAlgorithm) {
+                                case "Gloutonne" -> conflit = Gloutonne(currentGraph);
+                                case "welshPowell" -> conflit = largestFirstColoring(currentGraph);
+                                case "Dsatur" -> conflit = dsatur(currentGraph);
+                                default -> JOptionPane.showMessageDialog(null, "Sélection d'algorithme non valide.");
+                            }
                         }
 
-                        
-                        kMaxField.setText(String.valueOf((int)currentGraph.getNumber("kMax")));
+                        nbConflits.setText("Conflit : " + conflit);
+                        nbAretes.setText("Aretes : " + currentGraph.getEdgeCount());
+                        Diametre.setText("Diametre : " + (int)diameter(currentGraph));
+                        ConnectedComponents cc = new ConnectedComponents();
+                        cc.init(currentGraph);
+                        CC.setText("Composant : " + cc.getConnectedComponentsCount());
+                        DegMoy.setText("Degre Moyen : " + (double)(currentGraph.getEdgeCount() * 2) / currentGraph.getNodeCount());
+                        nbSommets.setText("Sommets : " + currentGraph.getNodeCount());
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Aucun graphe chargé.");
                     }
-                    
-                    
-                    nbConflits.setText("Conflit : " + conflit);
-                    nbAretes.setText("Aretes : " + currentGraph.getEdgeCount());
-                    Diametre.setText("Diametre : " + (int)diameter(currentGraph));
-                    ConnectedComponents cc = new ConnectedComponents();
-                    cc.init(currentGraph);
-                    CC.setText("Composant : " + cc.getConnectedComponentsCount());
-                    DegMoy.setText("Degre Moyen : " + (double)(currentGraph.getEdgeCount()*2)/currentGraph.getNodeCount());
-                    nbSommets.setText("Sommets : " + currentGraph.getNodeCount());
-                    
-                    
-                } else {
-                    JOptionPane.showMessageDialog(null, "Aucun graphe chargé.");
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(null, "Entrée invalide. Veuillez entrer un nombre positif.");
                 }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(null, "Entrée invalide. Assurez-vous de saisir un nombre valide.");
             }
-            
         });
-        
-         
-
-
-        
-        
-        // Initial configuration for GridBagConstraints
         cont.anchor = GridBagConstraints.CENTER;
-        cont.insets = new Insets(10, 10, 10, 10); // Espacement autour du ComboBox
-        // Row 0: ComboBox, spans 2 columns
-        // Utilisation de GridBagConstraints pour mieux organiser la mise en page
-
-
-         cont.gridx = 0;
+        cont.insets = new Insets(10, 10, 10, 10);
+        cont.gridx = 0;
         cont.gridy = 0;
         cont.gridwidth = 2;
         controlPanel.add(LabelAirport, cont);
@@ -242,21 +222,6 @@ public class FenetreColoration extends JFrame {
         cont.gridy = 4;
         controlPanel.add(nbConflits, cont);
 
-        cont.gridx = 0;
-        cont.gridy = 6;
-        cont.gridwidth = 1;
-        controlPanel.add(new JLabel("kMax :"), cont);
-
-        // kMaxField en row 3, 2ème colonne
-        cont.gridx = 1;
-        controlPanel.add(kMaxField, cont);
-
-        // Bouton updateKMaxButton en row 4, spans 2 colonnes
-        cont.gridx = 0;
-        cont.gridy = 8;
-        cont.gridwidth = 2;
-        controlPanel.add(updateKMaxButton, cont);
-
         // Label nbSommets en row 5, spans 2 colonnes
         cont.gridy = 5;
         cont.gridx = 0;
@@ -268,8 +233,6 @@ public class FenetreColoration extends JFrame {
         cont.gridy = 11;
         controlPanel.add(nbAretes, cont);
 
-
-        controlPanel.add(Box.createVerticalStrut(20), cont);
 
         // Diametre en row 8, 1ère colonne
         cont.gridy = 12;
@@ -307,10 +270,7 @@ public class FenetreColoration extends JFrame {
         cont.gridx = 0;
         cont.gridy = 6;
         cont.insets = new Insets(10, 5, 10, 5); // Reset the space
-        controlPanel.add(new JLabel("kMax: "), cont);
-
-        cont.gridx = 1;
-        controlPanel.add(kMaxField, cont);
+        controlPanel.add(kMax, cont);
 
         cont.gridx = 0;
         cont.gridy = 7;
@@ -345,10 +305,6 @@ public class FenetreColoration extends JFrame {
             openSecondaryWindow(new FenetreCarte(), "Intersection");
             this.dispose();
         });
-
-        // Ajoute les actions des boutons de zoom avec des vérifications de limites
-        zoomInButton.addActionListener(e -> zoomGraph(1.1));
-        zoomOutButton.addActionListener(e -> zoomGraph(1 / 1.1));
         zoomSlider.addChangeListener(e -> {
             double zoomValue = zoomSlider.getValue() / 100.0;
             setGraphZoom(zoomValue);
@@ -356,46 +312,6 @@ public class FenetreColoration extends JFrame {
 
         setVisible(true);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
-    }
-    
-    /**
-     * Ouvre une fenêtre secondaire avec une carte géographique.
-     * @param secondaryFrame La fenêtre secondaire à ouvrir.
-     * @param title Le titre de la fenêtre secondaire.
-     */
-    private void openSecondaryWindow(JFrame secondaryFrame, String title) {
-        secondaryFrame.setTitle(title);
-        secondaryFrame.setLocationRelativeTo(null);
-        secondaryFrame.setVisible(true);
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
-        try {
-            Thread.sleep(250);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    }
-
-    /**
-     * Zoom sur le graphique affiché dans le panneau graphique.
-     * @param zoomFactor Le facteur de zoom à appliquer.
-     */
-    private void zoomGraph(double zoomFactor) {
-        if (graphPanel.getComponentCount() > 0) {
-            View view = (View) graphPanel.getComponent(0);
-            double currentZoom = view.getCamera().getViewPercent();
-            double newZoom = currentZoom * zoomFactor;
-
-            if (newZoom < MIN_ZOOM) {
-                newZoom = MIN_ZOOM;
-                JOptionPane.showMessageDialog(null, "Zoom minimum atteint.");
-            } else if (newZoom > MAX_ZOOM) {
-                newZoom = MAX_ZOOM;
-                JOptionPane.showMessageDialog(null, "Zoom maximum atteint.");
-            }
-
-            view.getCamera().setViewPercent(newZoom);
-            zoomSlider.setValue((int) (newZoom * 100));
-        }
     }
 
     /**
@@ -413,20 +329,25 @@ public class FenetreColoration extends JFrame {
      * Affiche le graphe donné dans le panneau graphique.
      * @param g Le graphe à afficher.
      */
-    private void displayGraph(Graph g) {
+    private void displayGraph(Graph g){
         graphPanel.removeAll();
 
         Viewer viewer = new Viewer(g, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
-        viewer.enableAutoLayout();  // Optional: for automatic layout of the graph
-
-        // Prevent the opening of an external viewer window
+        viewer.enableAutoLayout(new SpringBox());
         viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
 
         View view = viewer.addDefaultView(false);
+        view.setPreferredSize(new Dimension(800, 600));
+        viewer.enableAutoLayout(Layouts.newLayoutAlgorithm());
 
-        // Set a specific size for the graph view
-        view.setPreferredSize(new Dimension(500, 500));
+        // Customize node and edge appearance
+        for (org.graphstream.graph.Node node : g) {
+            node.addAttribute("ui.style", "size: 10px; shape: circle; text-size: 15px; text-alignment: center; text-style: bold; text-background-mode: rounded-box;");
+        }
 
+        for (org.graphstream.graph.Edge edge : g.getEachEdge()) {
+            edge.addAttribute("ui.style", "size: 2px;");
+        }
         graphPanel.add((Component) view, BorderLayout.CENTER);
         graphPanel.revalidate();
         graphPanel.repaint();
@@ -437,21 +358,18 @@ public class FenetreColoration extends JFrame {
      * @param txtFile Le fichier texte contenant les données des aéroports.
      * @return Une liste d'objets Aeroport chargés depuis le fichier.
      */
-    private ArrayList<Aeroport> loadAeroports(File txtFile) {
+    private void loadAeroports(File txtFile) {
         if (!txtFile.exists()) {
             JOptionPane.showMessageDialog(null, "Fichier d'aéroport non trouvé.");
-            return null;
         }
-        ArrayList<Aeroport> ports = new ArrayList<>();
+        aeroports = new ArrayList<>();
         try (Scanner scanAero = new Scanner(txtFile)) {
             while (scanAero.hasNextLine()) {
-                ports.add(new Aeroport(scanAero));
+                aeroports.add(new Aeroport(scanAero));
             }
         } catch (FileNotFoundException ex) {
             Logger.getLogger(FenetreColoration.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
         }
-        return ports;
     }
     
     /**
@@ -460,8 +378,8 @@ public class FenetreColoration extends JFrame {
      * @return Une liste d'objets Vol chargés depuis le fichier.
      * @throws IOException Si une erreur de lecture du fichier se produit.
      */
-    private ArrayList<Vol> loadVols(File csvFile) throws IOException {
-        ArrayList<Vol> vols = new ArrayList<>();
+    private void loadVols(File csvFile) throws IOException {
+        vols = new ArrayList<>();
         try (Scanner scanVol = new Scanner(csvFile)) {
             while (scanVol.hasNextLine()) {
                  try {
@@ -473,8 +391,6 @@ public class FenetreColoration extends JFrame {
             Logger.getLogger(FenetreColoration.class.getName()).log(Level.SEVERE, null, ex);
             throw new IOException("File not found: " + csvFile.getAbsolutePath(), ex);
         }
-
-        return vols;
     }
     
     /**

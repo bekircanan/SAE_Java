@@ -1,8 +1,6 @@
 package modele;
-import construction.MyWaypoint;
-import construction.WaypointRender;
+import waypoint.MyWaypoint;
 import java.io.FileNotFoundException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;

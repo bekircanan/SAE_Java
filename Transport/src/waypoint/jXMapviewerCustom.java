@@ -1,19 +1,15 @@
-package construction;
+package waypoint;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.Point2D;
 import java.util.List;
 import modele.Aeroport;
 import modele.Vol;
-import org.graphstream.graph.Graph;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.viewer.GeoPosition;
-import org.jxmapviewer.viewer.WaypointRenderer;
-import org.jxmapviewer.painter.Painter;
 
 /**
  * Custom JXMapViewer class to draw flights between airports.

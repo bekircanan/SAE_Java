@@ -1,6 +1,5 @@
-package construction;
+package waypoint;
 
-import java.awt.BasicStroke;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;

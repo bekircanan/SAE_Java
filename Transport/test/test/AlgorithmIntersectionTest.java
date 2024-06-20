@@ -1,3 +1,5 @@
+package test;
+
 import construction.AlgorithmIntersection;
 import modele.Aeroport;
 import modele.Vol;

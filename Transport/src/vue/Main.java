@@ -1,19 +1,12 @@
 package vue;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import javax.swing.JLabel;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Classe principale représentant le menu principal de l'application.
@@ -24,7 +17,7 @@ public class Main extends JFrame {
      * Initialise et configure l'interface utilisateur principale.
      */
     public Main() {
-        setExtendedState(JFrame.MAXIMIZED_BOTH); 
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
         setTitle("Menu principal");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -33,38 +26,16 @@ public class Main extends JFrame {
         panel.setBackground(new Color(45, 45, 45)); // Couleur de fond gris foncé
         GridBagConstraints cont = new GridBagConstraints();
 
-        JButton coloration = new JButton("Graphe coloration");
-        JButton intersection = new JButton("Carte de france");
-        JLabel titre = new JLabel("Choix de la fonctionnalite");
+        JButton coloration = createStyledButton("Graphe coloration", new Color(100, 181, 246));
+        JButton intersection = createStyledButton("Carte de France", new Color(236, 64, 122));
+        JLabel titre = new JLabel("Choix de la fonctionnalité");
 
-        // Définir les couleurs de fond des boutons
-        coloration.setBackground(new Color(100, 181, 246)); // Bleu clair
-        intersection.setBackground(new Color(236, 64, 122)); // Rose vif
-
-        // Définir les couleurs du texte des boutons pour un meilleur contraste
-        coloration.setForeground(Color.WHITE);
-        intersection.setForeground(Color.WHITE);
+        // Définir les couleurs du texte du titre pour un meilleur contraste
         titre.setForeground(Color.WHITE);
 
-        // Définir la taille préférée des boutons pour qu'ils aient les mêmes dimensions
-        Dimension buttonSize = new Dimension(300, 50);
-        coloration.setPreferredSize(buttonSize);
-        intersection.setPreferredSize(buttonSize);
-
-        // Définir la police des boutons et du titre
-        Font buttonFont = new Font("Verdana", Font.BOLD, 16);
-        Font titreFont = new Font("Arial", Font.BOLD, 24);
-        coloration.setFont(buttonFont);
-        intersection.setFont(buttonFont);
+        // Définir la police du titre
+        Font titreFont = new Font("Arial", Font.BOLD, 36);
         titre.setFont(titreFont);
-
-        // Définir la bordure des boutons
-        coloration.setBorder(BorderFactory.createLineBorder(Color.WHITE, 2));
-        intersection.setBorder(BorderFactory.createLineBorder(Color.WHITE, 2));
-
-        // Définir le texte de l'infobulle
-        coloration.setToolTipText("Cliquez pour commencer la coloration de graphe");
-        intersection.setToolTipText("Cliquez pour Carte de france");
 
         // Définir les marges autour des boutons et du titre
         cont.insets = new Insets(20, 20, 20, 20);
@@ -80,58 +51,77 @@ public class Main extends JFrame {
         // Positionner les boutons à l'aide de GridBagLayout
         cont.gridx = 0;
         cont.gridy = 1;
-        cont.anchor = GridBagConstraints.CENTER;
         panel.add(coloration, cont);
 
         cont.gridx = 1;
         cont.gridy = 1;
-        cont.anchor = GridBagConstraints.CENTER;
         panel.add(intersection, cont);
 
-        coloration.addActionListener((ActionEvent e) -> {
-            openSecondaryWindow(new FenetreColoration(), "Coloration");
-        });
-        
-        intersection.addActionListener((ActionEvent e) -> {
-            openSecondaryWindow(new FenetreCarte(), "Intersection");
-        });
+        coloration.addActionListener((ActionEvent e) -> openSecondaryWindow(new FenetreColoration(), "Coloration"));
+
+        intersection.addActionListener((ActionEvent e) -> openSecondaryWindow(new FenetreCarte(), "Intersection"));
 
         add(panel);
         setVisible(true);
     }
 
     /**
+     * Crée un bouton stylisé avec les propriétés spécifiées.
+     * @param text Le texte à afficher sur le bouton.
+     * @param backgroundColor La couleur de fond du bouton.
+     * @return Un JButton stylisé.
+     */
+    private JButton createStyledButton(String text, Color backgroundColor) {
+        JButton button = new JButton(text);
+        button.setBackground(backgroundColor);
+        button.setForeground(Color.WHITE);
+        button.setFont(new Font("Verdana", Font.BOLD, 20));
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(15, 30, 15, 30));
+        button.setPreferredSize(new Dimension(300, 60));
+        button.setToolTipText("Cliquez pour " + text.toLowerCase());
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(backgroundColor.darker());
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(backgroundColor);
+            }
+        });
+        return button;
+    }
+
+    /**
      * Ouvre une fenêtre secondaire avec le contenu spécifié.
      * @param secondaryFrame La fenêtre secondaire à ouvrir.
-     * @param title Le titre de la fenêtre secondaire.
+     * @param text
      */
-    private void openSecondaryWindow(JFrame secondaryFrame, String title) {
-        secondaryFrame.setTitle(title);
+    public static void openSecondaryWindow(JFrame secondaryFrame,String text) {
+        secondaryFrame.setTitle(text);
         secondaryFrame.setLocationRelativeTo(null);
         secondaryFrame.setVisible(true);
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        secondaryFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         try {
             Thread.sleep(250);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        Main.this.setVisible(false);
-        
+        // Hide the main window when secondary window opens
         secondaryFrame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                Main.this.setVisible(true);
+                secondaryFrame.setVisible(true);
             }
         });
     }
-    
+
     /**
      * Point d'entrée principal de l'application.
      * Instancie et lance l'interface utilisateur principale.
      * @param args Les arguments de la ligne de commande (non utilisés).
      */
     public static void main(String[] args) {
-        new Main();
+        SwingUtilities.invokeLater(Main::new);
     }
 }
