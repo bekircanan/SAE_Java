@@ -1,5 +1,6 @@
 package waypoint;
 
+import java.awt.BasicStroke;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -46,7 +47,7 @@ public class WaypointRender extends WaypointPainter<MyWaypoint> {
             g.translate(-rect.x, -rect.y);
 
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            //g.setStroke(new BasicStroke(2));
+            g.setStroke(new BasicStroke(2));
             for (Vol v : vol) {
                 for (Aeroport a : aero) {
                     if (v.getArrive().equals(a.getCodeAero())) {

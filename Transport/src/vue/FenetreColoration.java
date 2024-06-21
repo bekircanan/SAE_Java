@@ -24,6 +24,7 @@ import static org.graphstream.algorithm.Toolkit.diameter;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
+import org.graphstream.graph.implementations.DefaultGraph;
 import org.graphstream.ui.layout.Layouts;
 import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 import org.graphstream.ui.swingViewer.View;
@@ -100,7 +101,7 @@ public class FenetreColoration extends JFrame {
         });
         button.addActionListener((ActionEvent e) -> {
             String selectedAlgorithm = (String) comboBox.getSelectedItem();
-            Graph gcolor;
+            Graph gcolor = new DefaultGraph("Vols");
             
             try {
                 File selectedFile = aeroports != null ? selectFile() : null;
@@ -110,8 +111,8 @@ public class FenetreColoration extends JFrame {
                     } else if (selectedFile.getName().endsWith(".csv")) {
                         loadVols(selectedFile);
                         // Utilisez les aéroports déjà chargés pour l'intersection
-                        gcolor = AlgorithmIntersection.setVolsCollision(vols, aeroports);
-                        gcolor.addAttribute("kMax", 1);
+                        AlgorithmIntersection.setVolsCollision(gcolor,vols, aeroports,15);
+                        
                     } else {
                         JOptionPane.showMessageDialog(null, "Format de fichier non supporté.");
                         return;

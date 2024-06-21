@@ -1,8 +1,10 @@
 package vue;
 
+import bouton.StyleBouton;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.logging.Level;
@@ -26,8 +28,8 @@ public class Main extends JFrame {
         panel.setBackground(new Color(45, 45, 45)); // Couleur de fond gris foncé
         GridBagConstraints cont = new GridBagConstraints();
 
-        JButton coloration = createStyledButton("Graphe coloration", new Color(100, 181, 246));
-        JButton intersection = createStyledButton("Carte de France", new Color(236, 64, 122));
+        JButton coloration = new StyleBouton("Graphe coloration", new Color(100, 181, 246));
+        JButton intersection = new StyleBouton("Carte de France", new Color(236, 64, 122));
         JLabel titre = new JLabel("Choix de la fonctionnalité");
 
         // Définir les couleurs du texte du titre pour un meilleur contraste
@@ -57,40 +59,20 @@ public class Main extends JFrame {
         cont.gridy = 1;
         panel.add(intersection, cont);
 
-        coloration.addActionListener((ActionEvent e) -> openSecondaryWindow(new FenetreColoration(), "Coloration"));
+        coloration.addActionListener((ActionEvent e) -> {
+            openSecondaryWindow(new FenetreCarte(), "Intersection");
+            this.dispose();
+        });
 
-        intersection.addActionListener((ActionEvent e) -> openSecondaryWindow(new FenetreCarte(), "Intersection"));
-
+        intersection.addActionListener((ActionEvent e) -> {
+            openSecondaryWindow(new FenetreColoration(), "Coloration");
+            this.dispose();
+        });
         add(panel);
         setVisible(true);
     }
 
-    /**
-     * Crée un bouton stylisé avec les propriétés spécifiées.
-     * @param text Le texte à afficher sur le bouton.
-     * @param backgroundColor La couleur de fond du bouton.
-     * @return Un JButton stylisé.
-     */
-    private JButton createStyledButton(String text, Color backgroundColor) {
-        JButton button = new JButton(text);
-        button.setBackground(backgroundColor);
-        button.setForeground(Color.WHITE);
-        button.setFont(new Font("Verdana", Font.BOLD, 20));
-        button.setFocusPainted(false);
-        button.setBorder(BorderFactory.createEmptyBorder(15, 30, 15, 30));
-        button.setPreferredSize(new Dimension(300, 60));
-        button.setToolTipText("Cliquez pour " + text.toLowerCase());
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(backgroundColor.darker());
-            }
-
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(backgroundColor);
-            }
-        });
-        return button;
-    }
+    
 
     /**
      * Ouvre une fenêtre secondaire avec le contenu spécifié.

@@ -81,7 +81,7 @@ public class FenetreCarte extends JFrame {
         button.addActionListener((ActionEvent e) -> {
             File selectedFile = selectFile();
             if (selectedFile != null) {
-                ports = loadAeroports(selectedFile);
+                loadAeroports(selectedFile);
                 if (ports == null) {
                     JOptionPane.showMessageDialog(null, "Fichier d'aéroport non trouvé.");
                     return;
@@ -105,7 +105,7 @@ public class FenetreCarte extends JFrame {
                 try {
                     loadVols(selectedFile);
                 if (!vols.isEmpty()) {
-                    chargeVol(vols);
+                    chargeVol(vols,15);
                 } else {
                     JOptionPane.showMessageDialog(null, "Aucun vol trouvé dans le fichier.");
                 }
@@ -123,17 +123,16 @@ public class FenetreCarte extends JFrame {
         gbc.gridwidth = 1;
 
         updateMargeButton.addActionListener((ActionEvent e) -> {
-            String hourStr = JOptionPane.showInputDialog("Entrez l'heure (1-24) :");
-            if (hourStr != null) {
+            String minStr = JOptionPane.showInputDialog("Entrez un nombre positif :");
+            if (minStr != null) {
                 try {
-                    int hour = Integer.parseInt(hourStr);
-                    if (hour < 1 || hour > 24) {
+                    int min = Integer.parseInt(minStr);
+                    if (min <= 0) {
                         throw new NumberFormatException();
                     }
-                    AlgorithmIntersection pourMarge = new AlgorithmIntersection();
-                    pourMarge.setMarge(hour);
+                    chargeVol(vols,min);
                 } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(null, "Entrée invalide. Veuillez entrer un nombre entre 1 et 24 pour l'heure.");
+                    JOptionPane.showMessageDialog(null, "Entrée invalide. Veuillez entrer un nombre positif.");
                 }
             }
         });
@@ -158,21 +157,18 @@ public class FenetreCarte extends JFrame {
         setVisible(true);
     }
 
-    private ArrayList<Aeroport> loadAeroports(File txtFile) {
+    private void loadAeroports(File txtFile) {
         if (!txtFile.exists()) {
             JOptionPane.showMessageDialog(null, "Fichier d'aéroport non trouvé.");
-            return null;
         }
-        ArrayList<Aeroport> ports = new ArrayList<>();
+        ports = new ArrayList<>();
         try (Scanner scanAero = new Scanner(txtFile)) {
             while (scanAero.hasNextLine()) {
                 ports.add(new Aeroport(scanAero));
             }
         } catch (FileNotFoundException ex) {
             Logger.getLogger(FenetreCarte.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
         }
-        return ports;
     }
 
     private void loadVols(File csvFile) throws IOException {
@@ -214,8 +210,9 @@ public class FenetreCarte extends JFrame {
         mapPanel.add(mapViewer, BorderLayout.CENTER);
     }
 
-    public static void chargeVol(List<Vol> vol) {
-        org.jxmapviewer.painter.Painter<JXMapViewer> overlay = waypointRenderer.paintVol(vol, mapViewer, ports);
+    public static void chargeVol(List<Vol> vol,int marge) {
+        List<Vol> volsfiltre =AlgorithmIntersection.setVolsCollision(null,vols, ports,marge);
+        org.jxmapviewer.painter.Painter<JXMapViewer> overlay = waypointRenderer.paintVol(volsfiltre, mapViewer, ports);
         List<org.jxmapviewer.painter.Painter<JXMapViewer>> painters = new ArrayList<>();
         painters.add(overlay);
         painters.add(waypointRenderer);

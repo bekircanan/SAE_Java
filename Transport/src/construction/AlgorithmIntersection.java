@@ -16,26 +16,9 @@ import org.graphstream.graph.implementations.DefaultGraph;
  * Elle permet la détection et la visualisation des collisions entre les vols et crée des graphes de ces interactions.
  */
 public class AlgorithmIntersection {
-    public static int MARGE = 15;
+    public static List<Vol> volsFiltre=new ArrayList<>();
+    private static int marge;
     
-     /**
-     * Définit la marge utilisée pour la vérification des collisions entre vols.
-     *
-     * @param nb la valeur de la marge
-     */
-     public void setMarge(int nb) {
-        this.MARGE = nb;
-        
-    }
-    
-    // Getter method for MARGE if needed
-    public int getMarge() {
-        return this.MARGE;
-    }
-    
-    public static int getMarge(int nb){
-        return nb;
-    }
     /**
      * Associe les vols aux aéroports et ajoute les arêtes correspondantes au graphe.
      * <p>
@@ -43,7 +26,7 @@ public class AlgorithmIntersection {
      * </p>
      *
      * @param vols la liste des vols
-     * @param ports la liste des aéroports
+     * @param port la liste des aéroports
      * @param g le graphe dans lequel ajouter les arêtes
      * @return le graphe mis à jour avec les arêtes des vols en collision
      */
@@ -67,20 +50,26 @@ public class AlgorithmIntersection {
     /**
      * Crée et affiche un graphe des collisions entre les vols.
      *
+     * @param g
      * @param vols la liste des vols
      * @param ports la liste des aéroports
+     * @param marge la marge de securite
      * @return le graphe des collisions entre les vols
      */
-    public static Graph setVolsCollision(List<Vol> vols, List<Aeroport> ports) {
-        Graph g = new DefaultGraph("Vols");
+    public static List<Vol> setVolsCollision(Graph g,List<Vol> vols, List<Aeroport> ports,int marge) {
+        List<Vol> volCarte=new ArrayList<>();
+        AlgorithmIntersection.marge=marge;
+        if(g==null){
+            g= new DefaultGraph("Vols");
+        }
+        g.addAttribute("kMax", 1);
         g.setStrict(false);
-        collision(vols, ports, g);
-        return g;
+        collision(g,vols, ports,volCarte);
+        return volCarte;
     }
     
-    static void collision(List<Vol> vols, List<Aeroport> ports, Graph g) {
+    private static List<Vol> collision(Graph g,List<Vol> vols, List<Aeroport> ports,List<Vol> volCarte) {
         int taille = vols.size();
-        int cpt = 1;
         for (Vol v : vols) {
             Node n = g.addNode(v.getCodeVol());
             n.setAttribute("label", v.getDepart() + "|" + v.getArrive());
@@ -90,10 +79,16 @@ public class AlgorithmIntersection {
             for (int j = i + 1; j < taille; j++) {
                 if (checkCollision(vols.get(i), vols.get(j), ports)) {
                     Edge e = g.addEdge(vols.get(i).getCodeVol() + " - " + vols.get(j).getCodeVol(), vols.get(i).getCodeVol(), vols.get(j).getCodeVol());
-                    cpt++;
+                    if(!volCarte.contains(vols.get(i))){
+                        volCarte.add(vols.get(i));
+                    }
+                    if(!volCarte.contains(vols.get(j))){
+                        volCarte.add(vols.get(j));
+                    }
                 }
             }
         }
+        return volCarte;
     }
 
     private static boolean checkCollision(Vol v1, Vol v2, List<Aeroport> ports) {
@@ -108,11 +103,11 @@ public class AlgorithmIntersection {
             double arrivalTime2=departureTime2+v2.getDuree();
             // A = D , B = C
             if(v1.getDepart().equals(v2.getArrive())&&v1.getArrive().equals(v2.getDepart())){
-                return (arrivalTime1+MARGE >= departureTime2 &&arrivalTime2+MARGE  >= departureTime1/*(Math.abs(arrivalTime1-departureTime2)<MARGE)||(Math.abs(arrivalTime2-departureTime1)<MARGE)*/);
+                return (arrivalTime1+marge >= departureTime2 &&arrivalTime2+marge  >= departureTime1/*(Math.abs(arrivalTime1-departureTime2)<MARGE)||(Math.abs(arrivalTime2-departureTime1)<MARGE)*/);
             }
             //A = C, B = D
             else if(v1.getDepart().equals(v2.getDepart())&&v1.getArrive().equals(v2.getArrive())){
-                return Math.abs(arrivalTime2-arrivalTime1) < MARGE;
+                return Math.abs(arrivalTime2-arrivalTime1) < marge;
             }
         }
         double timeVol1, timeVol2;
@@ -120,8 +115,9 @@ public class AlgorithmIntersection {
         double distanceVol2 = Point.distance(v2.getDepartaero().getX(), v2.getDepartaero().getY(), v2.getArriveaero().getX(), v2.getArriveaero().getY());
         timeVol1 = (v1.getHeure() * 60 + v1.getMin()) + (Point.distance(v1.getDepartaero().getX(), v1.getDepartaero().getY(), inter.x, inter.y) / distanceVol1 * v1.getDuree());
         timeVol2 = (v2.getHeure() * 60 + v2.getMin()) + (Point.distance(v2.getDepartaero().getX(), v2.getDepartaero().getY(), inter.x, inter.y) / distanceVol2 * v2.getDuree());
-        
-        return Math.abs(timeVol1-timeVol2) < MARGE;
+        System.out.println(Math.abs(timeVol1-timeVol2));
+        System.out.println(marge);
+        return Math.abs(timeVol1-timeVol2) < marge;
     }
 
     private static Point2D.Double intersection(Vol v1, Vol v2, List<Aeroport> ports) {
