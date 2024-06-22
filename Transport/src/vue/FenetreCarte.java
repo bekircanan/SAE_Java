@@ -1,6 +1,7 @@
 package vue;
 
 import bouton.StyleBouton;
+import static construction.AlgorithmColoration.largestFirstColoring;
 import construction.AlgorithmIntersection;
 import javax.swing.*;
 import java.awt.*;
@@ -20,6 +21,8 @@ import waypoint.MyWaypoint;
 import waypoint.WaypointRender;
 import modele.Aeroport;
 import modele.Vol;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.implementations.SingleGraph;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
 import org.jxmapviewer.input.PanMouseInputListener;
@@ -35,9 +38,9 @@ import static vue.Main.openSecondaryWindow;
  */
 public class FenetreCarte extends JFrame {
     private static List<Aeroport> ports;
-    public static List<Vol> vols;
+    private static List<Vol> vols;
     private JPanel mapPanel;
-    private JPanel graph;
+    private Graph graph=new SingleGraph("filtre");
     private JLabel carteLabel;
     private final JButton coloration;
     public static JButton chargeVol;
@@ -45,6 +48,9 @@ public class FenetreCarte extends JFrame {
     private static final Set<MyWaypoint> waypoints = new HashSet<>();
     private static final WaypointRender waypointRenderer = new WaypointRender();
 
+    public static List<Vol> getVols(){
+        return vols;
+    }
     /**
      * Constructeur de la classe FenetreCarte.
      * Initialise une fenêtre graphique avec des composants pour visualiser une carte et interagir avec les données des aéroports et des vols.
@@ -56,7 +62,6 @@ public class FenetreCarte extends JFrame {
         setSize(1200, 800);
         setLocationRelativeTo(null);
 
-        graph = new JPanel();
         JPanel pan = new JPanel(new GridBagLayout());
         pan.setPreferredSize(new Dimension(300, getHeight()));
         GridBagConstraints gbc = new GridBagConstraints();
@@ -69,7 +74,7 @@ public class FenetreCarte extends JFrame {
         gbc.gridy = 0;
         gbc.gridwidth = 2;
         pan.add(carteLabel, gbc);
-        gbc.gridwidth = 1; // Reset gridwidth to default
+        gbc.gridwidth = 1; 
 
         JButton button = new StyleBouton("Charger Aeroport");
         gbc.gridx = 0;
@@ -105,7 +110,7 @@ public class FenetreCarte extends JFrame {
                 try {
                     loadVols(selectedFile);
                 if (!vols.isEmpty()) {
-                    chargeVol(vols,15);
+                    chargeVol(vols,null,15,0);
                 } else {
                     JOptionPane.showMessageDialog(null, "Aucun vol trouvé dans le fichier.");
                 }
@@ -130,17 +135,52 @@ public class FenetreCarte extends JFrame {
                     if (min <= 0) {
                         throw new NumberFormatException();
                     }
-                    chargeVol(vols,min);
+                    chargeVol(null,null,min,0);
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(null, "Entrée invalide. Veuillez entrer un nombre positif.");
+                }
+            }
+        });
+        
+        JButton selectLevelButton = new StyleBouton("Sélectionner le niveau");
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.gridwidth = 2;
+        pan.add(selectLevelButton, gbc);
+
+        selectLevelButton.addActionListener((ActionEvent e) -> {
+            String levelsStr = JOptionPane.showInputDialog("Entrez le nombre de niveaux :");
+            if (levelsStr != null) {
+                try {
+                    int levels = Integer.parseInt(levelsStr);
+                    if (levels <= 0) {
+                        throw new NumberFormatException();
+                    }
+                    String selectedLevelStr = JOptionPane.showInputDialog("Entrez le niveau à sélectionner (0 pour tous les niveaux) :");
+                    if (selectedLevelStr != null) {
+                        try {
+                            int selectedLevel = Integer.parseInt(selectedLevelStr);
+                            if (selectedLevel < 0 || selectedLevel > levels) {
+                                throw new NumberFormatException();
+                            }
+                            JOptionPane.showMessageDialog(null, "Niveaux sélectionnés : " + (selectedLevel == 0 ? "Tous les niveaux" : selectedLevel));
+                            graph.setAttribute("kMax", levels);
+                            AlgorithmIntersection.setVolsCollision(graph,vols, ports,15);
+                            largestFirstColoring(graph);
+                            chargeVol(vols, graph, 15, selectedLevel);
+                        } catch (NumberFormatException ex) {
+                            JOptionPane.showMessageDialog(null, "Entrée invalide. Veuillez entrer un nombre valide.");
+                        }
+                    }
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(null, "Entrée invalide. Veuillez entrer un nombre valide.");
                 }
             }
         });
 
         coloration = new StyleBouton("Fenetre coloration");
         gbc.gridx = 0;
-        gbc.gridy = 4;
-        gbc.gridwidth = 2;
+        gbc.gridy = 5;
         pan.add(coloration, gbc);
         gbc.gridwidth = 1;
 
@@ -210,9 +250,11 @@ public class FenetreCarte extends JFrame {
         mapPanel.add(mapViewer, BorderLayout.CENTER);
     }
 
-    public static void chargeVol(List<Vol> vol,int marge) {
-        List<Vol> volsfiltre =AlgorithmIntersection.setVolsCollision(null,vols, ports,marge);
-        org.jxmapviewer.painter.Painter<JXMapViewer> overlay = waypointRenderer.paintVol(volsfiltre, mapViewer, ports);
+    public static void chargeVol(List<Vol> vol,Graph g,int marge,int level) {
+        if(vol==null){
+            vol =AlgorithmIntersection.setVolsCollision(null,vols, ports,marge);
+        }
+        org.jxmapviewer.painter.Painter<JXMapViewer> overlay = waypointRenderer.paintVol(vol, mapViewer, ports,g,level);
         List<org.jxmapviewer.painter.Painter<JXMapViewer>> painters = new ArrayList<>();
         painters.add(overlay);
         painters.add(waypointRenderer);

@@ -16,7 +16,6 @@ import org.graphstream.graph.implementations.DefaultGraph;
  * Elle permet la détection et la visualisation des collisions entre les vols et crée des graphes de ces interactions.
  */
 public class AlgorithmIntersection {
-    public static List<Vol> volsFiltre=new ArrayList<>();
     private static int marge;
     
     /**
@@ -62,7 +61,9 @@ public class AlgorithmIntersection {
         if(g==null){
             g= new DefaultGraph("Vols");
         }
-        g.addAttribute("kMax", 1);
+        if(g.getAttribute("kMax")==null){
+            g.addAttribute("kMax", 1);
+        }
         g.setStrict(false);
         collision(g,vols, ports,volCarte);
         return volCarte;
@@ -115,8 +116,6 @@ public class AlgorithmIntersection {
         double distanceVol2 = Point.distance(v2.getDepartaero().getX(), v2.getDepartaero().getY(), v2.getArriveaero().getX(), v2.getArriveaero().getY());
         timeVol1 = (v1.getHeure() * 60 + v1.getMin()) + (Point.distance(v1.getDepartaero().getX(), v1.getDepartaero().getY(), inter.x, inter.y) / distanceVol1 * v1.getDuree());
         timeVol2 = (v2.getHeure() * 60 + v2.getMin()) + (Point.distance(v2.getDepartaero().getX(), v2.getDepartaero().getY(), inter.x, inter.y) / distanceVol2 * v2.getDuree());
-        System.out.println(Math.abs(timeVol1-timeVol2));
-        System.out.println(marge);
         return Math.abs(timeVol1-timeVol2) < marge;
     }
 
@@ -175,61 +174,5 @@ public class AlgorithmIntersection {
         } else {
             return null;
         }
-    }
-     /**
- * Sélectionne les vols à afficher dans le graphe selon l'heure spécifiée.
- *
- * @param heure l'heure à laquelle les vols doivent être sélectionnés
-     * @param minute
- * @param vol la liste des vols
- * @return une liste des vols filtrés par heure
- */
-public static List<Vol> volParHeure(int heure,int minute ,List<Vol> vol) {
-    List<Vol> volsFiltres = new ArrayList<>();
-    for (Vol v : vol) {
-        if ((v.getHeure() == heure)&((v.getMin() > (minute - 30)) || (v.getMin() < (minute + 30)))) {
-            volsFiltres.add(v);
-        }
-    }
-    return volsFiltres;
-}
-
-    
-     /**
-     * Sélectionne les vols à afficher dans le graphe selon l'aéroport spécifié.
-     *
-     * @param aeroport le code de l'aéroport à sélectionner
-     * @param vol la liste des vols
-     * @param g le graphe des vols
-     */
-    public static List<Vol> selectAeroport(String aeroport, List<Vol> vol) {
-        List<Vol> result = new ArrayList<>();
-        for (Vol v : vol) {
-            if (v.getDepart().equals(aeroport)) {
-                result.add(v);
-            }
-        }
-        return result;
-    }
-     /**
-     * Sélectionne les vols à afficher dans le graphe selon le niveau de couleur spécifié.
-     *
-     * @param level le niveau de couleur à sélectionner
-     * @param vol la liste des vols
-     * @param g le graphe des vols
-     */
-    public static List<Vol> selectLevel(int level, List<Vol> vol, Graph g) {
-        List<Vol> result = new ArrayList<>();
-        for (Node n : g) {
-            if ((int) n.getNumber("color") == level) {
-                for (Vol v : vol) {
-                    if (n.equals(g.getNode(v.getCodeVol()))) {
-                        result.add(v);
-                        break;
-                    }
-                }
-            }
-        }
-        return result;
     }
 }

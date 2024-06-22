@@ -47,22 +47,12 @@ public class AlgorithmColoration {
      */
 
     public static int Gloutonne(Graph g) {
-        // Nombre maximum de couleurs possibles
-        // (au pire cas, chaque sommet a une couleur différente)
         int maxColors = g.getNodeCount();
-        // Tableau pour stocker les couleurs déjà utilisées -première couleur 1
         int[] usedColors = new int[maxColors+1];
-        // Ajout de l'attribut dynamique couleur et initialisation à 0
-        for (Node n : g) {
-        n.addAttribute("couleur", 0);
-        }
-        // Pour chaque sommet, attribution d'une couleur non utilisée par ses voisins
         for (Node node : g) {
-        // Réinitialiser le tableau des couleurs utilisées à 0
         for (int i = 0; i <= maxColors; i++) {
         usedColors[i] = 0;
         }
-        // Parcourir les voisins du sommet pour marquer les couleurs utilisées
         Iterator<Node> it = node.getNeighborNodeIterator();
         while (it.hasNext()) {
         Node neighbor = it.next();
@@ -71,12 +61,10 @@ public class AlgorithmColoration {
         usedColors[color] = color;
         }
         }
-        // Trouver la première couleur non utilisée
         int color = 1;
         while (usedColors[color] != 0) {
         color++;
         }
-        // Attribuer la couleur au sommet
         node.setAttribute("color", color);
         }
         int con =recolorGraph(g);
@@ -101,6 +89,7 @@ public class AlgorithmColoration {
         int maxColorUsed = 0;
         int totalConflicts = 0;
         int kMax = (int) g.getNumber("kMax");
+        System.out.println(kMax+"\n");
 
         for (Node node : nodes) {
             Set<Integer> usedColors = new HashSet<>();
@@ -150,7 +139,6 @@ public class AlgorithmColoration {
                 }
             }
         }
-        
         g.addAttribute("totalConflicts", totalConflicts);
         colorierGraphe(g);
         return totalConflicts;
@@ -201,6 +189,7 @@ public class AlgorithmColoration {
 
         for (Node node : g) {
             node.addAttribute("dsat", 0);
+            node.addAttribute("color", 0);
             nodeQueue.add(node);
         }
 

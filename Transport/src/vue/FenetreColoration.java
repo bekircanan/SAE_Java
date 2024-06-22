@@ -110,7 +110,6 @@ public class FenetreColoration extends JFrame {
                         gcolor = ChargerGraphe.chargerGraphe(selectedFile.getAbsolutePath());
                     } else if (selectedFile.getName().endsWith(".csv")) {
                         loadVols(selectedFile);
-                        // Utilisez les aéroports déjà chargés pour l'intersection
                         AlgorithmIntersection.setVolsCollision(gcolor,vols, aeroports,15);
                         
                     } else {
@@ -156,11 +155,6 @@ public class FenetreColoration extends JFrame {
         });
 
         updateKMaxButton.addActionListener((var e) -> {
-            if (currentGraph != null) {
-                for (Edge edge : currentGraph.getEdgeSet()) {
-                edge.setAttribute("ui.style", "fill-color: black;");
-                }
-            }
             String input = JOptionPane.showInputDialog("Entrez un nombre positif pour kMax :");
             if (input != null) {
                 try {
@@ -169,6 +163,9 @@ public class FenetreColoration extends JFrame {
                         throw new NumberFormatException();
                     }
                     if (currentGraph != null) {
+                        for (Edge edge : currentGraph.getEdgeSet()) {
+                            edge.setAttribute("ui.style", "fill-color: black;");
+                        }
                         currentGraph.setAttribute("kMax", newKMax);
                         kMax.setText("Kmax:"+String.valueOf(newKMax));
 
@@ -292,7 +289,11 @@ public class FenetreColoration extends JFrame {
         cont.gridwidth = 2;
         controlPanel.add(extraire, cont);
         extraire.addActionListener((ActionEvent e) ->{
-            exportTXT(currentGraph);
+            if(currentGraph!=null){
+                exportTXT(currentGraph);
+            }else{
+                JOptionPane.showMessageDialog(null, "Aucun graphe charge");
+            }
         });
 
         graphPanel = new JPanel(new BorderLayout());

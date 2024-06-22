@@ -60,12 +60,12 @@ public class Main extends JFrame {
         panel.add(intersection, cont);
 
         coloration.addActionListener((ActionEvent e) -> {
-            openSecondaryWindow(new FenetreCarte(), "Intersection");
+            openSecondaryWindow(new FenetreColoration(), "Coloration");
             this.dispose();
         });
 
         intersection.addActionListener((ActionEvent e) -> {
-            openSecondaryWindow(new FenetreColoration(), "Coloration");
+            openSecondaryWindow(new FenetreCarte(), "Intersection");
             this.dispose();
         });
         add(panel);

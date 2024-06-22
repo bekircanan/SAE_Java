@@ -2,6 +2,7 @@ package waypoint;
 
 import bouton.ButtonWaypoint;
 import construction.AlgorithmIntersection;
+import construction.OptionAeroport;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -27,9 +28,9 @@ public class MyWaypoint extends DefaultWaypoint {
         button.addActionListener(new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(FenetreCarte.vols!=null){
-                    List<Vol> volsfiltre=AlgorithmIntersection.selectAeroport(name,FenetreCarte.vols);
-                    FenetreCarte.chargeVol(volsfiltre);
+                if(FenetreCarte.getVols()!=null){
+                    List<Vol> volsfiltre=OptionAeroport.selectAeroport(name,FenetreCarte.getVols());
+                    FenetreCarte.chargeVol(volsfiltre,null,15,0);
                     
                 }
             }

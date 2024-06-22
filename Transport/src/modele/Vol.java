@@ -35,7 +35,16 @@ public class Vol {
     private int duree;
     private Aeroport departaero;
     private Aeroport arriveaero;
+    private int level;
     
+    
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
     /**
      * Constructeur de la classe {@code Vols}.
      * <p>
