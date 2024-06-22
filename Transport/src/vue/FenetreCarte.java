@@ -37,6 +37,7 @@ import static vue.Main.openSecondaryWindow;
  * FenetreCarte représente une fenêtre graphique pour visualiser des aéroports et des vols sur une carte.
  */
 public class FenetreCarte extends JFrame {
+    private JButton showFlightsButton;
     private static List<Aeroport> ports;
     private static List<Vol> vols;
     private JPanel mapPanel;
@@ -61,7 +62,6 @@ public class FenetreCarte extends JFrame {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setSize(1200, 800);
         setLocationRelativeTo(null);
-
         JPanel pan = new JPanel(new GridBagLayout());
         pan.setPreferredSize(new Dimension(300, getHeight()));
         GridBagConstraints gbc = new GridBagConstraints();
@@ -178,11 +178,20 @@ public class FenetreCarte extends JFrame {
             }
         });
 
+        showFlightsButton = new StyleBouton("Voir les vols");
+        gbc.gridx = 0;
+        gbc.gridy = 5; // Adjust grid position as needed
+        pan.add(showFlightsButton, gbc);
+        gbc.gridwidth = 2;
+
+        showFlightsButton.addActionListener(e -> {
+            waypointRenderer.showFlightsPopup();
+        });
+        
         coloration = new StyleBouton("Fenetre coloration");
         gbc.gridx = 0;
-        gbc.gridy = 5;
+        gbc.gridy = 6;
         pan.add(coloration, gbc);
-        gbc.gridwidth = 1;
 
         coloration.addActionListener(e -> {
             openSecondaryWindow(new FenetreColoration(), "Coloration");
@@ -238,7 +247,7 @@ public class FenetreCarte extends JFrame {
         DefaultTileFactory tileFactory = new DefaultTileFactory(info);
         mapViewer = new JXMapViewer();
         mapViewer.setTileFactory(tileFactory);
-
+        mapViewer.setDoubleBuffered(true);
         GeoPosition initialPosition = new GeoPosition(46.5768014, 2.6674444);
         mapViewer.setAddressLocation(initialPosition);
         mapViewer.setZoom(13);

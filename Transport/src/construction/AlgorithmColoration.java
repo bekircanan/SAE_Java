@@ -89,7 +89,6 @@ public class AlgorithmColoration {
         int maxColorUsed = 0;
         int totalConflicts = 0;
         int kMax = (int) g.getNumber("kMax");
-        System.out.println(kMax+"\n");
 
         for (Node node : nodes) {
             Set<Integer> usedColors = new HashSet<>();

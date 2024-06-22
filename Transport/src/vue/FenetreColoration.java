@@ -23,14 +23,11 @@ import org.graphstream.algorithm.ConnectedComponents;
 import static org.graphstream.algorithm.Toolkit.diameter;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.DefaultGraph;
 import org.graphstream.ui.layout.Layouts;
 import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 import org.graphstream.ui.swingViewer.View;
 import org.graphstream.ui.swingViewer.Viewer;
-import org.graphstream.ui.swingViewer.ViewerListener;
-import org.graphstream.ui.swingViewer.ViewerPipe;
 import static vue.Main.openSecondaryWindow;
 
 /**
