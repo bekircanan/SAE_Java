@@ -4,7 +4,6 @@ import bouton.StyleBouton;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.logging.Level;
@@ -22,7 +21,7 @@ public class Main extends JFrame {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setTitle("Menu principal");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+        setSize(500,300);
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
         panel.setBackground(new Color(45, 45, 45)); // Couleur de fond gris foncé
@@ -82,7 +81,6 @@ public class Main extends JFrame {
     public static void openSecondaryWindow(JFrame secondaryFrame,String text) {
         secondaryFrame.setTitle(text);
         secondaryFrame.setLocationRelativeTo(null);
-        secondaryFrame.setVisible(true);
         secondaryFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         try {
             Thread.sleep(250);

@@ -1,4 +1,6 @@
-package test;
+package modeleTest;
+
+
 
 import org.junit.After;
 import org.junit.AfterClass;

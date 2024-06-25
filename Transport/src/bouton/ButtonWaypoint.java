@@ -10,11 +10,33 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
 /**
- *
- * @author bekir
+ * Une classe personnalisée JButton pour afficher une icône de point de cheminement.
+ * <p>
+ * Cette classe étend {@link JButton} et la personnalise pour afficher une icône de point de cheminement
+ * avec des propriétés spécifiques telles que l'absence de zone de contenu, de bordure ou de peinture de focus.
+ * Elle définit également un curseur en forme de main et une taille fixe de 24x24 pixels.
+ * </p>
+ * <p>
+ * Exemple d'utilisation :
+ * <pre>
+ * {@code
+ * ButtonWaypoint bouton = new ButtonWaypoint();
+ * }
+ * </pre>
+ * </p>
+ * 
+ * @autor bekir
  */
 public class ButtonWaypoint extends JButton{
 
+    /**
+     * Construit un nouveau ButtonWaypoint avec une icône de point de cheminement.
+     * <p>
+     * Le bouton n'a pas de zone de contenu, pas de bordure et pas de peinture de focus.
+     * Il utilise un curseur en forme de main et a une taille fixe de 24x24 pixels.
+     * L'icône utilisée est située à "/icon/pin.png".
+     * </p>
+     */
     public ButtonWaypoint() {
         this.setContentAreaFilled(false);
         this.setBorderPainted(false);

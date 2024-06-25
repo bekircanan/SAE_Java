@@ -22,7 +22,6 @@ import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.jxmapviewer.viewer.WaypointPainter;
-import vue.FenetreCarte;
 
 /**
  * La classe {@code WaypointRender} est un peintre de waypoints personnalisé pour le composant JXMapViewer.
@@ -32,10 +31,11 @@ public class WaypointRender extends WaypointPainter<MyWaypoint> {
 
     private static Color[] cols;
     private final List<Vol> vols=new ArrayList<>();
-    
-    public WaypointRender() {
-    }
-    
+
+     /**
+     * Affiche une fenêtre contextuelle avec la liste des vols.
+     * La fenêtre contextuelle n'est affichée que s'il y a des vols à afficher.
+     */
     public void showFlightsPopup() {
         if (vols.isEmpty()) {
             return;
@@ -45,7 +45,7 @@ public class WaypointRender extends WaypointPainter<MyWaypoint> {
         popup.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         popup.setSize(800, 600);
 
-        // Create the JTable and its model
+        // Création de la JTable et de son modèle
         JTable table = new JTable();
         DefaultTableModel model = new DefaultTableModel();
         table.setModel(model);
@@ -71,7 +71,7 @@ public class WaypointRender extends WaypointPainter<MyWaypoint> {
     }
 
     
-    /**
+     /**
      * Effectue le rendu des waypoints sur le composant JXMapViewer.
      *
      * @param g le contexte graphique pour le rendu
@@ -91,6 +91,16 @@ public class WaypointRender extends WaypointPainter<MyWaypoint> {
         }
     }
     
+    /**
+     * Crée un painter pour dessiner les vols sur le composant JXMapViewer.
+     *
+     * @param vol la liste des vols à dessiner
+     * @param mapViewer le composant JXMapViewer sur lequel dessiner les vols
+     * @param aero la liste des aéroports
+     * @param graph le graphe des vols
+     * @param level le niveau de coloration du graphe à utiliser
+     * @return le painter pour dessiner les vols
+     */
     public Painter<JXMapViewer> paintVol(List<Vol> vol, JXMapViewer mapViewer, List<Aeroport> aero,Graph graph,int level) {
         if(graph!=null){
             colorierGraphe(graph);
@@ -143,6 +153,12 @@ public class WaypointRender extends WaypointPainter<MyWaypoint> {
         };
         return lineOverlay;
     }
+    
+    /**
+     * Colore les nœuds du graphe en fonction de leur attribut "color".
+     *
+     * @param g le graphe à colorier
+     */
     private static void colorierGraphe(Graph g) {
         int max = (int)g.getAttribute("kMax");
         cols = new Color[max + 1];

@@ -12,12 +12,19 @@ import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.viewer.GeoPosition;
 
 /**
- * Custom JXMapViewer class to draw flights between airports.
+ * Classe personnalisée JXMapViewer pour dessiner des vols entre les aéroports.
  */
 public class jXMapviewerCustom extends JXMapViewer {
     private final List<Vol> vol;
     private JXMapViewer map;
 
+     /**
+     * Constructeur de la classe jXMapviewerCustom.
+     *
+     * @param vols la liste des vols à dessiner
+     * @param aero la liste des aéroports
+     * @param mapViewer le composant JXMapViewer sur lequel dessiner les vols
+     */
     public jXMapviewerCustom(List<Vol> vol,List<Aeroport> aero,JXMapViewer mapViewer) {
         this.vol = vol;
         this.map=mapViewer;
@@ -33,6 +40,11 @@ public class jXMapviewerCustom extends JXMapViewer {
         repaint();
     }
 
+     /**
+     * Redéfinition de la méthode paintComponent pour dessiner les vols.
+     *
+     * @param g le contexte graphique pour le rendu
+     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -53,7 +65,15 @@ public class jXMapviewerCustom extends JXMapViewer {
         g2d.dispose();
     }
     
-    
+    /**
+     * Méthode pour dessiner un vol spécifique entre deux aéroports.
+     *
+     * @param g le contexte graphique pour le rendu
+     * @param map le composant JXMapViewer sur lequel dessiner le vol
+     * @param w la largeur du composant
+     * @param h la hauteur du composant
+     * @param v le vol à dessiner
+     */
     private void paint(Graphics2D g,JXMapViewer map,int w,int h,Vol v){
         g=(Graphics2D) g.create();
         Rectangle rect = map.getViewportBounds();
