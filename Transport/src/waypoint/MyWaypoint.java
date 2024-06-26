@@ -1,7 +1,7 @@
 package waypoint;
 
 import bouton.ButtonWaypoint;
-import construction.AlgorithmIntersection;
+import construction.FiltreAeroportVol;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -11,25 +11,34 @@ import org.jxmapviewer.viewer.DefaultWaypoint;
 import org.jxmapviewer.viewer.GeoPosition;
 import vue.FenetreCarte;
 
+/**
+ * Classe de point de chemin personnalisé qui étend DefaultWaypoint pour inclure un bouton et une fonctionnalité supplémentaire.
+ */
 public class MyWaypoint extends DefaultWaypoint {
     private String name;
     private JButton button;
-
+    
+    /**
+     * Construit un objet MyWaypoint avec un nom et une position géographique.
+     * 
+     * @param name Le nom du Waypoint.
+     * @param coord La position géographique du Waypoint.
+     */
     public MyWaypoint(String name, GeoPosition coord) {
         super(coord);
         this.name = name;
         initButton();
     }
-    
+
     private void initButton() {
         button = new ButtonWaypoint();
         button.setToolTipText(name);
         button.addActionListener(new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(FenetreCarte.vols!=null){
-                    List<Vol> volsfiltre=AlgorithmIntersection.selectAeroport(name,FenetreCarte.vols);
-                    FenetreCarte.chargeVol(volsfiltre);
+                if(FenetreCarte.getVols()!=null){
+                    List<Vol> volsfiltre=FiltreAeroportVol.selectAeroport(name,FenetreCarte.getVols());
+                    FenetreCarte.chargeVol(volsfiltre,null,15,0);
                     
                 }
             }
@@ -37,18 +46,38 @@ public class MyWaypoint extends DefaultWaypoint {
         });
     }
 
+    /**
+     * Obtient le nom du Waypoint.
+     * 
+     * @return Le nom du Waypoint.
+     */
     public String getName() {
         return name;
     }
-
+    
+    /**
+     * Définit le nom du Waypoint.
+     * 
+     * @param name Le nouveau nom du Waypoint.
+     */
     public void setName(String name) {
         this.name = name;
     }
-
+    
+    /**
+     * Obtient le bouton associé au Waypoint.
+     * 
+     * @return Le bouton associé au Waypoint.
+     */
     public JButton getButton() {
         return button;
     }
 
+    /**
+     * Définit le bouton associé au Waypoint.
+     * 
+     * @param button Le nouveau bouton à associer au Waypoint.
+     */
     public void setButton(JButton button) {
         this.button = button;
     }

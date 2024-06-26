@@ -1,17 +1,20 @@
 package vue;
 
 import bouton.StyleBouton;
+import static construction.AlgorithmColoration.largestFirstColoring;
 import construction.AlgorithmIntersection;
+import static construction.FiltreAeroportVol.loadAeroports;
+import static construction.FiltreAeroportVol.loadVols;
+import static construction.FiltreAeroportVol.selectFile;
+import static construction.FiltreAeroportVol.volParHeure;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Scanner;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,6 +23,8 @@ import waypoint.MyWaypoint;
 import waypoint.WaypointRender;
 import modele.Aeroport;
 import modele.Vol;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.implementations.SingleGraph;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
 import org.jxmapviewer.input.PanMouseInputListener;
@@ -31,13 +36,18 @@ import org.jxmapviewer.viewer.TileFactoryInfo;
 import static vue.Main.openSecondaryWindow;
 
 /**
- * FenetreCarte représente une fenêtre graphique pour visualiser des aéroports et des vols sur une carte.
+ * La classe {@code FenetreCarte} représente une fenêtre graphique pour visualiser des aéroports et des vols sur une carte.
  */
 public class FenetreCarte extends JFrame {
-    private static List<Aeroport> ports;
-    public static List<Vol> vols;
+    private JButton showFlightsButton;
+    private JButton button;
+    private JButton heureButton;
+    private JButton updateMargeButton;
+    private JButton selectLevelButton;
+    private static final ArrayList<Aeroport> aeroports = new ArrayList();
+    private static final ArrayList<Vol> vols = new ArrayList();
     private JPanel mapPanel;
-    private JPanel graph;
+    private Graph graph = new SingleGraph("filtre");
     private JLabel carteLabel;
     private final JButton coloration;
     public static JButton chargeVol;
@@ -46,7 +56,16 @@ public class FenetreCarte extends JFrame {
     private static final WaypointRender waypointRenderer = new WaypointRender();
 
     /**
-     * Constructeur de la classe FenetreCarte.
+     * Retourne la liste des vols
+     * 
+     * @return la liste des vols
+     */
+    public static List<Vol> getVols() {
+        return vols;
+    }
+
+    /**
+     * Constructeur de la classe {@code FenetreCarte}.
      * Initialise une fenêtre graphique avec des composants pour visualiser une carte et interagir avec les données des aéroports et des vols.
      */
     public FenetreCarte() {
@@ -55,8 +74,6 @@ public class FenetreCarte extends JFrame {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setSize(1200, 800);
         setLocationRelativeTo(null);
-
-        graph = new JPanel();
         JPanel pan = new JPanel(new GridBagLayout());
         pan.setPreferredSize(new Dimension(300, getHeight()));
         GridBagConstraints gbc = new GridBagConstraints();
@@ -69,84 +86,155 @@ public class FenetreCarte extends JFrame {
         gbc.gridy = 0;
         gbc.gridwidth = 2;
         pan.add(carteLabel, gbc);
-        gbc.gridwidth = 1; // Reset gridwidth to default
 
-        JButton button = new StyleBouton("Charger Aeroport");
-        gbc.gridx = 0;
+        button = new StyleBouton("Charger Aeroport");
         gbc.gridy = 1;
-        gbc.gridwidth = 2;
         pan.add(button, gbc);
-        gbc.gridwidth = 1;
 
         button.addActionListener((ActionEvent e) -> {
             File selectedFile = selectFile();
             if (selectedFile != null) {
-                ports = loadAeroports(selectedFile);
-                if (ports == null) {
-                    JOptionPane.showMessageDialog(null, "Fichier d'aéroport non trouvé.");
+                loadAeroports(selectedFile, aeroports);
+                if (aeroports == null || aeroports.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "Fichier d'aéroport non trouvé ou vide.");
                     return;
                 }
                 mapPanel.setVisible(true);
-                setAeroport(mapViewer, waypoints, waypointRenderer, ports);
+                setAeroport(mapViewer, waypoints, waypointRenderer, aeroports);
                 mapViewer.setOverlayPainter(waypointRenderer);
             }
         });
 
         chargeVol = new StyleBouton("Charger vols");
-        gbc.gridx = 0;
         gbc.gridy = 2;
-        gbc.gridwidth = 2;
         pan.add(chargeVol, gbc);
-        gbc.gridwidth = 1;
 
         chargeVol.addActionListener(e -> {
+            if (aeroports == null || aeroports.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Veuillez d'abord charger les aéroports.");
+                return;
+            }
             File selectedFile = selectFile();
             if (selectedFile != null) {
                 try {
-                    loadVols(selectedFile);
-                if (!vols.isEmpty()) {
-                    chargeVol(vols);
-                } else {
-                    JOptionPane.showMessageDialog(null, "Aucun vol trouvé dans le fichier.");
-                }
+                    loadVols(selectedFile, vols);
+                    if (!vols.isEmpty()) {
+                        chargeVol(vols, null, 15, 0);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Aucun vol trouvé dans le fichier.");
+                    }
                 } catch (IOException ex) {
                     Logger.getLogger(FenetreCarte.class.getName()).log(Level.SEVERE, null, ex);
                 }
+            } else {
+                JOptionPane.showMessageDialog(null, "Aucun fichier sélectionné.");
             }
         });
 
-        JButton updateMargeButton = new StyleBouton("Modifier Marge");
-        gbc.gridx = 0;
+        updateMargeButton = new StyleBouton("Modifier Marge");
         gbc.gridy = 3;
-        gbc.gridwidth = 2;
         pan.add(updateMargeButton, gbc);
-        gbc.gridwidth = 1;
 
         updateMargeButton.addActionListener((ActionEvent e) -> {
-            String hourStr = JOptionPane.showInputDialog("Entrez l'heure (1-24) :");
-            if (hourStr != null) {
+            if (vols == null || vols.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Veuillez d'abord charger les vols.");
+                return;
+            }
+            String minStr = JOptionPane.showInputDialog("Entrez un nombre positif :");
+            if (minStr != null) {
                 try {
-                    int hour = Integer.parseInt(hourStr);
-                    if (hour < 1 || hour > 24) {
+                    int min = Integer.parseInt(minStr);
+                    if (min <= 0) {
                         throw new NumberFormatException();
                     }
-                    AlgorithmIntersection pourMarge = new AlgorithmIntersection();
-                    pourMarge.setMarge(hour);
+                    chargeVol(null, null, min, 0);
                 } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(null, "Entrée invalide. Veuillez entrer un nombre entre 1 et 24 pour l'heure.");
+                    JOptionPane.showMessageDialog(null, "Entrée invalide. Veuillez entrer un nombre positif.");
+                }
+            }
+        });
+        
+        heureButton = new StyleBouton("Modifier Heure de depart");
+        gbc.gridy = 4;
+        pan.add(heureButton, gbc);
+        
+        heureButton.addActionListener((ActionEvent e) -> {
+            if (vols == null || vols.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Veuillez d'abord charger les vols.");
+                return;
+            }
+            String hrStr = JOptionPane.showInputDialog("Entrez un nombre positif :");
+            if (hrStr != null) {
+                try {
+                    int hr = Integer.parseInt(hrStr);
+                    if (hr <= 0) {
+                        throw new NumberFormatException();
+                    }
+                    List<Vol> vol=volParHeure(hr,vols);
+                    chargeVol(vol, null, 15, 0);
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(null, "Entrée invalide. Veuillez entrer un nombre positif.");
                 }
             }
         });
 
+        selectLevelButton = new StyleBouton("Sélectionner le niveau");
+        gbc.gridy = 5;
+        pan.add(selectLevelButton, gbc);
+
+        selectLevelButton.addActionListener((ActionEvent e) -> {
+            if (vols == null || vols.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Veuillez d'abord charger les vols.");
+                return;
+            }
+            String levelsStr = JOptionPane.showInputDialog("Entrez le nombre de niveaux :");
+            if (levelsStr != null) {
+                try {
+                    int levels = Integer.parseInt(levelsStr);
+                    if (levels <= 0) {
+                        throw new NumberFormatException();
+                    }
+                    String selectedLevelStr = JOptionPane.showInputDialog("Entrez le niveau à sélectionner (0 pour tous les niveaux) :");
+                    if (selectedLevelStr != null) {
+                        try {
+                            int selectedLevel = Integer.parseInt(selectedLevelStr);
+                            if (selectedLevel < 0 || selectedLevel > levels) {
+                                throw new NumberFormatException();
+                            }
+                            JOptionPane.showMessageDialog(null, "Niveaux sélectionnés : " + (selectedLevel == 0 ? "Tous les niveaux" : selectedLevel));
+                            graph.setAttribute("kMax", levels);
+                            AlgorithmIntersection.setVolsCollision(graph, vols, aeroports, 15);
+                            largestFirstColoring(graph);
+                            chargeVol(vols, graph, 15, selectedLevel);
+                        } catch (NumberFormatException ex) {
+                            JOptionPane.showMessageDialog(null, "Entrée invalide. Veuillez entrer un nombre valide.");
+                        }
+                    }
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(null, "Entrée invalide. Veuillez entrer un nombre valide.");
+                }
+            }
+        });
+
+        showFlightsButton = new StyleBouton("Voir les vols");
+        gbc.gridy = 6;
+        pan.add(showFlightsButton, gbc);
+
+        showFlightsButton.addActionListener(e -> {
+            if (vols == null || vols.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Veuillez d'abord charger les vols.");
+                return;
+            }
+            waypointRenderer.showFlightsPopup();
+        });
+
         coloration = new StyleBouton("Fenetre coloration");
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        gbc.gridwidth = 2;
+        gbc.gridy = 7;
         pan.add(coloration, gbc);
-        gbc.gridwidth = 1;
 
         coloration.addActionListener(e -> {
             openSecondaryWindow(new FenetreColoration(), "Coloration");
+            clearData();
             this.dispose();
         });
 
@@ -155,54 +243,16 @@ public class FenetreCarte extends JFrame {
 
         add(pan, BorderLayout.EAST);
         add(mapPanel, BorderLayout.CENTER);
+
         setVisible(true);
     }
-
-    private ArrayList<Aeroport> loadAeroports(File txtFile) {
-        if (!txtFile.exists()) {
-            JOptionPane.showMessageDialog(null, "Fichier d'aéroport non trouvé.");
-            return null;
-        }
-        ArrayList<Aeroport> ports = new ArrayList<>();
-        try (Scanner scanAero = new Scanner(txtFile)) {
-            while (scanAero.hasNextLine()) {
-                ports.add(new Aeroport(scanAero));
-            }
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(FenetreCarte.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }
-        return ports;
-    }
-
-    private void loadVols(File csvFile) throws IOException {
-        vols = new ArrayList<>();
-        try (Scanner scanVol = new Scanner(csvFile)) {
-            while (scanVol.hasNextLine()) {
-                vols.add(new Vol(scanVol));
-            }
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(FenetreCarte.class.getName()).log(Level.SEVERE, null, ex);
-            throw new IOException("File not found: " + csvFile.getAbsolutePath(), ex);
-        }
-    }
-
-    private File selectFile() {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setCurrentDirectory(new File("."));
-        int returnValue = fileChooser.showOpenDialog(null);
-        if (returnValue == JFileChooser.APPROVE_OPTION) {
-            return fileChooser.getSelectedFile();
-        }
-        return null;
-    }
-
+    
     private void initMapPanel() {
         TileFactoryInfo info = new OSMTileFactoryInfo();
         DefaultTileFactory tileFactory = new DefaultTileFactory(info);
         mapViewer = new JXMapViewer();
         mapViewer.setTileFactory(tileFactory);
-
+        mapViewer.setDoubleBuffered(true);
         GeoPosition initialPosition = new GeoPosition(46.5768014, 2.6674444);
         mapViewer.setAddressLocation(initialPosition);
         mapViewer.setZoom(13);
@@ -214,12 +264,32 @@ public class FenetreCarte extends JFrame {
         mapPanel.add(mapViewer, BorderLayout.CENTER);
     }
 
-    public static void chargeVol(List<Vol> vol) {
-        org.jxmapviewer.painter.Painter<JXMapViewer> overlay = waypointRenderer.paintVol(vol, mapViewer, ports);
+    /**
+     * Charge les vols et met à jour l'affichage de la carte.
+     * 
+     * @param vol la liste des vols à charger
+     * @param g le graphe représentant les vols
+     * @param marge la marge pour déterminer les collisions
+     * @param level le niveau à afficher
+     */
+    public static void chargeVol(List<Vol> vol, Graph g, int marge, int level) {
+        if (vol == null) {
+            vol = AlgorithmIntersection.setVolsCollision(null, vols, aeroports, marge);
+        }
+        org.jxmapviewer.painter.Painter<JXMapViewer> overlay = waypointRenderer.paintVol(vol, mapViewer, aeroports, g, level);
         List<org.jxmapviewer.painter.Painter<JXMapViewer>> painters = new ArrayList<>();
         painters.add(overlay);
         painters.add(waypointRenderer);
         CompoundPainter<JXMapViewer> painter = new CompoundPainter<>(painters);
         mapViewer.setOverlayPainter(painter);
+    }
+
+    private void clearData() {
+        if (aeroports != null) {
+            aeroports.clear();
+        }
+        if (vols != null) {
+            vols.clear();
+        }
     }
 }

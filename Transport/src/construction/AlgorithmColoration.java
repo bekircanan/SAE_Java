@@ -19,17 +19,17 @@ import org.graphstream.graph.Node;
  * Les algorithmes incluent une méthode gloutonne, l'algorithme de Welsh-Powell et une méthode
  * de coloration en fonction de la plus grande première.
  * </p>
- * <p>
+ * 
  * Exemple d'utilisation :
- * <pre>
+ * 
  * {@code
  * Graph g = new SingleGraph("Graphe");
  * AlgorithmColoration.Gloutonne(g);
  * AlgorithmColoration.welshPowell(g);
  * AlgorithmColoration.largestFirstColoring(g);
  * }
- * </pre>
- * </p>
+ * 
+ * 
  * <p>
  * Ces méthodes permettent de colorier les nœuds du graphe et de déterminer le nombre chromatique du graphe.
  * </p>
@@ -37,7 +37,7 @@ import org.graphstream.graph.Node;
 public class AlgorithmColoration {
     
     /**
-     * Applique une méthode gloutonne pour colorier le graphe.
+     * Applique l'algorithme gloutonne pour colorier le graphe.
      * <p>
      * Chaque nœud du graphe se voit attribuer la plus petite couleur non utilisée par ses voisins.
      * </p>
@@ -45,24 +45,13 @@ public class AlgorithmColoration {
      * @param g le graphe à colorier
      * @return le nombre total de conflits après coloration
      */
-
     public static int Gloutonne(Graph g) {
-        // Nombre maximum de couleurs possibles
-        // (au pire cas, chaque sommet a une couleur différente)
         int maxColors = g.getNodeCount();
-        // Tableau pour stocker les couleurs déjà utilisées -première couleur 1
         int[] usedColors = new int[maxColors+1];
-        // Ajout de l'attribut dynamique couleur et initialisation à 0
-        for (Node n : g) {
-        n.addAttribute("couleur", 0);
-        }
-        // Pour chaque sommet, attribution d'une couleur non utilisée par ses voisins
         for (Node node : g) {
-        // Réinitialiser le tableau des couleurs utilisées à 0
         for (int i = 0; i <= maxColors; i++) {
         usedColors[i] = 0;
         }
-        // Parcourir les voisins du sommet pour marquer les couleurs utilisées
         Iterator<Node> it = node.getNeighborNodeIterator();
         while (it.hasNext()) {
         Node neighbor = it.next();
@@ -71,12 +60,10 @@ public class AlgorithmColoration {
         usedColors[color] = color;
         }
         }
-        // Trouver la première couleur non utilisée
         int color = 1;
         while (usedColors[color] != 0) {
         color++;
         }
-        // Attribuer la couleur au sommet
         node.setAttribute("color", color);
         }
         int con =recolorGraph(g);
@@ -85,7 +72,7 @@ public class AlgorithmColoration {
     }
     
      /**
-     * Applique une méthode de coloration en fonction de la plus grande première pour colorier le graphe.
+     * Applique l'algorithme Welshpowell pour colorier le graphe.
      * <p>
      * Cette méthode colore les nœuds en commençant par les nœuds de plus grand degré.
      * </p>
@@ -150,17 +137,11 @@ public class AlgorithmColoration {
                 }
             }
         }
-        
         g.addAttribute("totalConflicts", totalConflicts);
         colorierGraphe(g);
         return totalConflicts;
     }
     
-     /**
-     * Applique les styles de couleur aux nœuds et aux arêtes du graphe pour visualisation.
-     * 
-     * @param g le graphe à visualiser
-     */
     private static void colorierGraphe(Graph g) {
         int max = g.getNodeCount();
         Color[] cols = new Color[max + 1];
@@ -186,7 +167,6 @@ public class AlgorithmColoration {
      * @param g le graphe à colorier
      * @return le nombre total de conflits après coloration
      */
-
     public static int dsatur(Graph g) {
         PriorityQueue<Node> nodeQueue = new PriorityQueue<>((a, b) -> {
             int dsatA = a.getAttribute("dsat");
@@ -201,6 +181,7 @@ public class AlgorithmColoration {
 
         for (Node node : g) {
             node.addAttribute("dsat", 0);
+            node.addAttribute("color", 0);
             nodeQueue.add(node);
         }
 
@@ -236,12 +217,6 @@ public class AlgorithmColoration {
         return con;
     }
     
-     /**
-     * Réapplique la coloration au graphe après résolution des conflits de couleur.
-     * 
-     * @param g le graphe à recolorier
-     * @return le nombre total de conflits après recoloration
-     */
     private static int recolorGraph(Graph g) {
         int totalConflicts = 0;
         int kMax=(int)g.getNumber("kMax");

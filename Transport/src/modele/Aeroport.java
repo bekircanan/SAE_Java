@@ -1,4 +1,5 @@
 package modele;
+
 import waypoint.MyWaypoint;
 import java.io.FileNotFoundException;
 import java.util.List;
@@ -16,19 +17,19 @@ import org.jxmapviewer.viewer.WaypointPainter;
  * </p>
  * <p>
  * Exemple d'utilisation :
- * <pre>
+ * 
  * {@code
  * Scanner scan = new Scanner(new File("aeroport.txt"));
  * Aeroport aeroport = new Aeroport(scan);
  * }
- * </pre>
+ * 
  * </p>
- * <p>
+ * 
  * Le fichier d'entrée doit avoir le format suivant :
  * <ul>
  * <li>Chaque ligne contient les informations d'un aéroport séparées par des points-virgules.</li>
  * </ul>
- * </p>
+ * 
  * <p>
  * Les informations comprennent le code de l'aéroport, le lieu, la latitude (degrés, minutes, secondes),
  * la direction (N/S/E/O) et la longitude (degrés, minutes, secondes), et la direction (N/S/E/O).
@@ -86,12 +87,13 @@ public class Aeroport {
      * La méthode lit une liste d'objets {@code Aeroport} pour créer un graphe où chaque aéroport est représenté par un nœud.
      * </p>
      * 
-     * @param port la liste des aéroports
-     * @return un objet {@code WaypointPainter<MyWaypoint>} représentant le graphe des aéroports
+     * @param mapViewer l'objet {@code JXMapViewer} sur lequel les waypoints seront affichés
+     * @param waypoints l'ensemble des waypoints représentant les aéroports
+     * @param waypointRenderer l'objet {@code WaypointPainter<MyWaypoint>} pour le rendu des waypoints
+     * @param ports la liste des aéroports
      */
-    public static void setAeroport(JXMapViewer mapViewer,Set<MyWaypoint> waypoints ,WaypointPainter<MyWaypoint> waypointRenderer,List<Aeroport> ports) {
-
-        // Iterate through each airport and add it as a waypoint
+    public static void setAeroport(JXMapViewer mapViewer, Set<MyWaypoint> waypoints, WaypointPainter<MyWaypoint> waypointRenderer, List<Aeroport> ports) {
+        // Itère sur chaque aéroport et l'ajoute comme waypoint
         for (Aeroport aeroport : ports) {
             GeoPosition position = new GeoPosition(aeroport.getLatitude(), aeroport.getLongitude());
             MyWaypoint waypoint = new MyWaypoint(aeroport.getCodeAero(), position);
@@ -103,27 +105,56 @@ public class Aeroport {
         mapViewer.setOverlayPainter(waypointRenderer);
     }
 
-    // Getters for the Aeroport attributes
+    /**
+     * Renvoie le code de l'aéroport.
+     * 
+     * @return le code de l'aéroport
+     */
     public String getCodeAero() {
         return codeAero;
     }
 
+    /**
+     * Renvoie le lieu de l'aéroport.
+     * 
+     * @return le lieu de l'aéroport
+     */
     public String getLieu() {
         return lieu;
     }
 
+    /**
+     * Renvoie la latitude de l'aéroport.
+     * 
+     * @return la latitude de l'aéroport
+     */
     public double getLatitude() {
         return latitude;
     }
 
+    /**
+     * Renvoie la longitude de l'aéroport.
+     * 
+     * @return la longitude de l'aéroport
+     */
     public double getLongitude() {
         return longitude;
     }
 
+    /**
+     * Renvoie la coordonnée X de l'aéroport.
+     * 
+     * @return la coordonnée X de l'aéroport
+     */
     public double getX() {
         return x;
     }
 
+    /**
+     * Renvoie la coordonnée Y de l'aéroport.
+     * 
+     * @return la coordonnée Y de l'aéroport
+     */
     public double getY() {
         return y;
     }

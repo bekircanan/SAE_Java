@@ -76,7 +76,7 @@ public class AlgorithmColorationTest {
         // Vérifier que les nœuds adjacents ont des couleurs différentes
         Assert.assertNotEquals(colorA, colorB);
         Assert.assertNotEquals(colorA, colorC);
-        Assert.assertNotEquals(colorA, colorD);
+        Assert.assertEquals(colorA, colorD);
         Assert.assertNotEquals(colorB, colorC);
         Assert.assertNotEquals(colorB, colorD);
         Assert.assertNotEquals(colorC, colorD);

@@ -11,19 +11,19 @@ import org.graphstream.graph.Node;
  * l'aéroport de départ, l'aéroport d'arrivée, l'heure de départ, les minutes de départ et la durée du vol.
  * <p>
  * Exemple d'utilisation :
- * <pre>
+ * 
  * {@code
- Scanner scan = new Scanner(new File("vols.txt"));
- Vol vol = new Vol(scan);
- }
- * </pre>
+ * Scanner scan = new Scanner(new File("vols.txt"));
+ * Vol vol = new Vol(scan);
+ * }
+ * 
  * </p>
- * <p>
+ * 
  * Le fichier d'entrée doit avoir le format suivant :
  * <ul>
  * <li>Chaque ligne contient les informations d'un vol séparées par des points-virgules.</li>
  * </ul>
- * </p>
+ * 
  * 
  */
 public class Vol {
@@ -36,30 +36,32 @@ public class Vol {
     private Aeroport departaero;
     private Aeroport arriveaero;
     
+
     /**
-     * Constructeur de la classe {@code Vols}.
+     * Constructeur de la classe {@code Vol}.
      * <p>
-     * Initialise un objet {@code Vols} en lisant les informations depuis un {@code Scanner}.
+     * Initialise un objet {@code Vol} en lisant les informations depuis un {@code Scanner}.
      * </p>
      * 
      * @param scan le scanner à partir duquel les informations du vol sont lues
      */
-    public Vol(Scanner scan){
+    public Vol(Scanner scan) {
         String[] parts =  scan.nextLine().split(";");
         if (parts.length != 6) {
-            throw new IllegalArgumentException("Invalid input format");
+            throw new IllegalArgumentException("Format d'entrée invalide");
         }
         try {
             this.codeVol = parts[0];
             this.depart = parts[1];
             this.arrive = parts[2];
             if (depart.length() != 3 || arrive.length() != 3) {
-                throw new IllegalArgumentException("Airport codes must be 3 letters long");
+                throw new IllegalArgumentException("Les codes des aéroports doivent comporter 3 lettres");
             }
             this.heure = Integer.parseInt(parts[3]);
             this.min = Integer.parseInt(parts[4]);
             this.duree = Integer.parseInt(parts[5]);
         } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Erreur de format numérique dans l'entrée", e);
         }
     }
 
@@ -117,7 +119,7 @@ public class Vol {
         return duree;
     }
 
-     /**
+    /**
      * Retourne l'aéroport de départ sous forme d'objet {@code Aeroport}.
      * 
      * @return l'aéroport de départ
@@ -153,8 +155,13 @@ public class Vol {
         this.arriveaero = arriveaero;
     }
     
+    /**
+     * Exporte le graphe des vols dans un fichier texte.
+     * 
+     * @param g le graphe à exporter
+     */
     public static void exportTXT(Graph g){
-        try(FileWriter fichier = new FileWriter("..//..//filename.txt")) {
+        try(FileWriter fichier = new FileWriter("..//..//"+g.getId()+".txt")) {
             int now,next;
             fichier.write(g.getNodeCount()+"\n");
             fichier.write("0\n");
