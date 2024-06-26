@@ -7,16 +7,15 @@ import static construction.AlgorithmColoration.dsatur;
 import static construction.AlgorithmColoration.largestFirstColoring;
 import construction.ChargerGraphe;
 import construction.AlgorithmIntersection;
-import static construction.FiltreAeroportVol.loadAeroports;
-import static construction.FiltreAeroportVol.loadVols;
-import static construction.FiltreAeroportVol.selectFile;
 import modele.Vol;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static modele.Vol.exportTXT;
@@ -39,6 +38,9 @@ import static vue.Main.openSecondaryWindow;
 public class FenetreColoration extends JFrame {
     private JPanel graphPanel;
     private JSlider zoomSlider;
+    private JButton startAlgo;
+    private JButton ButtonAirport;
+    private JLabel LabelAirport;
     private JLabel kMax;
     private JLabel nbConflits;
     private JLabel nbAretes;
@@ -46,18 +48,13 @@ public class FenetreColoration extends JFrame {
     private JLabel CC;
     private JLabel DegMoy;
     private JLabel Diametre;
-    private JLabel LabelAirport;
+    private JButton updateKMaxButton;
     private JButton intersection;
     private JButton extraire;
-    private JButton button;
-    private JButton ButtonAirport;
-    private JButton updateKMaxButton;
     private JComboBox<String> comboBox;
-    private ArrayList<Aeroport> aeroports = new ArrayList();
-    private ArrayList<Vol> vols= new ArrayList();
+    private ArrayList<Aeroport> aeroports;
+    private ArrayList<Vol> vols;
     private Graph currentGraph;
-    private static final double MIN_ZOOM = 0.1;
-    private static final double MAX_ZOOM = 2.0;
     private static final int ZOOM_SLIDER_MIN = 10;
     private static final int ZOOM_SLIDER_MAX = 200;
     private static final int ZOOM_SLIDER_INIT = 100;
@@ -76,7 +73,7 @@ public class FenetreColoration extends JFrame {
         controlPanel.setLayout(new GridBagLayout());
         GridBagConstraints cont = new GridBagConstraints();
         
-        button = new StyleBouton("Lancer Algorithme");
+        startAlgo = new StyleBouton("Lancer Algorithme");
         ButtonAirport = new StyleBouton("Charger un aéroport");
         LabelAirport = new JLabel("Aucun aéroport chargé");
         intersection = new StyleBouton("Carte de france");
@@ -96,13 +93,13 @@ public class FenetreColoration extends JFrame {
         ButtonAirport.addActionListener((ActionEvent e) -> {
             File selectedFile = selectFile();
             if (selectedFile != null) {
-                loadAeroports(selectedFile, aeroports);
+                loadAeroports(selectedFile);
                 if (aeroports != null) {
                     LabelAirport.setText(selectedFile.getName());
                 }
             }
         });
-        button.addActionListener((ActionEvent e) -> {
+        startAlgo.addActionListener((ActionEvent e) -> {
             String selectedAlgorithm = (String) comboBox.getSelectedItem();
             Graph gcolor = new DefaultGraph("Vols");
             
@@ -112,7 +109,7 @@ public class FenetreColoration extends JFrame {
                     if (selectedFile.getName().endsWith(".txt")) {
                         gcolor = ChargerGraphe.chargerGraphe(selectedFile.getAbsolutePath());
                     } else if (selectedFile.getName().endsWith(".csv")) {
-                        loadVols(selectedFile, vols);
+                        loadVols(selectedFile);
                         AlgorithmIntersection.setVolsCollision(gcolor,vols, aeroports,15);
                         
                     } else {
@@ -122,10 +119,18 @@ public class FenetreColoration extends JFrame {
                     int conflit = 0;
                     if (selectedAlgorithm != null) {
                         switch (selectedAlgorithm) {
-                            case "Gloutonne" -> conflit = Gloutonne(gcolor);
-                            case "welshPowell" -> conflit = largestFirstColoring(gcolor);
-                            case "Dsatur" -> conflit = dsatur(gcolor);
-                            default -> JOptionPane.showMessageDialog(null, "Sélection d'algorithme non valide.");
+                            case "Gloutonne" : 
+                                conflit = Gloutonne(gcolor);
+                                break;
+                            case "welshPowell" : 
+                                conflit = largestFirstColoring(gcolor);
+                                break;
+                            case "Dsatur" : 
+                                conflit = dsatur(gcolor);
+                                break;
+                            default : 
+                                JOptionPane.showMessageDialog(null, "Sélection d'algorithme non valide.");
+                                break;
                         }
 
                         // Affichez la valeur de kMax dans le JTextField
@@ -174,13 +179,20 @@ public class FenetreColoration extends JFrame {
 
                         String selectedAlgorithm = (String) comboBox.getSelectedItem();
                         int conflit = 0;
-                        if (selectedAlgorithm != null) {
-                            switch (selectedAlgorithm) {
-                                case "Gloutonne" -> conflit = Gloutonne(currentGraph);
-                                case "welshPowell" -> conflit = largestFirstColoring(currentGraph);
-                                case "Dsatur" -> conflit = dsatur(currentGraph);
-                                default -> JOptionPane.showMessageDialog(null, "Sélection d'algorithme non valide.");
-                            }
+                        if (selectedAlgorithm != null) {switch (selectedAlgorithm) {
+                            case "Gloutonne" : 
+                                conflit = Gloutonne(currentGraph);
+                                break;
+                            case "welshPowell" : 
+                                conflit = largestFirstColoring(currentGraph);
+                                break;
+                            case "Dsatur" : 
+                                conflit = dsatur(currentGraph);
+                                break;
+                            default : 
+                                JOptionPane.showMessageDialog(null, "Sélection d'algorithme non valide.");
+                                break;
+                        }
                         }
 
                         nbConflits.setText("Conflit : " + conflit);
@@ -199,8 +211,6 @@ public class FenetreColoration extends JFrame {
                 }
             }
         });
-
-        // Ajout des composants au panneau de contrôle
         cont.anchor = GridBagConstraints.CENTER;
         cont.insets = new Insets(10, 10, 10, 10);
         cont.gridx = 0;
@@ -210,52 +220,69 @@ public class FenetreColoration extends JFrame {
 
         cont.gridy = 1;
         controlPanel.add(ButtonAirport, cont);
-        
+        // ComboBox en row 0, spans 2 colonnes
         cont.gridx = 0;
         cont.gridy = 2;
         cont.gridwidth = 2;
         controlPanel.add(comboBox, cont);
 
+        // Bouton en row 1, spans 2 colonnes
         cont.gridy = 3;
         cont.gridwidth = 2;
-        controlPanel.add(button, cont);
+        controlPanel.add(startAlgo, cont);
 
+        // Label nbConflits en row 2, spans 2 colonnes
         cont.gridy = 4;
         controlPanel.add(nbConflits, cont);
 
+        // Label nbSommets en row 5, spans 2 colonnes
         cont.gridy = 5;
         cont.gridx = 0;
         cont.gridwidth = 2;
         controlPanel.add(nbSommets, cont);
 
+        // Label nbAretes en row 6, spans 2 colonnes
 
         cont.gridy = 11;
         controlPanel.add(nbAretes, cont);
 
+
+        // Diametre en row 8, 1ère colonne
         cont.gridy = 12;
         cont.gridx = 0;
         controlPanel.add(Diametre, cont);
 
+        // CC en row 9, 1ère colonne
         cont.gridx = 0;
         cont.gridy = 13;
         controlPanel.add(CC, cont);
 
+
+        // DegMoy en row 10, spans 2 colonnes
         cont.gridx = 0;
         cont.gridy = 14;
         cont.gridwidth = 2;
         controlPanel.add(DegMoy, cont);
 
+        // Espacement en row 11
         cont.gridy = 15;
         controlPanel.add(Box.createVerticalStrut(20), cont);
-        
+
+        // Ajout du panel de contrôle à droite de la fenêtre principale
         add(controlPanel, BorderLayout.LINE_END);
 
+        // Panel pour afficher le graphique au centre avec un JScrollPane
         graphPanel = new JPanel(new BorderLayout());
         graphPanel.setPreferredSize(new Dimension(600, 400));
 
+
+
+        // Ajoute les boutons à droite
+        add(controlPanel, BorderLayout.LINE_END);
+
         cont.gridx = 0;
         cont.gridy = 6;
-        cont.insets = new Insets(10, 5, 10, 5); 
+        cont.insets = new Insets(10, 5, 10, 5); // Reset the space
         controlPanel.add(kMax, cont);
 
         cont.gridx = 0;
@@ -263,21 +290,15 @@ public class FenetreColoration extends JFrame {
         cont.gridwidth = 2;
         controlPanel.add(updateKMaxButton, cont);
         
+        // zoomSlider en row 12, spans 2 colonnes
         cont.gridy = 16;
         cont.gridwidth = 2;
         controlPanel.add(zoomSlider, cont);
-        zoomSlider.addChangeListener(e -> {
-            double zoomValue = zoomSlider.getValue() / 100.0;
-            setGraphZoom(zoomValue);
-        });
 
+        
         cont.gridy = 17;
         cont.gridwidth = 2;
         controlPanel.add(intersection, cont);
-        intersection.addActionListener((ActionEvent e) -> {
-            openSecondaryWindow(new FenetreCarte(), "Intersection");
-            this.dispose();
-        });
         
         cont.gridy = 18;
         cont.gridwidth = 2;
@@ -292,6 +313,19 @@ public class FenetreColoration extends JFrame {
 
         graphPanel = new JPanel(new BorderLayout());
         graphPanel.setPreferredSize(new Dimension(600, 400));
+
+        JScrollPane jsp = new JScrollPane(graphPanel);
+        // Ajoute le JScrollPane avec le panneau du graphique
+        add(jsp, BorderLayout.CENTER);
+        
+        intersection.addActionListener((ActionEvent e) -> {
+            openSecondaryWindow(new FenetreCarte(), "Intersection");
+            this.dispose();
+        });
+        zoomSlider.addChangeListener(e -> {
+            double zoomValue = zoomSlider.getValue() / 100.0;
+            setGraphZoom(zoomValue);
+        });
 
         setVisible(true);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -323,6 +357,7 @@ public class FenetreColoration extends JFrame {
         view.setPreferredSize(new Dimension(800, 600));
         viewer.enableAutoLayout(Layouts.newLayoutAlgorithm());
 
+        // Customize node and edge appearance
         for (org.graphstream.graph.Node node : g) {
             node.addAttribute("ui.style", "size: 10px; shape: circle; text-size: 15px; text-alignment: center; text-style: bold; text-background-mode: rounded-box;");
         }
@@ -335,6 +370,58 @@ public class FenetreColoration extends JFrame {
         graphPanel.repaint();
     }
     
+    /**
+     * Charge les aéroports à partir d'un fichier texte.
+     * @param txtFile Le fichier texte contenant les données des aéroports.
+     * @return Une liste d'objets Aeroport chargés depuis le fichier.
+     */
+    private void loadAeroports(File txtFile) {
+        if (!txtFile.exists()) {
+            JOptionPane.showMessageDialog(null, "Fichier d'aéroport non trouvé.");
+        }
+        aeroports = new ArrayList<>();
+        try (Scanner scanAero = new Scanner(txtFile)) {
+            while (scanAero.hasNextLine()) {
+                aeroports.add(new Aeroport(scanAero));
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(FenetreColoration.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     
+    /**
+     * Charge les vols à partir d'un fichier CSV.
+     * @param csvFile Le fichier CSV contenant les données des vols.
+     * @return Une liste d'objets Vol chargés depuis le fichier.
+     * @throws IOException Si une erreur de lecture du fichier se produit.
+     */
+    private void loadVols(File csvFile) throws IOException {
+        vols = new ArrayList<>();
+        try (Scanner scanVol = new Scanner(csvFile)) {
+            while (scanVol.hasNextLine()) {
+                 try {
+                    vols.add(new Vol(scanVol));
+                } catch (Exception e) {
+                }
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(FenetreColoration.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IOException("File not found: " + csvFile.getAbsolutePath(), ex);
+        }
+    }
+    
+    /**
+    * Sélectionne un fichier à ouvrir via une boîte de dialogue.
+    * @return Le fichier sélectionné ou null si aucun fichier n'est sélectionné.
+    */
+    private File selectFile() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setCurrentDirectory(new File("."));
+        int returnValue = fileChooser.showOpenDialog(null);
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            return fileChooser.getSelectedFile();
+        }
+        return null;
+    }
     
 }

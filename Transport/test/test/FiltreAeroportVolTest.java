@@ -1,44 +1,71 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/UnitTests/JUnit4TestClass.java to edit this template
- */
 package test;
 
+import construction.FiltreAeroportVol;
+import modele.Vol;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.implementations.SingleGraph;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
-/**
- *
- * @author Enzo
- */
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+import static org.junit.Assert.assertEquals;
+
 public class FiltreAeroportVolTest {
-    
-    public FiltreAeroportVolTest() {
-    }
-    
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
-    }
-    
+
+    private List<Vol> vols;
+
     @Before
     public void setUp() {
-    }
-    
-    @After
-    public void tearDown() {
+        vols = new ArrayList<>();
+
+        // Simuler les données avec un Scanner
+        String[] data = {
+            "CDG JFK AF001 10 30",
+            "LHR JFK BA001 10 45",
+            "CDG LHR AF002 11 15"
+        };
+
+        for (String line : data) {
+            Scanner scanner = new Scanner(line);
+            vols.add(new Vol(scanner));
+        }
     }
 
-    // TODO add test methods here.
-    // The methods must be annotated with annotation @Test. For example:
-    //
-    // @Test
-    // public void hello() {}
+    @After
+    public void tearDown() {
+        vols = null;
+    }
+
+    @Test
+    public void testVolParHeure() {
+        List<Vol> result = FiltreAeroportVol.volParHeure(10, 0, vols);
+        assertEquals(2, result.size());
+        assertEquals("AF001", result.get(0).getCodeVol());
+        assertEquals("BA001", result.get(1).getCodeVol());
+    }
+
+    @Test
+    public void testSelectAeroport() {
+        List<Vol> result = FiltreAeroportVol.selectAeroport("CDG", vols);
+        assertEquals(2, result.size());
+        assertEquals("AF001", result.get(0).getCodeVol());
+        assertEquals("AF002", result.get(1).getCodeVol());
+    }
+
+    @Test
+    public void testSelectLevel() {
+        Graph graph = new SingleGraph("TestGraph");
+        graph.addNode("AF001").setAttribute("color", 1);
+        graph.addNode("BA001").setAttribute("color", 2);
+        graph.addNode("AF002").setAttribute("color", 1);
+
+        List<Vol> result = FiltreAeroportVol.selectLevel(1, vols, graph);
+        assertEquals(2, result.size());
+        assertEquals("AF001", result.get(0).getCodeVol());
+        assertEquals("AF002", result.get(1).getCodeVol());
+    }
 }

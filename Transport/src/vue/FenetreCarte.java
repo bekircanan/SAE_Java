@@ -6,18 +6,15 @@ import construction.AlgorithmIntersection;
 import static construction.FiltreAeroportVol.loadAeroports;
 import static construction.FiltreAeroportVol.loadVols;
 import static construction.FiltreAeroportVol.selectFile;
+import static construction.FiltreAeroportVol.volParHeure;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Scanner;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,6 +41,7 @@ import static vue.Main.openSecondaryWindow;
 public class FenetreCarte extends JFrame {
     private JButton showFlightsButton;
     private JButton button;
+    private JButton heureButton;
     private JButton updateMargeButton;
     private JButton selectLevelButton;
     private static ArrayList<Aeroport> aeroports = new ArrayList();
@@ -140,7 +138,6 @@ public class FenetreCarte extends JFrame {
         gbc.gridy = 3;
         gbc.gridwidth = 2;
         pan.add(updateMargeButton, gbc);
-        gbc.gridwidth = 1;
 
         updateMargeButton.addActionListener((ActionEvent e) -> {
             if (vols == null || vols.isEmpty()) {
@@ -160,11 +157,35 @@ public class FenetreCarte extends JFrame {
                 }
             }
         });
+        
+        heureButton = new StyleBouton("Modifier Heure de depart");
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        pan.add(heureButton, gbc);
+        
+        heureButton.addActionListener((ActionEvent e) -> {
+            if (vols == null || vols.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Veuillez d'abord charger les vols.");
+                return;
+            }
+            String hrStr = JOptionPane.showInputDialog("Entrez un nombre positif :");
+            if (hrStr != null) {
+                try {
+                    int hr = Integer.parseInt(hrStr);
+                    if (hr <= 0) {
+                        throw new NumberFormatException();
+                    }
+                    List<Vol> vol=volParHeure(hr,vols);
+                    chargeVol(vol, null, 15, 0);
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(null, "Entrée invalide. Veuillez entrer un nombre positif.");
+                }
+            }
+        });
 
         selectLevelButton = new StyleBouton("Sélectionner le niveau");
         gbc.gridx = 0;
-        gbc.gridy = 4;
-        gbc.gridwidth = 2;
+        gbc.gridy = 5;
         pan.add(selectLevelButton, gbc);
 
         selectLevelButton.addActionListener((ActionEvent e) -> {
@@ -203,9 +224,8 @@ public class FenetreCarte extends JFrame {
 
         showFlightsButton = new StyleBouton("Voir les vols");
         gbc.gridx = 0;
-        gbc.gridy = 5;
+        gbc.gridy = 6;
         pan.add(showFlightsButton, gbc);
-        gbc.gridwidth = 2;
 
         showFlightsButton.addActionListener(e -> {
             if (vols == null || vols.isEmpty()) {
@@ -217,7 +237,7 @@ public class FenetreCarte extends JFrame {
 
         coloration = new StyleBouton("Fenetre coloration");
         gbc.gridx = 0;
-        gbc.gridy = 6;
+        gbc.gridy = 7;
         pan.add(coloration, gbc);
 
         coloration.addActionListener(e -> {

@@ -34,7 +34,7 @@ public class FiltreAeroportVol {
      * @param vol la liste des vols
      * @return une liste des vols filtrés par heure
      */
-    public static List<Vol> volParHeure(int heure, int minute, List<Vol> vol) {
+    public static List<Vol> volParHeure(int heure,List<Vol> vol) {
         List<Vol> volsFiltres = new ArrayList<>();
         for (Vol v : vol) {
             if (v.getHeure() == heure) {

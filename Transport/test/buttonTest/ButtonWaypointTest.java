@@ -1,10 +1,9 @@
 package buttonTest;
 
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/UnitTests/JUnit4TestClass.java to edit this template
- */
-
+import bouton.ButtonWaypoint;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import javax.swing.ImageIcon;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -13,11 +12,12 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- *
- * @author Enzo
+ * Test class for ButtonWaypoint.
  */
 public class ButtonWaypointTest {
     
+    private ButtonWaypoint button;
+
     public ButtonWaypointTest() {
     }
     
@@ -31,15 +31,48 @@ public class ButtonWaypointTest {
     
     @Before
     public void setUp() {
+        button = new ButtonWaypoint();
     }
     
     @After
     public void tearDown() {
+        button = null;
     }
 
-    // TODO add test methods here.
-    // The methods must be annotated with annotation @Test. For example:
-    //
-    // @Test
-    // public void hello() {}
+    @Test
+    public void testContentAreaFilled() {
+        assertFalse("Content area should not be filled", button.isContentAreaFilled());
+    }
+    
+    @Test
+    public void testBorderPainted() {
+        assertFalse("Border should not be painted", button.isBorderPainted());
+    }
+    
+    @Test
+    public void testFocusPainted() {
+        assertFalse("Focus should not be painted", button.isFocusPainted());
+    }
+    
+    @Test
+    public void testBorder() {
+        assertNull("Border should be null", button.getBorder());
+    }
+    
+    @Test
+    public void testIcon() {
+        assertNotNull("Icon should not be null", button.getIcon());
+        assertTrue("Icon should be of type ImageIcon", button.getIcon() instanceof ImageIcon);
+    }
+    
+    @Test
+    public void testCursor() {
+        assertEquals("Cursor should be HAND_CURSOR", Cursor.HAND_CURSOR, button.getCursor().getType());
+    }
+    
+    @Test
+    public void testSize() {
+        Dimension expectedSize = new Dimension(24, 24);
+        assertEquals("Size should be 24x24", expectedSize, button.getSize());
+    }
 }
