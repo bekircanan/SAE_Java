@@ -1,4 +1,3 @@
-
 package construction;
 
 import java.io.File;
@@ -19,20 +18,20 @@ import org.graphstream.graph.implementations.SingleGraph;
  * </p>
  * <p>
  * Exemple d'utilisation :
- * <pre>
+ * 
  * {@code
  Graph graph = ChargerGraphe.chargerGraphe("chemin/vers/fichier.txt");
  }
- * </pre>
+ * 
  * </p>
- * <p>
+ * 
  * Le fichier d'entrée doit avoir le format suivant :
  * <ul>
- * <li>La première ligne contient une chaîne représentant un attribut du graphe.</li>
+ * <li>La première ligne contient un entier représentant le kMax.</li>
  * <li>La deuxième ligne contient un entier représentant le nombre de sommets.</li>
  * <li>Chaque ligne suivante contient deux chaînes représentant les arêtes entre les sommets.</li>
  * </ul>
- * </p>
+ * 
  * <p>
  * Les sommets et les arêtes sont automatiquement créés et stylisés en utilisant les attributs de GraphStream.
  * </p>

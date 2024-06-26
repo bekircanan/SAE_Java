@@ -11,19 +11,19 @@ import org.graphstream.graph.Node;
  * l'aéroport de départ, l'aéroport d'arrivée, l'heure de départ, les minutes de départ et la durée du vol.
  * <p>
  * Exemple d'utilisation :
- * <pre>
+ * 
  * {@code
  * Scanner scan = new Scanner(new File("vols.txt"));
  * Vol vol = new Vol(scan);
  * }
- * </pre>
+ * 
  * </p>
- * <p>
+ * 
  * Le fichier d'entrée doit avoir le format suivant :
  * <ul>
  * <li>Chaque ligne contient les informations d'un vol séparées par des points-virgules.</li>
  * </ul>
- * </p>
+ * 
  * 
  */
 public class Vol {
@@ -35,25 +35,7 @@ public class Vol {
     private int duree;
     private Aeroport departaero;
     private Aeroport arriveaero;
-    private int level;
     
-    /**
-     * Retourne le niveau de vol.
-     * 
-     * @return le niveau de vol
-     */
-    public int getLevel() {
-        return level;
-    }
-
-    /**
-     * Définit le niveau de vol.
-     * 
-     * @param level le niveau de vol à définir
-     */
-    public void setLevel(int level) {
-        this.level = level;
-    }
 
     /**
      * Constructeur de la classe {@code Vol}.
@@ -179,7 +161,7 @@ public class Vol {
      * @param g le graphe à exporter
      */
     public static void exportTXT(Graph g){
-        try(FileWriter fichier = new FileWriter("..//..//filename.txt")) {
+        try(FileWriter fichier = new FileWriter("..//..//"+g.getId()+".txt")) {
             int now,next;
             fichier.write(g.getNodeCount()+"\n");
             fichier.write("0\n");

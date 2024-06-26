@@ -29,12 +29,7 @@ public class MyWaypoint extends DefaultWaypoint {
         this.name = name;
         initButton();
     }
-    
-    /**
-     * Initialise le bouton associé au Waypoint.
-     * Le bouton a une infobulle avec le nom du Waypoint et un écouteur d'action
-     * qui filtre les vols en fonction du nom de l'aéroport et met à jour l'affichage de la carte.
-     */    
+
     private void initButton() {
         button = new ButtonWaypoint();
         button.setToolTipText(name);
@@ -68,7 +63,8 @@ public class MyWaypoint extends DefaultWaypoint {
     public void setName(String name) {
         this.name = name;
     }
-/**
+    
+    /**
      * Obtient le bouton associé au Waypoint.
      * 
      * @return Le bouton associé au Waypoint.

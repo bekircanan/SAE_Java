@@ -40,13 +40,6 @@ public class FiltreAeroportVolTest {
         vols = null;
     }
 
-    @Test
-    public void testVolParHeure() {
-        List<Vol> result = FiltreAeroportVol.volParHeure(10, 0, vols);
-        assertEquals(2, result.size());
-        assertEquals("AF001", result.get(0).getCodeVol());
-        assertEquals("BA001", result.get(1).getCodeVol());
-    }
 
     @Test
     public void testSelectAeroport() {

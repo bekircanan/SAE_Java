@@ -13,49 +13,39 @@ import java.util.logging.Logger;
  * Classe principale représentant le menu principal de l'application.
  */
 public class Main extends JFrame {
-    /**
-     * Constructeur de la classe Main.
-     * Initialise et configure l'interface utilisateur principale.
-     */
-    public Main() {
+    
+    private Main() {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setTitle("Menu principal");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(500,300);
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
-        panel.setBackground(new Color(45, 45, 45)); // Couleur de fond gris foncé
+        panel.setBackground(new Color(45, 45, 45)); 
         GridBagConstraints cont = new GridBagConstraints();
 
         JButton coloration = new StyleBouton("Graphe coloration", new Color(100, 181, 246));
         JButton intersection = new StyleBouton("Carte de France", new Color(236, 64, 122));
         JLabel titre = new JLabel("Choix de la fonctionnalité");
 
-        // Définir les couleurs du texte du titre pour un meilleur contraste
         titre.setForeground(Color.WHITE);
 
-        // Définir la police du titre
         Font titreFont = new Font("Arial", Font.BOLD, 36);
         titre.setFont(titreFont);
 
-        // Définir les marges autour des boutons et du titre
         cont.insets = new Insets(20, 20, 20, 20);
 
-        // Positionner le titre en haut au centre
         cont.gridx = 0;
         cont.gridy = 0;
         cont.gridwidth = 2;
         cont.anchor = GridBagConstraints.CENTER;
         panel.add(titre, cont);
-        cont.gridwidth = 1; // Réinitialiser gridwidth
+        cont.gridwidth = 1;
 
-        // Positionner les boutons à l'aide de GridBagLayout
-        cont.gridx = 0;
         cont.gridy = 1;
         panel.add(coloration, cont);
 
         cont.gridx = 1;
-        cont.gridy = 1;
         panel.add(intersection, cont);
 
         coloration.addActionListener((ActionEvent e) -> {
@@ -87,7 +77,6 @@ public class Main extends JFrame {
         } catch (InterruptedException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
-        // Hide the main window when secondary window opens
         secondaryFrame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {

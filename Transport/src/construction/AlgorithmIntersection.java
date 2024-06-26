@@ -17,43 +17,15 @@ import org.graphstream.graph.implementations.DefaultGraph;
  */
 public class AlgorithmIntersection {
     private static int marge;
-    
-    /**
-     * Associe les vols aux aéroports et ajoute les arêtes correspondantes au graphe.
-     * <p>
-     * Crée des arêtes dans le graphe pour les vols en collision.
-     * </p>
-     *
-     * @param vols la liste des vols
-     * @param port la liste des aéroports
-     * @param g le graphe dans lequel ajouter les arêtes
-     * @return le graphe mis à jour avec les arêtes des vols en collision
-     */
-    public static Graph setVolsAeroport(List<Vol> vols,List<Aeroport> port,Graph g){
-        int cpt=0;
-        int taille=vols.size();
-        g.setStrict(false);
-        for(int i=0;i<taille;i++){
-            for(int j=i+1;j<taille;j++){
-                if(checkCollision(vols.get(i),vols.get(j),port)){
-                    g.addEdge(vols.get(i).getCodeVol()+" - "+cpt, vols.get(i).getDepart(), vols.get(i).getArrive());
-                    g.addEdge(vols.get(j).getCodeVol()+" - "+cpt, vols.get(j).getDepart(), vols.get(j).getArrive());
-                    cpt++;
-                }
-            }
-        }
-        return g;
-    }
-
 
     /**
      * Crée et affiche un graphe des collisions entre les vols.
      *
-     * @param g
+     * @param g le graphe
      * @param vols la liste des vols
      * @param ports la liste des aéroports
      * @param marge la marge de securite
-     * @return le graphe des collisions entre les vols
+     * @return la liste des vols qui sont en collisions
      */
     public static List<Vol> setVolsCollision(Graph g,List<Vol> vols, List<Aeroport> ports,int marge) {
         List<Vol> volCarte=new ArrayList<>();
@@ -102,11 +74,9 @@ public class AlgorithmIntersection {
             double departureTime2=v2.getHeure()* 60+ v2.getMin();
             double arrivalTime1=departureTime1+v1.getDuree();
             double arrivalTime2=departureTime2+v2.getDuree();
-            // A = D , B = C
             if(v1.getDepart().equals(v2.getArrive())&&v1.getArrive().equals(v2.getDepart())){
-                return (arrivalTime1+marge >= departureTime2 &&arrivalTime2+marge  >= departureTime1/*(Math.abs(arrivalTime1-departureTime2)<MARGE)||(Math.abs(arrivalTime2-departureTime1)<MARGE)*/);
+                return (arrivalTime1+marge >= departureTime2 &&arrivalTime2+marge  >= departureTime1);
             }
-            //A = C, B = D
             else if(v1.getDepart().equals(v2.getDepart())&&v1.getArrive().equals(v2.getArrive())){
                 return Math.abs(arrivalTime2-arrivalTime1) < marge;
             }

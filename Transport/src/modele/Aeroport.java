@@ -1,4 +1,5 @@
 package modele;
+
 import waypoint.MyWaypoint;
 import java.io.FileNotFoundException;
 import java.util.List;
@@ -16,19 +17,19 @@ import org.jxmapviewer.viewer.WaypointPainter;
  * </p>
  * <p>
  * Exemple d'utilisation :
- * <pre>
+ * 
  * {@code
  * Scanner scan = new Scanner(new File("aeroport.txt"));
  * Aeroport aeroport = new Aeroport(scan);
  * }
- * </pre>
+ * 
  * </p>
- * <p>
+ * 
  * Le fichier d'entrée doit avoir le format suivant :
  * <ul>
  * <li>Chaque ligne contient les informations d'un aéroport séparées par des points-virgules.</li>
  * </ul>
- * </p>
+ * 
  * <p>
  * Les informations comprennent le code de l'aéroport, le lieu, la latitude (degrés, minutes, secondes),
  * la direction (N/S/E/O) et la longitude (degrés, minutes, secondes), et la direction (N/S/E/O).

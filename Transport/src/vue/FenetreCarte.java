@@ -44,8 +44,8 @@ public class FenetreCarte extends JFrame {
     private JButton heureButton;
     private JButton updateMargeButton;
     private JButton selectLevelButton;
-    private static ArrayList<Aeroport> aeroports = new ArrayList();
-    private static ArrayList<Vol> vols = new ArrayList();
+    private static final ArrayList<Aeroport> aeroports = new ArrayList();
+    private static final ArrayList<Vol> vols = new ArrayList();
     private JPanel mapPanel;
     private Graph graph = new SingleGraph("filtre");
     private JLabel carteLabel;
@@ -55,6 +55,11 @@ public class FenetreCarte extends JFrame {
     private static final Set<MyWaypoint> waypoints = new HashSet<>();
     private static final WaypointRender waypointRenderer = new WaypointRender();
 
+    /**
+     * Retourne la liste des vols
+     * 
+     * @return la liste des vols
+     */
     public static List<Vol> getVols() {
         return vols;
     }
@@ -81,14 +86,10 @@ public class FenetreCarte extends JFrame {
         gbc.gridy = 0;
         gbc.gridwidth = 2;
         pan.add(carteLabel, gbc);
-        gbc.gridwidth = 1;
 
         button = new StyleBouton("Charger Aeroport");
-        gbc.gridx = 0;
         gbc.gridy = 1;
-        gbc.gridwidth = 2;
         pan.add(button, gbc);
-        gbc.gridwidth = 1;
 
         button.addActionListener((ActionEvent e) -> {
             File selectedFile = selectFile();
@@ -105,11 +106,8 @@ public class FenetreCarte extends JFrame {
         });
 
         chargeVol = new StyleBouton("Charger vols");
-        gbc.gridx = 0;
         gbc.gridy = 2;
-        gbc.gridwidth = 2;
         pan.add(chargeVol, gbc);
-        gbc.gridwidth = 1;
 
         chargeVol.addActionListener(e -> {
             if (aeroports == null || aeroports.isEmpty()) {
@@ -134,9 +132,7 @@ public class FenetreCarte extends JFrame {
         });
 
         updateMargeButton = new StyleBouton("Modifier Marge");
-        gbc.gridx = 0;
         gbc.gridy = 3;
-        gbc.gridwidth = 2;
         pan.add(updateMargeButton, gbc);
 
         updateMargeButton.addActionListener((ActionEvent e) -> {
@@ -159,7 +155,6 @@ public class FenetreCarte extends JFrame {
         });
         
         heureButton = new StyleBouton("Modifier Heure de depart");
-        gbc.gridx = 0;
         gbc.gridy = 4;
         pan.add(heureButton, gbc);
         
@@ -184,7 +179,6 @@ public class FenetreCarte extends JFrame {
         });
 
         selectLevelButton = new StyleBouton("Sélectionner le niveau");
-        gbc.gridx = 0;
         gbc.gridy = 5;
         pan.add(selectLevelButton, gbc);
 
@@ -223,7 +217,6 @@ public class FenetreCarte extends JFrame {
         });
 
         showFlightsButton = new StyleBouton("Voir les vols");
-        gbc.gridx = 0;
         gbc.gridy = 6;
         pan.add(showFlightsButton, gbc);
 
@@ -236,7 +229,6 @@ public class FenetreCarte extends JFrame {
         });
 
         coloration = new StyleBouton("Fenetre coloration");
-        gbc.gridx = 0;
         gbc.gridy = 7;
         pan.add(coloration, gbc);
 
@@ -255,9 +247,6 @@ public class FenetreCarte extends JFrame {
         setVisible(true);
     }
     
-    /**
-     * Initialise le panneau de la carte avec les composants nécessaires pour afficher et interagir avec la carte.
-     */
     private void initMapPanel() {
         TileFactoryInfo info = new OSMTileFactoryInfo();
         DefaultTileFactory tileFactory = new DefaultTileFactory(info);
@@ -295,9 +284,6 @@ public class FenetreCarte extends JFrame {
         mapViewer.setOverlayPainter(painter);
     }
 
-    /**
-     * Efface les données des aéroports et des vols.
-     */
     private void clearData() {
         if (aeroports != null) {
             aeroports.clear();

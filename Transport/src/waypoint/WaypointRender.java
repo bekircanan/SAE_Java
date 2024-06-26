@@ -28,7 +28,6 @@ import org.jxmapviewer.viewer.WaypointPainter;
  * Elle étend {@link WaypointPainter} et gère l'affichage des waypoints avec des boutons associés.
  */
 public class WaypointRender extends WaypointPainter<MyWaypoint> {
-
     private static Color[] cols;
     private final List<Vol> vols=new ArrayList<>();
 
@@ -45,7 +44,6 @@ public class WaypointRender extends WaypointPainter<MyWaypoint> {
         popup.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         popup.setSize(800, 600);
 
-        // Création de la JTable et de son modèle
         JTable table = new JTable();
         DefaultTableModel model = new DefaultTableModel();
         table.setModel(model);
@@ -154,11 +152,6 @@ public class WaypointRender extends WaypointPainter<MyWaypoint> {
         return lineOverlay;
     }
     
-    /**
-     * Colore les nœuds du graphe en fonction de leur attribut "color".
-     *
-     * @param g le graphe à colorier
-     */
     private static void colorierGraphe(Graph g) {
         int max = (int)g.getAttribute("kMax");
         cols = new Color[max + 1];

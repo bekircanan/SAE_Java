@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package construction;
 
 import java.io.File;
@@ -21,8 +17,9 @@ import org.graphstream.graph.Node;
 import vue.FenetreColoration;
 
 /**
- *
- * @author bekir
+ * Classe utilitaire pour filtrer les aéroports et les vols.
+ * Fournit des méthodes pour charger des données depuis des fichiers et pour filtrer
+ * les vols en fonction de critères spécifiques tels que l'heure, l'aéroport ou le niveau de couleur.
  */
 public class FiltreAeroportVol {
 
@@ -30,7 +27,6 @@ public class FiltreAeroportVol {
      * Sélectionne les vols à afficher dans le graphe selon l'heure spécifiée.
      *
      * @param heure l'heure à laquelle les vols doivent être sélectionnés
-     * @param minute
      * @param vol la liste des vols
      * @return une liste des vols filtrés par heure
      */
@@ -49,7 +45,7 @@ public class FiltreAeroportVol {
      *
      * @param aeroport le code de l'aéroport à sélectionner
      * @param vol la liste des vols
-     * @return
+     * @return une liste des vols filtrés par Aeroport
      */
     public static List<Vol> selectAeroport(String aeroport, List<Vol> vol) {
         List<Vol> result = new ArrayList<>();
@@ -67,7 +63,7 @@ public class FiltreAeroportVol {
      * @param level le niveau de couleur à sélectionner
      * @param vol la liste des vols
      * @param g le graphe des vols
-     * @return
+     * @return une liste des vols filtrés par niveaux
      */
     public static List<Vol> selectLevel(int level, List<Vol> vol, Graph g) {
         List<Vol> result = new ArrayList<>();
@@ -101,7 +97,7 @@ public class FiltreAeroportVol {
     /**
      * Charge les aéroports à partir d'un fichier texte.
      * @param txtFile Le fichier texte contenant les données des aéroports.
-     * @param aeroports
+     * @param aeroports la liste d'aeroports.
      */
     public static void loadAeroports(File txtFile, ArrayList<Aeroport> aeroports) {
         if (!txtFile.exists()) {
@@ -119,7 +115,7 @@ public class FiltreAeroportVol {
     /**
      * Charge les vols à partir d'un fichier CSV.
      * @param csvFile Le fichier CSV contenant les données des vols.
-     * @param vols
+     * @param vols la liste des vols.
      * @throws IOException Si une erreur de lecture du fichier se produit.
      */
     public static void loadVols(File csvFile,ArrayList<Vol> vols) throws IOException {
@@ -135,6 +131,4 @@ public class FiltreAeroportVol {
             throw new IOException("File not found: " + csvFile.getAbsolutePath(), ex);
         }
     }
-    
-    
 }

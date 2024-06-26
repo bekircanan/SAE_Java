@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit ce template
- */
 package bouton;
 
 import java.awt.Color;
@@ -18,7 +14,6 @@ import javax.swing.JButton;
  * Elle gère également les effets de survol de la souris.
  * </p>
  * 
- * @autor bekir
  */
 public class StyleBouton extends JButton {
 
